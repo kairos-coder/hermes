@@ -173,7 +173,7 @@
 <body>
 <div class="container">
     <h1>✈️ Hermes · Clean Ingestion Engine v2</h1>
-    <div class="sub">Reddit (chaotic) · Hacker News (intellectual) · GitHub trending repos (builder)</div>
+    <div class="sub">Reddit (chaotic) · Hacker News (intellectual) · GitHub trending repos (builder) · No duplicates</div>
 
     <div class="stats-grid" id="statsGrid">
         <div class="stat-card"><div class="stat-number" id="totalWords">—</div><div class="stat-label">Total Words</div></div>
@@ -318,10 +318,9 @@
             }
         }
 
-        // Fetch GitHub trending repositories (more reliable than topics API)
+        // Fetch GitHub trending repositories
         async function fetchGitHub() {
             try {
-                // GitHub Trending Repos - using the search API for most starred recent repos
                 const date = new Date();
                 date.setDate(date.getDate() - 7);
                 const dateStr = date.toISOString().split('T')[0];
@@ -342,7 +341,6 @@
                 const data = await response.json();
                 const items = data.items || [];
                 
-                // Extract names and descriptions
                 const texts = [];
                 for (const item of items) {
                     texts.push(item.name);
@@ -355,8 +353,7 @@
                 
                 if (sorted.length === 0) {
                     addLog('GitHub returned no words — using fallback tech terms', 'warning');
-                    // Fallback tech terms
-                    const fallback = ['api', 'data', 'cloud', 'native', 'scalable', 'async', 'real time', 'pipeline', 'workflow', 'automation'];
+                    const fallback = ['api', 'data', 'cloud', 'native', 'scalable', 'async', 'pipeline', 'workflow', 'automation'];
                     return fallback.slice(0, LIMIT_PER_SOURCE).map(word => ({
                         word,
                         source: 'github',
@@ -373,8 +370,7 @@
                 }));
             } catch (err) {
                 addLog(`GitHub fetch failed: ${err.message}`, 'error');
-                // Fallback tech terms so GitHub never returns empty
-                const fallback = ['api', 'data', 'cloud', 'native', 'scalable', 'async', 'realtime', 'pipeline', 'workflow', 'automation', 'monitoring', 'observability'];
+                const fallback = ['api', 'data', 'cloud', 'native', 'scalable', 'async', 'pipeline', 'workflow', 'automation'];
                 return fallback.slice(0, LIMIT_PER_SOURCE).map(word => ({
                     word,
                     source: 'github',
@@ -384,11 +380,30 @@
             }
         }
 
-        // Batch insert (efficient)
+        // Check which words already exist (batch check)
+        async function filterExistingWords(words) {
+            if (!words.length) return [];
+            
+            const bodies = words.map(w => w.word);
+            const { data, error } = await supabase
+                .from('hermes_entries')
+                .select('body')
+                .in('body', bodies);
+            
+            if (error) {
+                addLog(`Duplicate check failed: ${error.message}`, 'error');
+                return [];
+            }
+            
+            const existingBodies = new Set(data.map(d => d.body));
+            return words.filter(w => !existingBodies.has(w.word));
+        }
+
+        // Batch insert with duplicate prevention
         async function batchInsertWords(words) {
             if (!words.length) return 0;
 
-            // Deduplicate in memory
+            // Deduplicate in memory first
             const uniqueMap = new Map();
             for (const w of words) {
                 const key = `${w.word}_${w.source}`;
@@ -399,22 +414,13 @@
 
             const uniqueWords = Array.from(uniqueMap.values());
             
-            // Check existing words in DB
-            const existingChecks = await Promise.all(
-                uniqueWords.map(async (w) => {
-                    const { data } = await supabase
-                        .from('hermes_entries')
-                        .select('id')
-                        .eq('body', w.word)
-                        .eq('source', w.source)
-                        .limit(1);
-                    return { word: w, exists: data && data.length > 0 };
-                })
-            );
-
-            const newWords = existingChecks.filter(c => !c.exists).map(c => c.word);
+            // Filter out words that already exist in DB
+            const newWords = await filterExistingWords(uniqueWords);
             
-            if (newWords.length === 0) return 0;
+            if (newWords.length === 0) {
+                addLog(`⏭️ No new words — all ${uniqueWords.length} already exist`, 'warning');
+                return 0;
+            }
 
             const expiresAt = new Date();
             expiresAt.setDate(expiresAt.getDate() + 7);
@@ -458,7 +464,7 @@
             const allWords = [...redditWords, ...hnWords, ...githubWords];
             const added = await batchInsertWords(allWords);
 
-            addLog(`🎯 Scrape complete. Added ${added} new words.`, 'success');
+            addLog(`🎯 Scrape complete. Added ${added} new words.`, added > 0 ? 'success' : 'warning');
             await updateStats();
             await loadRecentWords();
         }
@@ -518,7 +524,7 @@
             }
 
             document.getElementById('recentWords').innerHTML = data.map(w => `
-                <span class="word-tag" title="${w.source} | ${w.word_type} | score:${w.trending_score}" onclick="copyToClipboard('${w.body.replace(/'/g, "\\'")}')">
+                <span class="word-tag" title="${w.source} | ${w.word_type} | score:${w.trending_score}" onclick="copyToClipboard('${escapeHtml(w.body).replace(/'/g, "\\'")}')">
                     ${escapeHtml(w.body)}
                 </span>
             `).join('');
@@ -585,7 +591,7 @@
             await updateStats();
             await loadRecentWords();
             setupEventListeners();
-            addLog('🚀 Hermes v2 ready. 3 sources (GitHub uses trending repos API), batch insert, click to copy.', 'success');
+            addLog('🚀 Hermes v2 ready. 3 sources, no duplicates, click to copy.', 'success');
         }
 
         init();
