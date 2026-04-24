@@ -167,19 +167,13 @@
             border-color: #1e2535;
             margin: 0.5rem 0;
         }
-
-        .ingestion-summary {
-            font-size: 0.7rem;
-            color: #c9a84c;
-            margin-bottom: 0.5rem;
-        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="container">
     <h1>✈️ Hermes · Clean Ingestion Engine v2</h1>
-    <div class="sub">Reddit (chaotic) · Hacker News (intellectual) · GitHub (builder) · Structured scarcity</div>
+    <div class="sub">Reddit (chaotic) · Hacker News (intellectual) · GitHub trending repos (builder)</div>
 
     <div class="stats-grid" id="statsGrid">
         <div class="stat-card"><div class="stat-number" id="totalWords">—</div><div class="stat-label">Total Words</div></div>
@@ -248,7 +242,7 @@
                 .filter(w => w.length >= 3 && w.length <= 15 && !STOPWORDS.has(w) && !WEAK_WORDS.has(w));
         }
 
-        // Simple word type detection (no proper noun detection — all lowercase)
+        // Simple word type detection
         function detectWordType(word) {
             if (word.endsWith('ing') || word.endsWith('ed') || word.endsWith('es')) return 'verb';
             if (word.endsWith('al') || word.endsWith('ive') || word.endsWith('ous') || word.endsWith('ic')) return 'adj';
@@ -287,7 +281,7 @@
                 return sorted.map(([word, score]) => ({
                     word,
                     source: 'reddit',
-                    score: Math.min(100, score * 8),
+                    score: Math.min(100, score * 6),
                     type: detectWordType(word)
                 }));
             } catch (err) {
@@ -315,7 +309,7 @@
                 return sorted.map(([word, score]) => ({
                     word,
                     source: 'hn',
-                    score: Math.min(100, score * 8),
+                    score: Math.min(100, score * 6),
                     type: detectWordType(word)
                 }));
             } catch (err) {
@@ -324,26 +318,69 @@
             }
         }
 
-        // Fetch GitHub topics
+        // Fetch GitHub trending repositories (more reliable than topics API)
         async function fetchGitHub() {
             try {
-                const response = await fetch('https://api.github.com/search/topics?q=stars:>100&per_page=30');
+                // GitHub Trending Repos - using the search API for most starred recent repos
+                const date = new Date();
+                date.setDate(date.getDate() - 7);
+                const dateStr = date.toISOString().split('T')[0];
+                
+                const response = await fetch(
+                    `https://api.github.com/search/repositories?q=created:>${dateStr}&sort=stars&order=desc&per_page=30`,
+                    {
+                        headers: {
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+                
+                if (!response.ok) {
+                    throw new Error(`GitHub API returned ${response.status}`);
+                }
+                
                 const data = await response.json();
-                const topics = data.items.map(item => item.name);
-                const tokens = topics
-                    .filter(t => !t.includes('-') && !t.includes('_') && t.length >= 3 && t.length <= 15)
-                    .map(t => t.toLowerCase());
-                const freq = countFrequencies(tokens);
+                const items = data.items || [];
+                
+                // Extract names and descriptions
+                const texts = [];
+                for (const item of items) {
+                    texts.push(item.name);
+                    if (item.description) texts.push(item.description);
+                }
+                
+                const allTokens = texts.flatMap(t => extractCleanTokens(t));
+                const freq = countFrequencies(allTokens);
                 const sorted = Object.entries(freq).sort((a,b) => b[1] - a[1]).slice(0, LIMIT_PER_SOURCE);
+                
+                if (sorted.length === 0) {
+                    addLog('GitHub returned no words — using fallback tech terms', 'warning');
+                    // Fallback tech terms
+                    const fallback = ['api', 'data', 'cloud', 'native', 'scalable', 'async', 'real time', 'pipeline', 'workflow', 'automation'];
+                    return fallback.slice(0, LIMIT_PER_SOURCE).map(word => ({
+                        word,
+                        source: 'github',
+                        score: 50,
+                        type: detectWordType(word)
+                    }));
+                }
+                
                 return sorted.map(([word, score]) => ({
                     word,
                     source: 'github',
-                    score: Math.min(100, score * 15 + 10),
+                    score: Math.min(100, score * 4 + 20),
                     type: detectWordType(word)
                 }));
             } catch (err) {
                 addLog(`GitHub fetch failed: ${err.message}`, 'error');
-                return [];
+                // Fallback tech terms so GitHub never returns empty
+                const fallback = ['api', 'data', 'cloud', 'native', 'scalable', 'async', 'realtime', 'pipeline', 'workflow', 'automation', 'monitoring', 'observability'];
+                return fallback.slice(0, LIMIT_PER_SOURCE).map(word => ({
+                    word,
+                    source: 'github',
+                    score: 50,
+                    type: detectWordType(word)
+                }));
             }
         }
 
@@ -388,7 +425,7 @@
                 word_count: 1,
                 word_type: w.type,
                 source: w.source,
-                trending_score: Math.round((w.score * SOURCE_WEIGHT[w.source]) + (Math.random() * 5)),
+                trending_score: Math.min(100, Math.round((w.score * SOURCE_WEIGHT[w.source]) + (Math.random() * 5))),
                 expires_at: expiresAt.toISOString()
             }));
 
@@ -481,10 +518,14 @@
             }
 
             document.getElementById('recentWords').innerHTML = data.map(w => `
-                <span class="word-tag" title="${w.source} | ${w.word_type} | score:${w.trending_score}" onclick="copyToClipboard('${w.body}')">
-                    ${w.body}
+                <span class="word-tag" title="${w.source} | ${w.word_type} | score:${w.trending_score}" onclick="copyToClipboard('${w.body.replace(/'/g, "\\'")}')">
+                    ${escapeHtml(w.body)}
                 </span>
             `).join('');
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
         }
 
         // Copy to clipboard
@@ -544,7 +585,7 @@
             await updateStats();
             await loadRecentWords();
             setupEventListeners();
-            addLog('🚀 Hermes v2 ready. 3 sources, batch insert, weak word filtering, click to copy.', 'success');
+            addLog('🚀 Hermes v2 ready. 3 sources (GitHub uses trending repos API), batch insert, click to copy.', 'success');
         }
 
         init();
