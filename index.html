@@ -135,12 +135,6 @@
             background: #0a0c12;
         }
 
-        .trending-section {
-            margin-top: 1.5rem;
-            border-top: 1px solid #1e2535;
-            padding-top: 1rem;
-        }
-
         .trending-header {
             display: flex;
             justify-content: space-between;
@@ -267,258 +261,279 @@
 </div>
 
 <script>
-    const SUPABASE_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
+    (function() {
+        const SUPABASE_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
 
-    let supabase;
-    let currentWords = new Set();
+        let supabase = null;
+        let currentWords = new Set();
 
-    // Categories for analysis
-    const CATEGORIES = {
-        verbs: ['verb_', 'make', 'do', 'take', 'give', 'keep', 'let', 'put', 'show', 'hold', 'bring', 'write', 'read', 'speak', 'hear', 'understand', 'become', 'begin', 'continue', 'see', 'feel', 'think', 'know', 'fall', 'rise', 'break', 'mend', 'turn', 'wait', 'fade', 'grow', 'shift', 'drift', 'gather', 'scatter', 'bind', 'loose', 'cross', 'remain', 'return', 'depart', 'fill'],
-        nouns: ['noun_', 'hand', 'head', 'eye', 'foot', 'face', 'voice', 'name', 'place', 'world', 'thing', 'way', 'life', 'day', 'night', 'year', 'water', 'fire', 'earth', 'sky', 'star', 'sun', 'moon', 'door', 'window', 'floor', 'wall', 'room', 'hall', 'path', 'road', 'bridge', 'gate', 'tower', 'garden', 'field', 'forest'],
-        adjectives: ['adj_', 'big', 'small', 'long', 'short', 'thick', 'thin', 'light', 'heavy', 'full', 'empty', 'strong', 'weak', 'young', 'early', 'late', 'good', 'bad', 'true', 'false', 'old', 'new', 'cold', 'hot', 'warm', 'dark', 'bright', 'deep', 'high', 'low', 'fast', 'slow', 'loud', 'quiet', 'smooth', 'rough', 'soft', 'hard', 'wide', 'narrow'],
-        code: ['html_', 'css_', 'js_', 'py_'],
-        ancient: ['oe_', 'os_', 'lat_']
-    };
+        // Categories for analysis
+        const CATEGORIES = {
+            verbs: ['verb_', 'make', 'do', 'take', 'give', 'keep', 'let', 'put', 'show', 'hold', 'bring', 'write', 'read', 'speak', 'hear', 'understand', 'become', 'begin', 'continue', 'see', 'feel', 'think', 'know', 'fall', 'rise', 'break', 'mend', 'turn', 'wait', 'fade', 'grow', 'shift', 'drift', 'gather', 'scatter', 'bind', 'loose', 'cross', 'remain', 'return', 'depart', 'fill'],
+            nouns: ['noun_', 'hand', 'head', 'eye', 'foot', 'face', 'voice', 'name', 'place', 'world', 'thing', 'way', 'life', 'day', 'night', 'year', 'water', 'fire', 'earth', 'sky', 'star', 'sun', 'moon', 'door', 'window', 'floor', 'wall', 'room', 'hall', 'path', 'road', 'bridge', 'gate', 'tower', 'garden', 'field', 'forest'],
+            adjectives: ['adj_', 'big', 'small', 'long', 'short', 'thick', 'thin', 'light', 'heavy', 'full', 'empty', 'strong', 'weak', 'young', 'early', 'late', 'good', 'bad', 'true', 'false', 'old', 'new', 'cold', 'hot', 'warm', 'dark', 'bright', 'deep', 'high', 'low', 'fast', 'slow', 'loud', 'quiet', 'smooth', 'rough', 'soft', 'hard', 'wide', 'narrow'],
+            code: ['html_', 'css_', 'js_', 'py_'],
+            ancient: ['oe_', 'os_', 'lat_']
+        };
 
-    async function init() {
-        if (!window.supabase) {
-            console.error('Supabase not loaded');
-            return;
-        }
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        await loadData();
-        setupEventListeners();
-    }
-
-    async function loadData() {
-        const { data, error } = await supabase
-            .from('hermes_entries')
-            .select('body, label, word_count')
-            .order('body');
-
-        if (error) {
-            console.error('Error loading data:', error);
-            return;
-        }
-
-        currentWords.clear();
-        data.forEach(row => currentWords.add(row.body));
-
-        updateStats(data);
-        displayWordList(data);
-    }
-
-    function updateStats(data) {
-        let total = data.length;
-        let verbs = 0, nouns = 0, adj = 0, code = 0, ancient = 0;
-
-        data.forEach(row => {
-            const label = row.label || '';
-            if (CATEGORIES.verbs.some(cat => label.includes(cat) || row.body === cat)) verbs++;
-            else if (CATEGORIES.nouns.some(cat => label.includes(cat) || row.body === cat)) nouns++;
-            else if (CATEGORIES.adjectives.some(cat => label.includes(cat) || row.body === cat)) adj++;
-            else if (CATEGORIES.code.some(cat => label.includes(cat))) code++;
-            else if (CATEGORIES.ancient.some(cat => label.includes(cat))) ancient++;
-        });
-
-        document.getElementById('totalCount').innerText = total;
-        document.getElementById('verbCount').innerText = verbs;
-        document.getElementById('nounCount').innerText = nouns;
-        document.getElementById('adjCount').innerText = adj;
-        document.getElementById('codeCount').innerText = code;
-        document.getElementById('ancientCount').innerText = ancient;
-    }
-
-    function displayWordList(data) {
-        const container = document.getElementById('wordList');
-        const sample = data.slice(0, 100);
-        container.innerHTML = sample.map(w => `<span class="word-tag">${w.body}</span>`).join('');
-        if (data.length > 100) {
-            container.innerHTML += `<span class="word-tag">... and ${data.length - 100} more</span>`;
-        }
-    }
-
-    // ============================================================
-    // TRENDING WORD FETCHERS (No API keys required)
-    // ============================================================
-
-    async function fetchRedditTrending() {
-        try {
-            const response = await fetch('https://www.reddit.com/r/all/top.json?limit=100&t=day');
-            const data = await response.json();
-            const titles = data.data.children.map(child => child.data.title);
-            
-            // Extract words from titles
-            const allWords = titles.join(' ').toLowerCase().split(/\s+/);
-            const filtered = allWords.filter(w => 
-                w.length >= 3 && 
-                w.length <= 12 && 
-                /^[a-z]+$/.test(w) &&
-                !currentWords.has(w)
-            );
-            
-            // Count frequency and return top 20
-            const freq = {};
-            filtered.forEach(w => freq[w] = (freq[w] || 0) + 1);
-            const sorted = Object.entries(freq).sort((a,b) => b[1] - a[1]).slice(0, 20);
-            return sorted.map(([word]) => ({ word, source: 'reddit', score: freq[word] }));
-        } catch (err) {
-            console.error('Reddit fetch failed:', err);
-            return [];
-        }
-    }
-
-    async function fetchHackerNewsTrending() {
-        try {
-            // First get top story IDs
-            const storyRes = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
-            const storyIds = await storyRes.json();
-            const topIds = storyIds.slice(0, 30);
-            
-            // Fetch titles
-            const stories = await Promise.all(
-                topIds.map(async (id) => {
-                    const res = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
-                    return res.json();
-                })
-            );
-            
-            const titles = stories.filter(s => s && s.title).map(s => s.title);
-            const allWords = titles.join(' ').toLowerCase().split(/\s+/);
-            const filtered = allWords.filter(w => 
-                w.length >= 3 && 
-                w.length <= 12 && 
-                /^[a-z]+$/.test(w) &&
-                !currentWords.has(w)
-            );
-            
-            const freq = {};
-            filtered.forEach(w => freq[w] = (freq[w] || 0) + 1);
-            const sorted = Object.entries(freq).sort((a,b) => b[1] - a[1]).slice(0, 15);
-            return sorted.map(([word]) => ({ word, source: 'hn', score: freq[word] }));
-        } catch (err) {
-            console.error('Hacker News fetch failed:', err);
-            return [];
-        }
-    }
-
-    async function fetchAllTrending() {
-        const trendingDiv = document.getElementById('trendingWords');
-        trendingDiv.innerHTML = '<div class="loading">🔄 Fetching trending words from Reddit and Hacker News...</div>';
-        
-        try {
-            const [redditWords, hnWords] = await Promise.all([
-                fetchRedditTrending(),
-                fetchHackerNewsTrending()
-            ]);
-            
-            const allWords = [...redditWords, ...hnWords];
-            
-            if (allWords.length === 0) {
-                trendingDiv.innerHTML = '<div class="loading">No new trending words found. All caught up!</div>';
+        async function init() {
+            if (!window.supabase) {
+                console.error('Supabase not loaded');
+                document.getElementById('wordList').innerHTML = '<div class="loading">Error: Supabase not loaded</div>';
                 return;
             }
-            
-            // Remove duplicates
-            const unique = {};
-            allWords.forEach(w => { if (!unique[w.word]) unique[w.word] = w; });
-            
-            const displayWords = Object.values(unique).slice(0, 30);
-            
-            trendingDiv.innerHTML = `
-                <div class="suggestion-grid">
-                    ${displayWords.map(w => `
-                        <div class="suggestion" onclick="addTrendingWord('${w.word.replace(/'/g, "\\'")}', '${w.source}')">
-                            <span>${w.word}</span>
-                            <span class="source">${w.source === 'reddit' ? '📊 Reddit' : '🚀 Hacker News'}</span>
-                            <span class="reason">trending</span>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        } catch (err) {
-            trendingDiv.innerHTML = '<div class="loading error">Failed to fetch trending words. Check console.</div>';
-            console.error(err);
-        }
-    }
-
-    window.addTrendingWord = async function(word, source) {
-        const feedback = document.getElementById('manualFeedback'); // reuse
-        const label = `trend_${word}_${Date.now()}`;
-        
-        try {
-            const { error } = await supabase
-                .from('hermes_entries')
-                .insert({ 
-                    body: word, 
-                    label: label, 
-                    word_count: word.split(/\s+/).length 
-                });
-
-            if (error) throw error;
-            feedback.innerHTML = `✓ Added "${word}" from ${source} to Hermes lexicon`;
-            feedback.className = 'feedback success';
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             await loadData();
-            
-            // Remove from trending display
-            const trendingDiv = document.getElementById('trendingWords');
-            if (trendingDiv) {
-                await fetchAllTrending(); // Refresh the list
-            }
-            
-            setTimeout(() => { feedback.innerHTML = ''; }, 3000);
-        } catch (err) {
-            feedback.innerHTML = `✗ Failed to add "${word}": ${err.message}`;
-            feedback.className = 'feedback error';
-            setTimeout(() => { feedback.innerHTML = ''; }, 3000);
+            setupEventListeners();
         }
-    };
 
-    function setupEventListeners() {
-        document.getElementById('refreshTrendingBtn').addEventListener('click', fetchAllTrending);
-        
-        document.getElementById('addWordBtn').addEventListener('click', async () => {
-            const word = document.getElementById('newWord').value.trim();
-            const label = document.getElementById('newLabel').value.trim();
+        async function loadData() {
+            const wordListDiv = document.getElementById('wordList');
+            wordListDiv.innerHTML = '<div class="loading">Loading Hermes lexicon...</div>';
+            
+            const { data, error } = await supabase
+                .from('hermes_entries')
+                .select('body, label, word_count')
+                .order('body');
+
+            if (error) {
+                console.error('Error loading data:', error);
+                wordListDiv.innerHTML = `<div class="loading error">Error: ${error.message}</div>`;
+                return;
+            }
+
+            currentWords.clear();
+            data.forEach(row => currentWords.add(row.body));
+
+            updateStats(data);
+            displayWordList(data);
+        }
+
+        function updateStats(data) {
+            let total = data.length;
+            let verbs = 0, nouns = 0, adj = 0, code = 0, ancient = 0;
+
+            data.forEach(row => {
+                const label = row.label || '';
+                if (CATEGORIES.verbs.some(cat => label.includes(cat) || row.body === cat)) verbs++;
+                else if (CATEGORIES.nouns.some(cat => label.includes(cat) || row.body === cat)) nouns++;
+                else if (CATEGORIES.adjectives.some(cat => label.includes(cat) || row.body === cat)) adj++;
+                else if (CATEGORIES.code.some(cat => label.includes(cat))) code++;
+                else if (CATEGORIES.ancient.some(cat => label.includes(cat))) ancient++;
+            });
+
+            document.getElementById('totalCount').innerText = total;
+            document.getElementById('verbCount').innerText = verbs;
+            document.getElementById('nounCount').innerText = nouns;
+            document.getElementById('adjCount').innerText = adj;
+            document.getElementById('codeCount').innerText = code;
+            document.getElementById('ancientCount').innerText = ancient;
+        }
+
+        function displayWordList(data) {
+            const container = document.getElementById('wordList');
+            const sample = data.slice(0, 100);
+            container.innerHTML = sample.map(w => `<span class="word-tag">${escapeHtml(w.body)}</span>`).join('');
+            if (data.length > 100) {
+                container.innerHTML += `<span class="word-tag">... and ${data.length - 100} more</span>`;
+            }
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // ============================================================
+        // TRENDING WORD FETCHERS
+        // ============================================================
+
+        async function fetchRedditTrending() {
+            try {
+                const response = await fetch('https://www.reddit.com/r/all/top.json?limit=100&t=day');
+                const data = await response.json();
+                const titles = data.data.children.map(child => child.data.title);
+                
+                const allWords = titles.join(' ').toLowerCase().split(/\s+/);
+                const filtered = allWords.filter(w => 
+                    w.length >= 3 && 
+                    w.length <= 12 && 
+                    /^[a-z]+$/.test(w) &&
+                    !currentWords.has(w)
+                );
+                
+                const freq = {};
+                filtered.forEach(w => freq[w] = (freq[w] || 0) + 1);
+                const sorted = Object.entries(freq).sort((a,b) => b[1] - a[1]).slice(0, 20);
+                return sorted.map(([word]) => ({ word, source: 'reddit', score: freq[word] }));
+            } catch (err) {
+                console.error('Reddit fetch failed:', err);
+                return [];
+            }
+        }
+
+        async function fetchHackerNewsTrending() {
+            try {
+                const storyRes = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
+                const storyIds = await storyRes.json();
+                const topIds = storyIds.slice(0, 30);
+                
+                const stories = await Promise.all(
+                    topIds.map(async (id) => {
+                        const res = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
+                        return res.json();
+                    })
+                );
+                
+                const titles = stories.filter(s => s && s.title).map(s => s.title);
+                const allWords = titles.join(' ').toLowerCase().split(/\s+/);
+                const filtered = allWords.filter(w => 
+                    w.length >= 3 && 
+                    w.length <= 12 && 
+                    /^[a-z]+$/.test(w) &&
+                    !currentWords.has(w)
+                );
+                
+                const freq = {};
+                filtered.forEach(w => freq[w] = (freq[w] || 0) + 1);
+                const sorted = Object.entries(freq).sort((a,b) => b[1] - a[1]).slice(0, 15);
+                return sorted.map(([word]) => ({ word, source: 'hn', score: freq[word] }));
+            } catch (err) {
+                console.error('Hacker News fetch failed:', err);
+                return [];
+            }
+        }
+
+        async function fetchAllTrending() {
+            const trendingDiv = document.getElementById('trendingWords');
+            trendingDiv.innerHTML = '<div class="loading">🔄 Fetching trending words from Reddit and Hacker News...</div>';
+            
+            try {
+                const [redditWords, hnWords] = await Promise.all([
+                    fetchRedditTrending(),
+                    fetchHackerNewsTrending()
+                ]);
+                
+                const allWords = [...redditWords, ...hnWords];
+                
+                if (allWords.length === 0) {
+                    trendingDiv.innerHTML = '<div class="loading">No new trending words found. All caught up!</div>';
+                    return;
+                }
+                
+                const unique = {};
+                allWords.forEach(w => { if (!unique[w.word]) unique[w.word] = w; });
+                
+                const displayWords = Object.values(unique).slice(0, 30);
+                
+                trendingDiv.innerHTML = `
+                    <div class="suggestion-grid">
+                        ${displayWords.map(w => `
+                            <div class="suggestion" onclick="window.addTrendingWord('${escapeHtml(w.word).replace(/'/g, "\\'")}', '${w.source}')">
+                                <span>${escapeHtml(w.word)}</span>
+                                <span class="source">${w.source === 'reddit' ? '📊 Reddit' : '🚀 Hacker News'}</span>
+                                <span class="reason">trending</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } catch (err) {
+                trendingDiv.innerHTML = '<div class="loading error">Failed to fetch trending words. Check console.</div>';
+                console.error(err);
+            }
+        }
+
+        window.addTrendingWord = async function(word, source) {
             const feedback = document.getElementById('manualFeedback');
-
-            if (!word || !label) {
-                feedback.innerHTML = '✗ Both word and label required';
-                feedback.className = 'feedback error';
-                setTimeout(() => feedback.innerHTML = '', 3000);
-                return;
-            }
-
-            if (word.split(/\s+/).length > 2) {
-                feedback.innerHTML = '✗ Hermes only accepts 1-2 word primitives';
-                feedback.className = 'feedback error';
-                setTimeout(() => feedback.innerHTML = '', 3000);
-                return;
-            }
-
+            const label = `trend_${word}_${Date.now()}`;
+            
             try {
                 const { error } = await supabase
                     .from('hermes_entries')
-                    .insert({ body: word, label: label, word_count: word.split(/\s+/).length });
+                    .insert({ 
+                        body: word, 
+                        label: label, 
+                        word_count: word.split(/\s+/).length 
+                    });
 
                 if (error) throw error;
-                feedback.innerHTML = `✓ Injected "${word}" into Hermes`;
+                feedback.innerHTML = `✓ Added "${word}" from ${source} to Hermes lexicon`;
                 feedback.className = 'feedback success';
-                document.getElementById('newWord').value = '';
-                document.getElementById('newLabel').value = '';
                 await loadData();
-                setTimeout(() => feedback.innerHTML = '', 3000);
+                
+                const trendingDiv = document.getElementById('trendingWords');
+                if (trendingDiv) {
+                    await fetchAllTrending();
+                }
+                
+                setTimeout(() => { feedback.innerHTML = ''; }, 3000);
             } catch (err) {
-                feedback.innerHTML = `✗ Failed: ${err.message}`;
+                feedback.innerHTML = `✗ Failed to add "${word}": ${err.message}`;
                 feedback.className = 'feedback error';
-                setTimeout(() => feedback.innerHTML = '', 3000);
+                setTimeout(() => { feedback.innerHTML = ''; }, 3000);
             }
-        });
-    }
+        };
 
-    init();
+        function setupEventListeners() {
+            const refreshBtn = document.getElementById('refreshTrendingBtn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', fetchAllTrending);
+            }
+            
+            const addBtn = document.getElementById('addWordBtn');
+            if (addBtn) {
+                addBtn.addEventListener('click', async () => {
+                    const word = document.getElementById('newWord').value.trim();
+                    const label = document.getElementById('newLabel').value.trim();
+                    const feedback = document.getElementById('manualFeedback');
+
+                    if (!word || !label) {
+                        feedback.innerHTML = '✗ Both word and label required';
+                        feedback.className = 'feedback error';
+                        setTimeout(() => feedback.innerHTML = '', 3000);
+                        return;
+                    }
+
+                    if (word.split(/\s+/).length > 2) {
+                        feedback.innerHTML = '✗ Hermes only accepts 1-2 word primitives';
+                        feedback.className = 'feedback error';
+                        setTimeout(() => feedback.innerHTML = '', 3000);
+                        return;
+                    }
+
+                    try {
+                        const { error } = await supabase
+                            .from('hermes_entries')
+                            .insert({ body: word, label: label, word_count: word.split(/\s+/).length });
+
+                        if (error) throw error;
+                        feedback.innerHTML = `✓ Injected "${word}" into Hermes`;
+                        feedback.className = 'feedback success';
+                        document.getElementById('newWord').value = '';
+                        document.getElementById('newLabel').value = '';
+                        await loadData();
+                        setTimeout(() => feedback.innerHTML = '', 3000);
+                    } catch (err) {
+                        feedback.innerHTML = `✗ Failed: ${err.message}`;
+                        feedback.className = 'feedback error';
+                        setTimeout(() => feedback.innerHTML = '', 3000);
+                    }
+                });
+            }
+        }
+
+        // Start when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
 </script>
 </body>
 </html>
