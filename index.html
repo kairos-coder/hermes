@@ -1,215 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hermes · Quality Scraper (Fixed)</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0c12; font-family: monospace; padding: 2rem; color: #d4e0ed; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        h1 { font-size: 1.5rem; color: #d4956a; }
-        .sub { color: #6a7a8a; margin-bottom: 1rem; }
-        .panel { background: #0b0e16; border: 1px solid #1e2535; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 2rem; }
-        button { background: #1e2535; border: none; color: #d4e0ed; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; margin-right: 1rem; }
-        button:hover { background: #d4956a; }
-        .log-area { background: #060810; border: 1px solid #1e2535; border-radius: 0.5rem; padding: 1rem; max-height: 300px; overflow-y: auto; font-size: 0.75rem; }
-        .log-entry { padding: 0.25rem 0; border-bottom: 1px solid #1a1f2a; color: #6a7a8a; }
-        .log-entry.success { color: #6b8e23; }
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1rem; }
-        .stat-card { background: #0f141e; border: 1px solid #1e2535; border-radius: 0.5rem; padding: 0.75rem; text-align: center; }
-        .stat-number { font-size: 1.2rem; font-weight: bold; color: #d4956a; }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body>
-<div class="container">
-    <h1>✈️ Hermes · Quality Scraper</h1>
-    <div class="sub">Reddit + Hacker News + GitHub · No duplicates</div>
+-- Run this in Supabase SQL editor
 
-    <div class="stats-grid" id="statsGrid"></div>
+CREATE TABLE IF NOT EXISTS concepts (
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    body          TEXT NOT NULL,
+    band          TEXT NOT NULL CHECK (band IN ('hermes', 'apollo', 'hephaestus', 'demeter', 'poseidon', 'athena', 'zeus')),
+    source        TEXT NOT NULL CHECK (source IN ('reddit', 'hn', 'github', 'terminal', 'api', 'scraper')),
+    score         INTEGER DEFAULT 0,
+    word_type     TEXT CHECK (word_type IN ('noun', 'verb', 'adj', 'concept', 'signal')),
+    metadata      JSONB DEFAULT '{}'::jsonb,
+    expires_at    TIMESTAMPTZ,
+    created_at    TIMESTAMPTZ DEFAULT NOW(),
+    processed_at  TIMESTAMPTZ,
+    routed_to_band TIMESTAMPTZ
+);
 
-    <div class="panel">
-        <button id="scrapeBtn">🌊 Scrape Words</button>
-        <button id="pruneBtn">🧹 Prune Low Quality</button>
-        <div id="ingestLog" class="log-area" style="margin-top: 1rem;"><div class="log-entry">Ready.</div></div>
-    </div>
-</div>
+-- Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_concepts_band ON concepts(band);
+CREATE INDEX IF NOT EXISTS idx_concepts_source ON concepts(source);
+CREATE INDEX IF NOT EXISTS idx_concepts_expires ON concepts(expires_at);
+CREATE INDEX IF NOT EXISTS idx_concepts_body ON concepts(body);
 
-<script>
-    (function() {
-        const SUPABASE_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
-        let supabase = null;
+-- Optional: migrate existing hermes_entries data if table exists
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'hermes_entries') THEN
+        INSERT INTO concepts (body, band, source, score, word_type, metadata, expires_at, created_at)
+        SELECT 
+            body,
+            'hermes' as band,
+            source,
+            trending_score as score,
+            word_type,
+            jsonb_build_object('original_frequency', word_count) as metadata,
+            expires_at,
+            created_at
+        FROM hermes_entries
+        WHERE body IS NOT NULL
+        ON CONFLICT DO NOTHING;
+    END IF;
+END $$;
 
-        // Quality-focused stopwords
-        const STOPWORDS = new Set([
-            'the','and','for','with','this','that','from','have','are','was','were','how','why','what','when','where','who','which','there','their','they','them','then','than','about','into','through','during','before','after','above','below','between','under','very','just','but','not','you','your','our','its','has','had','been','being','can','will','would','could','should','might','like','because','after','while','since','slides','design','costco','gptimage','little','man','much','atomic','cli','leg','youre','then','make','made','using','used'
-        ]);
+-- Row Level Security (RLS) — enable and set policies
+ALTER TABLE concepts ENABLE ROW LEVEL SECURITY;
 
-        const PRIORITY_WORDS = new Set([
-            'ai','ml','api','data','cloud','native','scalable','async','pipeline','workflow','automation','frontier','alignment','resonance','collapse','emergence','paradox','recursion','entropy','fractal','quantum','neural','vector','embedding','inference','latency','throughput','semantic','intelligence','generative','model','training','compute','memory','architecture'
-        ]);
+-- Allow public read (adjust as needed)
+CREATE POLICY IF NOT EXISTS "Enable read access for all" ON concepts
+    FOR SELECT USING (true);
 
-        function extractTokens(text) {
-            return text.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/)
-                .filter(w => w.length >= 4 && w.length <= 12 && !STOPWORDS.has(w));
-        }
+-- Allow authenticated insert/update
+CREATE POLICY IF NOT EXISTS "Enable insert for authenticated" ON concepts
+    FOR INSERT WITH CHECK (true);
 
-        function detectWordType(word) {
-            if (PRIORITY_WORDS.has(word)) return 'noun';
-            if (word.endsWith('ing') || word.endsWith('ed')) return 'verb';
-            if (word.endsWith('al') || word.endsWith('ive') || word.endsWith('ous') || word.endsWith('ic')) return 'adj';
-            return 'noun';
-        }
-
-        function calculateScore(word, frequency) {
-            let score = Math.min(80, frequency * 6);
-            if (PRIORITY_WORDS.has(word)) score += 30;
-            if (word.length >= 6 && word.length <= 10) score += 10;
-            return Math.min(100, score);
-        }
-
-        function addLog(msg, type = 'info') {
-            const log = document.getElementById('ingestLog');
-            const entry = document.createElement('div');
-            entry.className = `log-entry ${type}`;
-            entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            log.appendChild(entry);
-            entry.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        async function updateStats() {
-            const { data } = await supabase.from('hermes_entries').select('source');
-            if (!data) return;
-            const total = data.length;
-            const reddit = data.filter(d => d.source === 'reddit').length;
-            const hn = data.filter(d => d.source === 'hn').length;
-            const github = data.filter(d => d.source === 'github').length;
-            document.getElementById('statsGrid').innerHTML = `
-                <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total</div></div>
-                <div class="stat-card"><div class="stat-number">${reddit}</div><div class="stat-label">Reddit</div></div>
-                <div class="stat-card"><div class="stat-number">${hn}</div><div class="stat-label">Hacker News</div></div>
-                <div class="stat-card"><div class="stat-number">${github}</div><div class="stat-label">GitHub</div></div>
-            `;
-        }
-
-        async function wordExists(body, source) {
-            const { data } = await supabase
-                .from('hermes_entries')
-                .select('id')
-                .eq('body', body)
-                .eq('source', source)
-                .limit(1);
-            return data && data.length > 0;
-        }
-
-        async function insertWord(word) {
-            const exists = await wordExists(word.word, word.source);
-            if (exists) return false;
-
-            const expiresAt = new Date();
-            expiresAt.setDate(expiresAt.getDate() + 3);
-            const { error } = await supabase
-                .from('hermes_entries')
-                .insert({
-                    body: word.word,
-                    label: `${word.source}_${word.word}_${Date.now()}`,
-                    word_count: 1,
-                    word_type: word.type,
-                    source: word.source,
-                    trending_score: word.score,
-                    expires_at: expiresAt.toISOString(),
-                    created_at: new Date().toISOString()
-                });
-            if (error) {
-                addLog(`Insert failed: ${error.message}`, 'error');
-                return false;
-            }
-            return true;
-        }
-
-        async function fetchReddit() {
-            try {
-                const res = await fetch('https://www.reddit.com/r/all/top.json?limit=50&t=day');
-                const data = await res.json();
-                const titles = data.data.children.map(c => c.data.title);
-                const tokens = titles.flatMap(t => extractTokens(t));
-                const freq = new Map();
-                for (const t of tokens) freq.set(t, (freq.get(t) || 0) + 1);
-                const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, 12);
-                return sorted.map(([word, count]) => ({ word, source: 'reddit', score: calculateScore(word, count), type: detectWordType(word) }));
-            } catch(err) { addLog(`Reddit error`, 'error'); return []; }
-        }
-
-        async function fetchHackerNews() {
-            try {
-                const storyRes = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
-                const ids = await storyRes.json();
-                const stories = await Promise.all(ids.slice(0, 30).map(async id => {
-                    const r = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
-                    return r.json();
-                }));
-                const titles = stories.filter(s => s && s.title).map(s => s.title);
-                const tokens = titles.flatMap(t => extractTokens(t));
-                const freq = new Map();
-                for (const t of tokens) freq.set(t, (freq.get(t) || 0) + 1);
-                const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, 12);
-                return sorted.map(([word, count]) => ({ word, source: 'hn', score: calculateScore(word, count), type: detectWordType(word) }));
-            } catch(err) { addLog(`HN error`, 'error'); return []; }
-        }
-
-        async function fetchGitHub() {
-            try {
-                const date = new Date(); date.setDate(date.getDate() - 7);
-                const res = await fetch(`https://api.github.com/search/repositories?q=created:>${date.toISOString().split('T')[0]}&sort=stars&order=desc&per_page=30`);
-                const data = await res.json();
-                const texts = data.items.flatMap(item => [item.name, item.description].filter(Boolean));
-                const tokens = texts.flatMap(t => extractTokens(t));
-                const freq = new Map();
-                for (const t of tokens) freq.set(t, (freq.get(t) || 0) + 1);
-                const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, 12);
-                if (sorted.length === 0) {
-                    return ['api','data','cloud','native','scalable','async'].map(w => ({ word: w, source: 'github', score: 70, type: 'noun' }));
-                }
-                return sorted.map(([word, count]) => ({ word, source: 'github', score: calculateScore(word, count) + 15, type: detectWordType(word) }));
-            } catch(err) { addLog(`GitHub error`, 'error'); return []; }
-        }
-
-        async function scrapeAll() {
-            addLog('🌊 Scraping...', 'info');
-            const [reddit, hn, github] = await Promise.all([fetchReddit(), fetchHackerNews(), fetchGitHub()]);
-            const allWords = [...reddit, ...hn, ...github];
-            addLog(`📊 Found: Reddit ${reddit.length}, HN ${hn.length}, GitHub ${github.length}`, 'info');
-            let added = 0;
-            for (const word of allWords) {
-                if (await insertWord(word)) added++;
-            }
-            addLog(`🎯 Added ${added} new words.`, added > 0 ? 'success' : 'warning');
-            await updateStats();
-        }
-
-        async function pruneLowQuality() {
-            const { data } = await supabase
-                .from('hermes_entries')
-                .delete()
-                .lt('trending_score', 35)
-                .select();
-            addLog(`🧹 Pruned ${data?.length || 0} low-quality words (score < 35)`, 'info');
-            await updateStats();
-        }
-
-        document.getElementById('scrapeBtn').addEventListener('click', scrapeAll);
-        document.getElementById('pruneBtn').addEventListener('click', pruneLowQuality);
-
-        async function init() {
-            if (!window.supabase) return;
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            await updateStats();
-            addLog('🚀 Hermes ready. Priority: AI, ML, API, cloud, native, scalable, frontier, alignment, resonance.', 'success');
-        }
-        init();
-    })();
-</script>
-</body>
-</html>
+CREATE POLICY IF NOT EXISTS "Enable update for authenticated" ON concepts
+    FOR UPDATE USING (true);
