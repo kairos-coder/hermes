@@ -3,57 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hermes · Aggressive Scraper v3.2</title>
+    <title>Hermes · Quality Scraper</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0a0c12; font-family: monospace; padding: 2rem; color: #d4e0ed; }
         .container { max-width: 1200px; margin: 0 auto; }
         h1 { font-size: 1.5rem; color: #d4956a; }
-        .sub { color: #6a7a8a; margin-bottom: 2rem; border-bottom: 1px solid #1e2535; padding-bottom: 0.5rem; }
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
-        .stat-card { background: #0f141e; border: 1px solid #1e2535; border-radius: 0.5rem; padding: 1rem; text-align: center; }
-        .stat-number { font-size: 1.5rem; font-weight: bold; color: #d4956a; }
-        .stat-label { font-size: 0.6rem; color: #6a7a8a; text-transform: uppercase; }
+        .sub { color: #6a7a8a; margin-bottom: 1rem; }
         .panel { background: #0b0e16; border: 1px solid #1e2535; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 2rem; }
-        .panel h2 { font-size: 1rem; color: #c9a84c; border-left: 2px solid #c9a84c; padding-left: 0.5rem; margin-bottom: 1rem; }
         button { background: #1e2535; border: none; color: #d4e0ed; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; }
-        button:hover { background: #d4956a; color: #0a0c12; }
-        .button-group { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
-        .word-list { display: flex; flex-wrap: wrap; gap: 0.5rem; max-height: 300px; overflow-y: auto; }
-        .word-tag { background: #1a1f2a; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; cursor: pointer; }
-        .word-tag:hover { background: #d4956a; }
-        .log-area { background: #060810; border: 1px solid #1e2535; border-radius: 0.5rem; padding: 1rem; max-height: 250px; overflow-y: auto; font-size: 0.75rem; }
+        button:hover { background: #d4956a; }
+        .log-area { background: #060810; border: 1px solid #1e2535; border-radius: 0.5rem; padding: 1rem; max-height: 300px; overflow-y: auto; font-size: 0.75rem; }
         .log-entry { padding: 0.25rem 0; border-bottom: 1px solid #1a1f2a; color: #6a7a8a; }
         .log-entry.success { color: #6b8e23; }
-        .log-entry.warning { color: #c9a84c; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="container">
-    <h1>✈️ Hermes · Aggressive Scraper v3.2</h1>
-    <div class="sub">Includes 2-3 word phrases · Hyphens · Numbers · Lower stopword filtering</div>
-
-    <div class="stats-grid" id="statsGrid">
-        <div class="stat-card"><div class="stat-number" id="totalWords">—</div><div class="stat-label">Total</div></div>
-        <div class="stat-card"><div class="stat-number" id="redditCount">—</div><div class="stat-label">Reddit</div></div>
-        <div class="stat-card"><div class="stat-number" id="hnCount">—</div><div class="stat-label">HN</div></div>
-        <div class="stat-card"><div class="stat-number" id="githubCount">—</div><div class="stat-label">GitHub</div></div>
-    </div>
+    <h1>✈️ Hermes · Quality Scraper</h1>
+    <div class="sub">Only high-signal words · No junk</div>
 
     <div class="panel">
-        <h2>⚙️ Controls</h2>
-        <div class="button-group">
-            <button id="scrapeBtn">🌊 Scrape (including phrases)</button>
-            <button id="pruneBtn">🧹 Prune Expired</button>
-            <button id="clearLogBtn">🗑️ Clear Log</button>
-        </div>
-        <div id="ingestLog" class="log-area"><div class="log-entry">Ready.</div></div>
-    </div>
-
-    <div class="panel">
-        <h2>📋 Recent Words (click to copy)</h2>
-        <div id="recentWords" class="word-list">Loading...</div>
+        <button id="scrapeBtn">🌊 Scrape Quality Words</button>
+        <button id="pruneBtn">🧹 Prune Low Quality</button>
+        <div id="ingestLog" class="log-area" style="margin-top: 1rem;"><div class="log-entry">Ready.</div></div>
     </div>
 </div>
 
@@ -61,46 +35,35 @@
     (function() {
         const SUPABASE_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
-
         let supabase = null;
 
-        // Minimal stopwords — we want MORE words
-        const STOPWORDS = new Set(['the','and','for','with','this','that','from','have','are','was','were','how','why','what','when','where','who','which','their','they','them','then','than','but','not','you','your','our','its','has','had','been','being','can','will','would','could','should','like']);
-        const WEAK_WORDS = new Set(['people','thing','things','time','year','years','make','made','using','used','good','bad','old','day','days','way','ways','lot','lots','bit','bits']);
+        // Quality-focused stopwords (aggressive filtering)
+        const STOPWORDS = new Set([
+            'the','and','for','with','this','that','from','have','are','was','were','how','why','what','when','where','who','which','there','their','they','them','then','than','about','into','through','during','before','after','above','below','between','under','very','just','but','not','you','your','our','its','has','had','been','being','can','will','would','could','should','might','like','because','after','while','since','slides','design','costco','gptimage','little','man','much','atomic','cli','leg','youre']
+        ]);
 
-        const SOURCE_WEIGHT = { reddit: 1.0, hn: 1.3, github: 1.5 };
-        const LIMIT_PER_SOURCE = 15;
+        // Quality words to prioritize
+        const PRIORITY_WORDS = new Set([
+            'ai','ml','api','data','cloud','native','scalable','async','pipeline','workflow','automation','frontier','alignment','resonance','collapse','emergence','paradox','recursion','entropy','fractal','quantum','neural','vector','embedding','inference','latency','throughput'
+        ]);
 
-        // Aggressive extraction — keep hyphens, numbers, 2-3 word phrases
-        function extractTokens(text) {
-            // Keep letters, numbers, hyphens, spaces
-            const cleaned = text.toLowerCase().replace(/[^a-z0-9\s-]/g, '');
-            // Single words (3-12 chars)
-            const singleWords = cleaned.split(/\s+/).filter(w => w.length >= 3 && w.length <= 12 && !STOPWORDS.has(w) && !WEAK_WORDS.has(w));
-            // Also extract 2-3 word phrases
-            const wordsArray = cleaned.split(/\s+/).filter(w => w.length >= 2);
-            const phrases = [];
-            for (let i = 0; i < wordsArray.length - 1; i++) {
-                const twoWord = `${wordsArray[i]} ${wordsArray[i+1]}`;
-                if (twoWord.length >= 5 && twoWord.length <= 20 && !STOPWORDS.has(wordsArray[i]) && !STOPWORDS.has(wordsArray[i+1])) {
-                    phrases.push(twoWord);
-                }
-            }
-            return [...singleWords, ...phrases];
+        function extractQualityTokens(text) {
+            const words = text.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/);
+            return words.filter(w => w.length >= 4 && w.length <= 12 && !STOPWORDS.has(w) && !/\d/.test(w));
         }
 
         function detectWordType(word) {
-            if (word.includes('-')) return 'compound';
-            if (word.endsWith('ing') || word.endsWith('ed') || word.endsWith('es')) return 'verb';
+            if (PRIORITY_WORDS.has(word)) return 'noun';
+            if (word.endsWith('ing') || word.endsWith('ed')) return 'verb';
             if (word.endsWith('al') || word.endsWith('ive') || word.endsWith('ous') || word.endsWith('ic')) return 'adj';
-            if (/\d/.test(word)) return 'numeric';
             return 'noun';
         }
 
-        function countFrequencies(arr) {
-            const freq = new Map();
-            for (const item of arr) freq.set(item, (freq.get(item) || 0) + 1);
-            return freq;
+        function calculateScore(word, frequency) {
+            let baseScore = Math.min(100, frequency * 8);
+            if (PRIORITY_WORDS.has(word)) baseScore += 30;
+            if (word.length >= 6 && word.length <= 10) baseScore += 10;
+            return Math.min(100, baseScore);
         }
 
         function addLog(msg, type = 'info') {
@@ -117,11 +80,12 @@
                 const res = await fetch('https://www.reddit.com/r/all/top.json?limit=50&t=day');
                 const data = await res.json();
                 const titles = data.data.children.map(c => c.data.title);
-                const tokens = titles.flatMap(t => extractTokens(t));
-                const freq = countFrequencies(tokens);
-                const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, LIMIT_PER_SOURCE);
-                return sorted.map(([word, score]) => ({ word, source: 'reddit', score: Math.min(100, score * 6), type: detectWordType(word) }));
-            } catch (err) { addLog(`Reddit error`, 'error'); return []; }
+                const tokens = titles.flatMap(t => extractQualityTokens(t));
+                const freq = new Map();
+                for (const t of tokens) freq.set(t, (freq.get(t) || 0) + 1);
+                const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, 10);
+                return sorted.map(([word, count]) => ({ word, source: 'reddit', score: calculateScore(word, count), type: detectWordType(word) }));
+            } catch(err) { addLog(`Reddit error`, 'error'); return []; }
         }
 
         async function fetchHackerNews() {
@@ -133,11 +97,12 @@
                     return r.json();
                 }));
                 const titles = stories.filter(s => s && s.title).map(s => s.title);
-                const tokens = titles.flatMap(t => extractTokens(t));
-                const freq = countFrequencies(tokens);
-                const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, LIMIT_PER_SOURCE);
-                return sorted.map(([word, score]) => ({ word, source: 'hn', score: Math.min(100, score * 6), type: detectWordType(word) }));
-            } catch (err) { addLog(`HN error`, 'error'); return []; }
+                const tokens = titles.flatMap(t => extractQualityTokens(t));
+                const freq = new Map();
+                for (const t of tokens) freq.set(t, (freq.get(t) || 0) + 1);
+                const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, 10);
+                return sorted.map(([word, count]) => ({ word, source: 'hn', score: calculateScore(word, count), type: detectWordType(word) }));
+            } catch(err) { addLog(`HN error`, 'error'); return []; }
         }
 
         async function fetchGitHub() {
@@ -146,28 +111,29 @@
                 const res = await fetch(`https://api.github.com/search/repositories?q=created:>${date.toISOString().split('T')[0]}&sort=stars&order=desc&per_page=30`);
                 const data = await res.json();
                 const texts = data.items.flatMap(item => [item.name, item.description].filter(Boolean));
-                const tokens = texts.flatMap(t => extractTokens(t));
-                const freq = countFrequencies(tokens);
-                const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, LIMIT_PER_SOURCE);
+                const tokens = texts.flatMap(t => extractQualityTokens(t));
+                const freq = new Map();
+                for (const t of tokens) freq.set(t, (freq.get(t) || 0) + 1);
+                const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, 10);
                 if (sorted.length === 0) {
-                    const fallback = ['api-gateway','data-pipeline','cloud-native','edge-computing','serverless','microservices'];
-                    return fallback.map(w => ({ word: w, source: 'github', score: 60, type: 'compound' }));
+                    const fallback = ['api','data','cloud','native','scalable','async','pipeline','workflow'];
+                    return fallback.map(w => ({ word: w, source: 'github', score: 70, type: 'noun' }));
                 }
-                return sorted.map(([word, score]) => ({ word, source: 'github', score: Math.min(100, score * 5 + 20), type: detectWordType(word) }));
-            } catch (err) { addLog(`GitHub error`, 'error'); return []; }
+                return sorted.map(([word, count]) => ({ word, source: 'github', score: calculateScore(word, count) + 10, type: detectWordType(word) }));
+            } catch(err) { addLog(`GitHub error`, 'error'); return []; }
         }
 
         async function upsertWord(word) {
-            const expiresAt = new Date(); expiresAt.setDate(expiresAt.getDate() + 7);
+            const expiresAt = new Date(); expiresAt.setDate(expiresAt.getDate() + 3);
             const { error } = await supabase
                 .from('hermes_entries')
                 .upsert({
                     body: word.word,
-                    label: `${word.source}_${word.word.replace(/\s/g, '_')}_${Date.now()}`,
-                    word_count: word.word.split(/\s+/).length,
+                    label: `${word.source}_${word.word}_${Date.now()}`,
+                    word_count: 1,
                     word_type: word.type,
                     source: word.source,
-                    trending_score: Math.min(100, Math.round((word.score * SOURCE_WEIGHT[word.source]) + (Math.random() * 10))),
+                    trending_score: word.score,
                     expires_at: expiresAt.toISOString(),
                     updated_at: new Date().toISOString()
                 }, { onConflict: 'body,source' });
@@ -176,56 +142,33 @@
         }
 
         async function scrapeAll() {
-            addLog('🌊 Scraping with aggressive extraction...', 'info');
+            addLog('🌊 Scraping quality words...', 'info');
             const [reddit, hn, github] = await Promise.all([fetchReddit(), fetchHackerNews(), fetchGitHub()]);
             const allWords = [...reddit, ...hn, ...github];
             addLog(`📊 Found: Reddit ${reddit.length}, HN ${hn.length}, GitHub ${github.length}`, 'info');
-            
             let added = 0;
             for (const word of allWords) {
-                const success = await upsertWord(word);
-                if (success) added++;
+                if (await upsertWord(word)) added++;
             }
-            addLog(`🎯 Added/updated ${added} items (including phrases)`, added > 0 ? 'success' : 'warning');
-            await updateStats();
-            await loadRecentWords();
+            addLog(`🎯 Added ${added} quality words.`, added > 0 ? 'success' : 'warning');
         }
 
-        async function pruneExpired() {
-            const { data } = await supabase.from('hermes_entries').delete().lt('expires_at', new Date().toISOString()).select();
-            addLog(`🧹 Pruned ${data?.length || 0} expired`, 'info');
-            await updateStats();
-            await loadRecentWords();
+        async function pruneLowQuality() {
+            const { data } = await supabase
+                .from('hermes_entries')
+                .delete()
+                .lt('trending_score', 40)
+                .select();
+            addLog(`🧹 Pruned ${data?.length || 0} low-quality words (score < 40)`, 'info');
         }
-
-        async function updateStats() {
-            const { data } = await supabase.from('hermes_entries').select('source');
-            if (!data) return;
-            document.getElementById('totalWords').textContent = data.length;
-            document.getElementById('redditCount').textContent = data.filter(d => d.source === 'reddit').length;
-            document.getElementById('hnCount').textContent = data.filter(d => d.source === 'hn').length;
-            document.getElementById('githubCount').textContent = data.filter(d => d.source === 'github').length;
-        }
-
-        async function loadRecentWords() {
-            const { data } = await supabase.from('hermes_entries').select('body, source').order('created_at', { ascending: false }).limit(50);
-            if (!data?.length) { document.getElementById('recentWords').innerHTML = '<div class="log-entry">No words.</div>'; return; }
-            document.getElementById('recentWords').innerHTML = data.map(w => `<span class="word-tag" onclick="navigator.clipboard.writeText('${escapeHtml(w.body)}')">${escapeHtml(w.body)}</span>`).join('');
-        }
-
-        function escapeHtml(str) { return String(str).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
-        function clearLog() { document.getElementById('ingestLog').innerHTML = '<div class="log-entry">Log cleared.</div>'; }
 
         document.getElementById('scrapeBtn').addEventListener('click', scrapeAll);
-        document.getElementById('pruneBtn').addEventListener('click', pruneExpired);
-        document.getElementById('clearLogBtn').addEventListener('click', clearLog);
+        document.getElementById('pruneBtn').addEventListener('click', pruneLowQuality);
 
         async function init() {
             if (!window.supabase) return;
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            await updateStats();
-            await loadRecentWords();
-            addLog('🚀 Hermes v3.2 ready. Extracting single words AND 2-3 word phrases.', 'success');
+            addLog('🚀 Quality scraper ready. Priority words: AI, ML, API, cloud, native, scalable, frontier, alignment, resonance.', 'success');
         }
         init();
     })();
