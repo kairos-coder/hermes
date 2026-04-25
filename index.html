@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hermes · Quality Scraper</title>
+    <title>Hermes · Quality Scraper (Fixed)</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0a0c12; font-family: monospace; padding: 2rem; color: #d4e0ed; }
@@ -11,21 +11,26 @@
         h1 { font-size: 1.5rem; color: #d4956a; }
         .sub { color: #6a7a8a; margin-bottom: 1rem; }
         .panel { background: #0b0e16; border: 1px solid #1e2535; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 2rem; }
-        button { background: #1e2535; border: none; color: #d4e0ed; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; }
+        button { background: #1e2535; border: none; color: #d4e0ed; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; margin-right: 1rem; }
         button:hover { background: #d4956a; }
         .log-area { background: #060810; border: 1px solid #1e2535; border-radius: 0.5rem; padding: 1rem; max-height: 300px; overflow-y: auto; font-size: 0.75rem; }
         .log-entry { padding: 0.25rem 0; border-bottom: 1px solid #1a1f2a; color: #6a7a8a; }
         .log-entry.success { color: #6b8e23; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1rem; }
+        .stat-card { background: #0f141e; border: 1px solid #1e2535; border-radius: 0.5rem; padding: 0.75rem; text-align: center; }
+        .stat-number { font-size: 1.2rem; font-weight: bold; color: #d4956a; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="container">
     <h1>✈️ Hermes · Quality Scraper</h1>
-    <div class="sub">Only high-signal words · No junk</div>
+    <div class="sub">Reddit + Hacker News + GitHub · No duplicates</div>
+
+    <div class="stats-grid" id="statsGrid"></div>
 
     <div class="panel">
-        <button id="scrapeBtn">🌊 Scrape Quality Words</button>
+        <button id="scrapeBtn">🌊 Scrape Words</button>
         <button id="pruneBtn">🧹 Prune Low Quality</button>
         <div id="ingestLog" class="log-area" style="margin-top: 1rem;"><div class="log-entry">Ready.</div></div>
     </div>
@@ -37,19 +42,18 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
         let supabase = null;
 
-        // Quality-focused stopwords (aggressive filtering)
+        // Quality-focused stopwords
         const STOPWORDS = new Set([
-            'the','and','for','with','this','that','from','have','are','was','were','how','why','what','when','where','who','which','there','their','they','them','then','than','about','into','through','during','before','after','above','below','between','under','very','just','but','not','you','your','our','its','has','had','been','being','can','will','would','could','should','might','like','because','after','while','since','slides','design','costco','gptimage','little','man','much','atomic','cli','leg','youre']
+            'the','and','for','with','this','that','from','have','are','was','were','how','why','what','when','where','who','which','there','their','they','them','then','than','about','into','through','during','before','after','above','below','between','under','very','just','but','not','you','your','our','its','has','had','been','being','can','will','would','could','should','might','like','because','after','while','since','slides','design','costco','gptimage','little','man','much','atomic','cli','leg','youre','then','make','made','using','used'
         ]);
 
-        // Quality words to prioritize
         const PRIORITY_WORDS = new Set([
-            'ai','ml','api','data','cloud','native','scalable','async','pipeline','workflow','automation','frontier','alignment','resonance','collapse','emergence','paradox','recursion','entropy','fractal','quantum','neural','vector','embedding','inference','latency','throughput'
+            'ai','ml','api','data','cloud','native','scalable','async','pipeline','workflow','automation','frontier','alignment','resonance','collapse','emergence','paradox','recursion','entropy','fractal','quantum','neural','vector','embedding','inference','latency','throughput','semantic','intelligence','generative','model','training','compute','memory','architecture'
         ]);
 
-        function extractQualityTokens(text) {
-            const words = text.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/);
-            return words.filter(w => w.length >= 4 && w.length <= 12 && !STOPWORDS.has(w) && !/\d/.test(w));
+        function extractTokens(text) {
+            return text.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/)
+                .filter(w => w.length >= 4 && w.length <= 12 && !STOPWORDS.has(w));
         }
 
         function detectWordType(word) {
@@ -60,10 +64,10 @@
         }
 
         function calculateScore(word, frequency) {
-            let baseScore = Math.min(100, frequency * 8);
-            if (PRIORITY_WORDS.has(word)) baseScore += 30;
-            if (word.length >= 6 && word.length <= 10) baseScore += 10;
-            return Math.min(100, baseScore);
+            let score = Math.min(80, frequency * 6);
+            if (PRIORITY_WORDS.has(word)) score += 30;
+            if (word.length >= 6 && word.length <= 10) score += 10;
+            return Math.min(100, score);
         }
 
         function addLog(msg, type = 'info') {
@@ -75,15 +79,65 @@
             entry.scrollIntoView({ behavior: 'smooth' });
         }
 
+        async function updateStats() {
+            const { data } = await supabase.from('hermes_entries').select('source');
+            if (!data) return;
+            const total = data.length;
+            const reddit = data.filter(d => d.source === 'reddit').length;
+            const hn = data.filter(d => d.source === 'hn').length;
+            const github = data.filter(d => d.source === 'github').length;
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total</div></div>
+                <div class="stat-card"><div class="stat-number">${reddit}</div><div class="stat-label">Reddit</div></div>
+                <div class="stat-card"><div class="stat-number">${hn}</div><div class="stat-label">Hacker News</div></div>
+                <div class="stat-card"><div class="stat-number">${github}</div><div class="stat-label">GitHub</div></div>
+            `;
+        }
+
+        async function wordExists(body, source) {
+            const { data } = await supabase
+                .from('hermes_entries')
+                .select('id')
+                .eq('body', body)
+                .eq('source', source)
+                .limit(1);
+            return data && data.length > 0;
+        }
+
+        async function insertWord(word) {
+            const exists = await wordExists(word.word, word.source);
+            if (exists) return false;
+
+            const expiresAt = new Date();
+            expiresAt.setDate(expiresAt.getDate() + 3);
+            const { error } = await supabase
+                .from('hermes_entries')
+                .insert({
+                    body: word.word,
+                    label: `${word.source}_${word.word}_${Date.now()}`,
+                    word_count: 1,
+                    word_type: word.type,
+                    source: word.source,
+                    trending_score: word.score,
+                    expires_at: expiresAt.toISOString(),
+                    created_at: new Date().toISOString()
+                });
+            if (error) {
+                addLog(`Insert failed: ${error.message}`, 'error');
+                return false;
+            }
+            return true;
+        }
+
         async function fetchReddit() {
             try {
                 const res = await fetch('https://www.reddit.com/r/all/top.json?limit=50&t=day');
                 const data = await res.json();
                 const titles = data.data.children.map(c => c.data.title);
-                const tokens = titles.flatMap(t => extractQualityTokens(t));
+                const tokens = titles.flatMap(t => extractTokens(t));
                 const freq = new Map();
                 for (const t of tokens) freq.set(t, (freq.get(t) || 0) + 1);
-                const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, 10);
+                const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, 12);
                 return sorted.map(([word, count]) => ({ word, source: 'reddit', score: calculateScore(word, count), type: detectWordType(word) }));
             } catch(err) { addLog(`Reddit error`, 'error'); return []; }
         }
@@ -97,10 +151,10 @@
                     return r.json();
                 }));
                 const titles = stories.filter(s => s && s.title).map(s => s.title);
-                const tokens = titles.flatMap(t => extractQualityTokens(t));
+                const tokens = titles.flatMap(t => extractTokens(t));
                 const freq = new Map();
                 for (const t of tokens) freq.set(t, (freq.get(t) || 0) + 1);
-                const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, 10);
+                const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, 12);
                 return sorted.map(([word, count]) => ({ word, source: 'hn', score: calculateScore(word, count), type: detectWordType(word) }));
             } catch(err) { addLog(`HN error`, 'error'); return []; }
         }
@@ -111,55 +165,38 @@
                 const res = await fetch(`https://api.github.com/search/repositories?q=created:>${date.toISOString().split('T')[0]}&sort=stars&order=desc&per_page=30`);
                 const data = await res.json();
                 const texts = data.items.flatMap(item => [item.name, item.description].filter(Boolean));
-                const tokens = texts.flatMap(t => extractQualityTokens(t));
+                const tokens = texts.flatMap(t => extractTokens(t));
                 const freq = new Map();
                 for (const t of tokens) freq.set(t, (freq.get(t) || 0) + 1);
-                const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, 10);
+                const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, 12);
                 if (sorted.length === 0) {
-                    const fallback = ['api','data','cloud','native','scalable','async','pipeline','workflow'];
-                    return fallback.map(w => ({ word: w, source: 'github', score: 70, type: 'noun' }));
+                    return ['api','data','cloud','native','scalable','async'].map(w => ({ word: w, source: 'github', score: 70, type: 'noun' }));
                 }
-                return sorted.map(([word, count]) => ({ word, source: 'github', score: calculateScore(word, count) + 10, type: detectWordType(word) }));
+                return sorted.map(([word, count]) => ({ word, source: 'github', score: calculateScore(word, count) + 15, type: detectWordType(word) }));
             } catch(err) { addLog(`GitHub error`, 'error'); return []; }
         }
 
-        async function upsertWord(word) {
-            const expiresAt = new Date(); expiresAt.setDate(expiresAt.getDate() + 3);
-            const { error } = await supabase
-                .from('hermes_entries')
-                .upsert({
-                    body: word.word,
-                    label: `${word.source}_${word.word}_${Date.now()}`,
-                    word_count: 1,
-                    word_type: word.type,
-                    source: word.source,
-                    trending_score: word.score,
-                    expires_at: expiresAt.toISOString(),
-                    updated_at: new Date().toISOString()
-                }, { onConflict: 'body,source' });
-            if (error) return false;
-            return true;
-        }
-
         async function scrapeAll() {
-            addLog('🌊 Scraping quality words...', 'info');
+            addLog('🌊 Scraping...', 'info');
             const [reddit, hn, github] = await Promise.all([fetchReddit(), fetchHackerNews(), fetchGitHub()]);
             const allWords = [...reddit, ...hn, ...github];
             addLog(`📊 Found: Reddit ${reddit.length}, HN ${hn.length}, GitHub ${github.length}`, 'info');
             let added = 0;
             for (const word of allWords) {
-                if (await upsertWord(word)) added++;
+                if (await insertWord(word)) added++;
             }
-            addLog(`🎯 Added ${added} quality words.`, added > 0 ? 'success' : 'warning');
+            addLog(`🎯 Added ${added} new words.`, added > 0 ? 'success' : 'warning');
+            await updateStats();
         }
 
         async function pruneLowQuality() {
             const { data } = await supabase
                 .from('hermes_entries')
                 .delete()
-                .lt('trending_score', 40)
+                .lt('trending_score', 35)
                 .select();
-            addLog(`🧹 Pruned ${data?.length || 0} low-quality words (score < 40)`, 'info');
+            addLog(`🧹 Pruned ${data?.length || 0} low-quality words (score < 35)`, 'info');
+            await updateStats();
         }
 
         document.getElementById('scrapeBtn').addEventListener('click', scrapeAll);
@@ -168,7 +205,8 @@
         async function init() {
             if (!window.supabase) return;
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            addLog('🚀 Quality scraper ready. Priority words: AI, ML, API, cloud, native, scalable, frontier, alignment, resonance.', 'success');
+            await updateStats();
+            addLog('🚀 Hermes ready. Priority: AI, ML, API, cloud, native, scalable, frontier, alignment, resonance.', 'success');
         }
         init();
     })();
