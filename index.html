@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Hermes Gate · 0.5–2 Hz · Infrared Band</title>
+    <title>⚡ Hermes Gate · 0.5–2 Hz · Infrared Band · Mythic Archives</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -84,6 +84,14 @@
         }
         button.primary:hover {
             background: #a07050;
+        }
+        button.mythic {
+            background: #4a2a1a;
+            border: 1px solid #8b5e3c;
+        }
+        button.mythic:hover {
+            background: #8b5e3c;
+            color: #0a0c12;
         }
         
         /* Stats grid */
@@ -167,7 +175,7 @@
     <div class="header">
         <h1>⚡ HERMES GATE</h1>
         <div class="sub">REFLEX · SIGNAL · INSTINCT · <span class="frequency">0.5–2 Hz (Infrared Band)</span></div>
-        <div class="sub">Accepts 1–3 words · Expires in 3 days · Sharp reflexes only</div>
+        <div class="sub">Accepts 1–3 words · Expires in 3 days · Mythic Archives Online</div>
     </div>
 
     <div class="stats-grid" id="statsGrid"></div>
@@ -184,7 +192,8 @@
 
     <div class="panel">
         <div class="panel-title">🌊 DATA SOURCES · SCRAPER INPUT</div>
-        <button id="scrapeBtn">🌊 Scrape & Ingest (Reddit/HN/GitHub)</button>
+        <button id="scrapeBtn">🌊 Scrape All Sources (Tech + Mythic)</button>
+        <button id="mythicScrapeBtn" class="mythic">🏛️ Summon Mythic Reflexes Only</button>
         <button id="pruneBtn">🧹 Prune Expired (score &lt; 35)</button>
         <div id="recentSignals" style="margin-top: 1rem; font-size: 0.7rem; color: #6a7a8a;">
             💡 Click any signal below to use it:
@@ -274,23 +283,19 @@
             }
             
             _calculateScore(body, frequency = 1) {
-                // Reflex band: speed matters, shorter is sharper
                 const wordCount = this._countWords(body);
-                // Single words get bonus (purest reflexes)
                 const purityBonus = wordCount === 1 ? 30 : wordCount === 2 ? 15 : 0;
                 const frequencyScore = Math.min(40, 40 / frequency);
                 return Math.min(100, purityBonus + frequencyScore + 30);
             }
             
             _detectSignalStrength(body, score) {
-                // 0-1 scale: should this concept be pushed up the chain?
                 const wordCount = this._countWords(body);
                 const countFactor = wordCount === 1 ? 1.0 : wordCount === 2 ? 0.8 : 0.6;
                 return Math.min(1.0, (score / 100) * countFactor);
             }
             
             async process(raw) {
-                // 1. Validate word count
                 const wordCount = this._countWords(raw.body);
                 if (wordCount < this.minWords || wordCount > this.maxWords) {
                     return {
@@ -299,7 +304,6 @@
                     };
                 }
                 
-                // 2. Check for duplicate (last 24h)
                 const isDuplicate = await this._isDuplicate(raw.body, raw.source);
                 if (isDuplicate) {
                     return {
@@ -308,7 +312,6 @@
                     };
                 }
                 
-                // 3. Prepare record
                 const expiresAt = new Date();
                 expiresAt.setDate(expiresAt.getDate() + this.expiryDays);
                 
@@ -334,7 +337,6 @@
                     routed_to_band: null
                 };
                 
-                // 4. Insert into concepts table
                 const { data, error } = await this.supabase
                     .from('concepts')
                     .insert(record)
@@ -359,7 +361,7 @@
         }
         
         // ============================================
-        // SCRAPER FUNCTIONS (Data Sources)
+        // TECH SOURCES (Reddit, HN, GitHub)
         // ============================================
         function extractTokens(text) {
             return text.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/)
@@ -453,221 +455,172 @@
                 return [];
             }
         }
-        // Add these after the existing fetch functions (around line 300)
-
-// ============================================
-// MYTHOLOGY & FOLKLORE API SOURCES
-// ============================================
-
-async function fetchMythologyApi() {
-    // Mythic-focused sources: gods, creatures, archetypes, sacred concepts
-    try {
-        // Source 1: Mythopedia-inspired list (curated mythological concepts)
-        const mythicConcepts = [
-            "khaos", "ananke", "moirai", "aether", "hemera", "nyx", "erebus", "tartarus",
-            "eros", "phanes", "protogonos", "physis", "thales", "anaximander", "pythagoras",
-            "hermetic", "caduceus", "ouroboros", "phoenix", "chimera", "griffin", "sphinx",
-            "dryad", "nymph", "satyr", "centaur", "harpy", "medusa", "titan", "cyclops",
-            "norn", "valkyrie", "alfar", "jotunn", "kami", "yokai", "asura", "deva",
-            "mandala", "karma", "dharma", "samsara", "nirvana", "tao", "wuwei", "yin yang"
-        ];
         
-        // Randomly select 5-8 mythic concepts
-        const shuffled = [...mythicConcepts].sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, Math.floor(Math.random() * 8) + 5);
+        // ============================================
+        // MYTHOLOGY & FOLKLORE SOURCES
+        // ============================================
+        async function fetchMythologyApi() {
+            const mythicConcepts = [
+                "khaos", "ananke", "moirai", "aether", "hemera", "nyx", "erebus", "tartarus",
+                "eros", "phanes", "protogonos", "physis", "hermetic", "caduceus", "ouroboros", 
+                "phoenix", "chimera", "griffin", "sphinx", "dryad", "nymph", "satyr", "centaur", 
+                "harpy", "medusa", "titan", "cyclops", "norn", "valkyrie", "alfar", "jotunn", 
+                "kami", "yokai", "asura", "deva", "mandala", "karma", "dharma", "samsara", 
+                "nirvana", "tao", "wuwei", "yin yang"
+            ];
+            
+            const shuffled = [...mythicConcepts].sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, Math.floor(Math.random() * 8) + 5);
+            
+            return selected.map(concept => ({
+                body: concept,
+                source: 'mythology',
+                score: 85 + Math.floor(Math.random() * 15),
+                wordType: 'noun',
+                metadata: { frequency: 1, domain: 'mythos' }
+            }));
+        }
         
-        return selected.map(concept => ({
-            body: concept,
-            source: 'mythology',
-            score: 85 + Math.floor(Math.random() * 15), // High base score for mythic resonance
-            wordType: 'noun',
-            metadata: { 
-                frequency: 1,
-                domain: 'mythos',
-                archetype: concept.length < 6 ? 'primordial' : 'embodied'
-            }
-        }));
-    } catch(err) {
-        addLog(`Mythology API error: ${err.message}`, 'error');
-        return [];
-    }
-}
-
-async function fetchFolkloreWeatherSigns() {
-    // Traditional weather lore and folk wisdom
-    const weatherLore = [
-        "red sky morning", "red sky night", "rainbow morning", "halo moon", 
-        "cow lying down", "swallows fly low", "leaves turn", "woolly worm",
-        "frogs croak loud", "ants build high", "cat washes ears", "dogs eat grass",
-        "crickets chirp", "cicada sings", "butterfly landing", "dragonfly swarm",
-        "groundhog shadow", "thunder winter", "fog summer", "dew heavy"
-    ];
-    
-    const shuffled = [...weatherLore].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, 5);
-    
-    return selected.map(concept => ({
-        body: concept,
-        source: 'folklore_weather',
-        score: 60 + Math.floor(Math.random() * 25),
-        wordType: 'phrase',
-        metadata: { 
-            frequency: 1,
-            domain: 'lore',
-            tradition: 'weather_wisdom'
+        async function fetchFolkloreWeatherSigns() {
+            const weatherLore = [
+                "red sky morning", "red sky night", "rainbow morning", "halo moon", 
+                "cow lying down", "swallows fly low", "woolly worm", "frogs croak loud", 
+                "ants build high", "cat washes ears", "crickets chirp", "groundhog shadow"
+            ];
+            
+            const shuffled = [...weatherLore].sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 5);
+            
+            return selected.map(concept => ({
+                body: concept,
+                source: 'folklore_weather',
+                score: 60 + Math.floor(Math.random() * 25),
+                wordType: 'phrase',
+                metadata: { frequency: 1, domain: 'lore' }
+            }));
         }
-    }));
-}
-
-async function fetchSacredGeometries() {
-    // Sacred geometry and mystical patterns
-    const sacredForms = [
-        "golden ratio", "fibonacci spiral", "platonic solid", "flower of life",
-        "seed of life", "egg of life", "tree of life", "vesica piscis",
-        "merkaba", "sri yantra", "mandala", "labrys", "triskelion",
-        "toroidal field", "merkabah", "caduceus spiral", "chakra lotus",
-        "pentagram", "hexagram", "octagram", "enneagram", "dodecagram"
-    ];
-    
-    const shuffled = [...sacredForms].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, 6);
-    
-    return selected.map(concept => ({
-        body: concept,
-        source: 'sacred_geometry',
-        score: 75 + Math.floor(Math.random() * 20),
-        wordType: 'noun',
-        metadata: { 
-            frequency: 1,
-            domain: 'symbol',
-            tradition: 'geometric_sacred'
+        
+        async function fetchSacredGeometries() {
+            const sacredForms = [
+                "golden ratio", "fibonacci spiral", "platonic solid", "flower of life",
+                "seed of life", "tree of life", "vesica piscis", "merkaba", "sri yantra",
+                "mandala", "triskelion", "caduceus spiral", "chakra lotus", "pentagram"
+            ];
+            
+            const shuffled = [...sacredForms].sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 6);
+            
+            return selected.map(concept => ({
+                body: concept,
+                source: 'sacred_geometry',
+                score: 75 + Math.floor(Math.random() * 20),
+                wordType: 'noun',
+                metadata: { frequency: 1, domain: 'symbol' }
+            }));
         }
-    }));
-}
-
-async function fetchAlchemicalTerms() {
-    // Alchemical processes and substances (proto-science folklore)
-    const alchemical = [
-        "prima materia", "philosopher stone", "elixir life", "magnum opus",
-        "nigredo", "albedo", "citrinitas", "rubedo", "solve coagula",
-        "quintessence", "azoth", "sulfur mercury salt", "green lion",
-        "ouroboros dragon", "rebis", "androgyne", "kerotakis", "athanor",
-        "lapis philosophorum", "aurum potabile", "tincture", "projection powder"
-    ];
-    
-    const shuffled = [...alchemical].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, 7);
-    
-    return selected.map(concept => ({
-        body: concept,
-        source: 'alchemy',
-        score: 70 + Math.floor(Math.random() * 25),
-        wordType: 'noun',
-        metadata: { 
-            frequency: 1,
-            domain: 'alchemical',
-            phase: selected[0]?.includes('nigredo') ? 'blackening' : 'transmutation'
+        
+        async function fetchAlchemicalTerms() {
+            const alchemical = [
+                "prima materia", "philosopher stone", "elixir life", "magnum opus",
+                "nigredo", "albedo", "citrinitas", "rubedo", "solve coagula",
+                "quintessence", "azoth", "green lion", "ouroboros", "athanor"
+            ];
+            
+            const shuffled = [...alchemical].sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 7);
+            
+            return selected.map(concept => ({
+                body: concept,
+                source: 'alchemy',
+                score: 70 + Math.floor(Math.random() * 25),
+                wordType: 'noun',
+                metadata: { frequency: 1, domain: 'alchemical' }
+            }));
         }
-    }));
-}
-
-async function fetchFolktaleMotifs() {
-    // Aarne-Thompson-Uther folktale motifs
-    const atuMotifs = [
-        "magic flight", "forbidden chamber", "grateful dead", "animal bride",
-        "talking skull", "seven league boots", "invisible cloak", "magic ring",
-        "sleeping beauty", "transformation chase", "false bride", "helpful animal",
-        "castle glass mountain", "dragon slayer", "trickster trades", "ogre defeated",
-        "fairy midwife", "changeling child", "elfshot arrow", "pucca horse"
-    ];
-    
-    const shuffled = [...atuMotifs].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, 6);
-    
-    return selected.map(concept => ({
-        body: concept,
-        source: 'folktale_motif',
-        score: 65 + Math.floor(Math.random() * 20),
-        wordType: 'phrase',
-        metadata: { 
-            frequency: 1,
-            domain: 'narrative',
-            code: 'ATU-' + Math.floor(Math.random() * 1000)
+        
+        async function fetchFolktaleMotifs() {
+            const atuMotifs = [
+                "magic flight", "forbidden chamber", "grateful dead", "animal bride",
+                "talking skull", "seven league boots", "invisible cloak", "magic ring",
+                "sleeping beauty", "transformation chase", "false bride", "helpful animal",
+                "dragon slayer", "trickster trades", "changeling child"
+            ];
+            
+            const shuffled = [...atuMotifs].sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 6);
+            
+            return selected.map(concept => ({
+                body: concept,
+                source: 'folktale_motif',
+                score: 65 + Math.floor(Math.random() * 20),
+                wordType: 'phrase',
+                metadata: { frequency: 1, domain: 'narrative' }
+            }));
         }
-    }));
-}
-
-async function fetchUrbanLegends() {
-    // Modern folklore — urban legends and internet myths
-    const urbanMyths = [
-        "slenderman", "mothman", "jersey devil", "chupacabra", "flatwoods monster",
-        "hook hand", "killer clown", "phantom hitchhiker", "babysitter tapping",
-        "vanishing hitchhiker", "bloody mary", "candyman", "kuchisake onna",
-        "black eyed kids", "men in black", "shadow people", "hat man",
-        "polybius", "backrooms", "kazim earthquake", "cyber stalker"
-    ];
-    
-    const shuffled = [...urbanMyths].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, 5);
-    
-    return selected.map(concept => ({
-        body: concept,
-        source: 'urban_legend',
-        score: 55 + Math.floor(Math.random() * 30),
-        wordType: 'noun',
-        metadata: { 
-            frequency: 1,
-            domain: 'contemporary_mythos',
-            era: 'modern'
+        
+        async function fetchUrbanLegends() {
+            const urbanMyths = [
+                "slenderman", "mothman", "jersey devil", "chupacabra", "flatwoods monster",
+                "hook hand", "phantom hitchhiker", "vanishing hitchhiker", "bloody mary",
+                "black eyed kids", "men in black", "shadow people", "backrooms"
+            ];
+            
+            const shuffled = [...urbanMyths].sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 5);
+            
+            return selected.map(concept => ({
+                body: concept,
+                source: 'urban_legend',
+                score: 55 + Math.floor(Math.random() * 30),
+                wordType: 'noun',
+                metadata: { frequency: 1, domain: 'contemporary_mythos' }
+            }));
         }
-    }));
-}
-
-// ============================================
-// ENHANCED SCRAPE FUNCTION (includes mythology)
-// ============================================
-
-async function handleScrape() {
-    addLog('🌊 Scraping reflexes from all sources (Reddit, HN, GitHub + Mythological Archives)...', 'info');
-    
-    const [reddit, hn, github, mythology, weatherLore, sacredGeo, alchemy, folktale, urban] = await Promise.all([
-        fetchReddit(), 
-        fetchHackerNews(), 
-        fetchGitHub(),
-        fetchMythologyApi(),
-        fetchFolkloreWeatherSigns(),
-        fetchSacredGeometries(),
-        fetchAlchemicalTerms(),
-        fetchFolktaleMotifs(),
-        fetchUrbanLegends()
-    ]);
-    
-    const allConcepts = [
-        ...reddit, ...hn, ...github,
-        ...mythology, ...weatherLore, ...sacredGeo,
-        ...alchemy, ...folktale, ...urban
-    ];
-    
-    addLog(`📊 Raw signals: Reddit=${reddit.length}, HN=${hn.length}, GitHub=${github.length}, Mythology=${mythology.length}, Folklore Weather=${weatherLore.length}, Sacred Geometry=${sacredGeo.length}, Alchemy=${alchemy.length}, Folktale Motif=${folktale.length}, Urban Legend=${urban.length}`, 'info');
-    addLog(`🔮 Total raw signals: ${allConcepts.length} (${Math.round(allConcepts.filter(c => c.source !== 'reddit' && c.source !== 'hn' && c.source !== 'github').length / allConcepts.length * 100)}% mythological/folkloric)`, 'success');
-    
-    const results = await hermesGate.processBatch(allConcepts);
-    const added = results.filter(r => r.success).length;
-    const errors = results.filter(r => !r.success).length;
-    
-    addLog(`🎯 Hermes processed: ${added} new reflexes, ${errors} duplicates/rejected.`, added > 0 ? 'success' : 'warning');
-    
-    // Show which mythic sources contributed
-    const mythicAdded = results.filter(r => r.success && 
-        ['mythology', 'folklore_weather', 'sacred_geometry', 'alchemy', 'folktale_motif', 'urban_legend']
-        .includes(allConcepts.find(c => c.body === r.body)?.source)).length;
-    
-    if (mythicAdded > 0) {
-        addLog(`🏛️ ${mythicAdded} mythic/folkloric reflexes entered the Hermes gate.`, 'success');
-    }
-    
-    await updateStats();
-}        // ============================================
+        
+        // ============================================
+        // MAIN SCRAPE HANDLERS
+        // ============================================
+        async function handleScrape() {
+            addLog('🌊 Scraping all sources (Tech + Mythological Archives)...', 'info');
+            
+            const sources = await Promise.all([
+                fetchReddit(), fetchHackerNews(), fetchGitHub(),
+                fetchMythologyApi(), fetchFolkloreWeatherSigns(), fetchSacredGeometries(),
+                fetchAlchemicalTerms(), fetchFolktaleMotifs(), fetchUrbanLegends()
+            ]);
+            
+            const [reddit, hn, github, mythology, weather, sacred, alchemy, folktale, urban] = sources;
+            const allConcepts = [...reddit, ...hn, ...github, ...mythology, ...weather, ...sacred, ...alchemy, ...folktale, ...urban];
+            
+            const mythicCount = mythology.length + weather.length + sacred.length + alchemy.length + folktale.length + urban.length;
+            addLog(`📊 Signals: Tech=${reddit.length+hn.length+github.length}, Mythic=${mythicCount}`, 'info');
+            
+            const results = await hermesGate.processBatch(allConcepts);
+            const added = results.filter(r => r.success).length;
+            
+            addLog(`🎯 Hermes accepted ${added} new reflexes.`, added > 0 ? 'success' : 'warning');
+            await updateStats();
+        }
+        
+        async function handleMythicScrape() {
+            addLog('🏛️ Summoning mythic reflexes only...', 'info');
+            
+            const [mythology, weather, sacred, alchemy, folktale, urban] = await Promise.all([
+                fetchMythologyApi(), fetchFolkloreWeatherSigns(), fetchSacredGeometries(),
+                fetchAlchemicalTerms(), fetchFolktaleMotifs(), fetchUrbanLegends()
+            ]);
+            
+            const mythicConcepts = [...mythology, ...weather, ...sacred, ...alchemy, ...folktale, ...urban];
+            addLog(`📜 Harvested ${mythicConcepts.length} mythic concepts`, 'info');
+            
+            const results = await hermesGate.processBatch(mythicConcepts);
+            const added = results.filter(r => r.success).length;
+            
+            addLog(`🏺 ${added} mythic reflexes entered Hermes. The gods stir.`, 'success');
+            await updateStats();
+        }
+        
+        // ============================================
         // UI HELPERS
         // ============================================
         let supabase = null;
@@ -685,33 +638,33 @@ async function handleScrape() {
         async function updateStats() {
             const { data, error } = await supabase
                 .from('concepts')
-                .select('source, band, score')
+                .select('source, score')
                 .eq('band', 'hermes');
             
             if (error || !data) {
                 document.getElementById('statsGrid').innerHTML = `
                     <div class="stat-card"><div class="stat-number">0</div><div class="stat-label">Total</div></div>
-                    <div class="stat-card"><div class="stat-number">0</div><div class="stat-label">Reddit</div></div>
-                    <div class="stat-card"><div class="stat-number">0</div><div class="stat-label">HN</div></div>
-                    <div class="stat-card"><div class="stat-number">0</div><div class="stat-label">GitHub</div></div>
+                    <div class="stat-card"><div class="stat-number">0</div><div class="stat-label">Tech</div></div>
+                    <div class="stat-card"><div class="stat-number">0</div><div class="stat-label">Mythic</div></div>
+                    <div class="stat-card"><div class="stat-number">0</div><div class="stat-label">Avg Score</div></div>
                 `;
                 return;
             }
             
             const total = data.length;
-            const reddit = data.filter(d => d.source === 'reddit').length;
-            const hn = data.filter(d => d.source === 'hn').length;
-            const github = data.filter(d => d.source === 'github').length;
+            const techSources = ['reddit', 'hn', 'github'];
+            const mythicSources = ['mythology', 'folklore_weather', 'sacred_geometry', 'alchemy', 'folktale_motif', 'urban_legend'];
+            const techCount = data.filter(d => techSources.includes(d.source)).length;
+            const mythicCount = data.filter(d => mythicSources.includes(d.source)).length;
             const avgScore = total > 0 ? Math.round(data.reduce((sum, d) => sum + (d.score || 0), 0) / total) : 0;
             
             document.getElementById('statsGrid').innerHTML = `
-                <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Hermes Reflexes</div></div>
-                <div class="stat-card"><div class="stat-number">${reddit}</div><div class="stat-label">Reddit</div></div>
-                <div class="stat-card"><div class="stat-number">${hn}</div><div class="stat-label">Hacker News</div></div>
+                <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total Reflexes</div></div>
+                <div class="stat-card"><div class="stat-number">${techCount}</div><div class="stat-label">Tech Signals</div></div>
+                <div class="stat-card"><div class="stat-number">${mythicCount}</div><div class="stat-label">Mythic Signals</div></div>
                 <div class="stat-card"><div class="stat-number">${avgScore}</div><div class="stat-label">Avg Score</div></div>
             `;
             
-            // Also load recent signals for quick-click
             await loadRecentSignals();
         }
         
@@ -753,7 +706,7 @@ async function handleScrape() {
             });
             
             if (result.success) {
-                addLog(`✅ Reflex accepted. ID: ${result.id.substring(0,8)}... Strength: ${(result.signalStrength * 100).toFixed(0)}%`, 'success');
+                addLog(`✅ Reflex accepted. Strength: ${(result.signalStrength * 100).toFixed(0)}%`, 'success');
                 document.getElementById('signalInput').value = '';
                 await updateStats();
             } else {
@@ -761,30 +714,8 @@ async function handleScrape() {
             }
         }
         
-        async function handleScrape() {
-            addLog('🌊 Scraping reflexes from Reddit, Hacker News, and GitHub...', 'info');
-            
-            const [reddit, hn, github] = await Promise.all([fetchReddit(), fetchHackerNews(), fetchGitHub()]);
-            const allConcepts = [...reddit, ...hn, ...github];
-            
-            addLog(`📊 Raw signals: Reddit ${reddit.length}, HN ${hn.length}, GitHub ${github.length}`, 'info');
-            
-            const results = await hermesGate.processBatch(allConcepts);
-            const added = results.filter(r => r.success).length;
-            const errors = results.filter(r => !r.success).length;
-            
-            addLog(`🎯 Hermes processed: ${added} new reflexes, ${errors} duplicates/rejected.`, added > 0 ? 'success' : 'warning');
-            
-            if (errors > 0) {
-                const errorMsgs = results.filter(r => !r.success).slice(0, 3).map(r => r.error);
-                addLog(`⚠️ Sample errors: ${errorMsgs.join('; ')}`, 'error');
-            }
-            
-            await updateStats();
-        }
-        
         async function handlePrune() {
-            addLog('🧹 Pruning expired reflexes (expires_at < NOW)...', 'info');
+            addLog('🧹 Pruning expired reflexes...', 'info');
             
             const { data, error } = await supabase
                 .from('concepts')
@@ -796,7 +727,7 @@ async function handleScrape() {
             if (error) {
                 addLog(`Prune failed: ${error.message}`, 'error');
             } else {
-                addLog(`🧹 Pruned ${data?.length || 0} expired Hermes reflexes.`, 'info');
+                addLog(`🧹 Pruned ${data?.length || 0} expired reflexes.`, 'info');
             }
             
             await updateStats();
@@ -840,7 +771,6 @@ async function handleScrape() {
             
             await updateStats();
             
-            // Event listeners
             document.getElementById('submitBtn').addEventListener('click', handleManualSignal);
             document.getElementById('clearBtn').addEventListener('click', () => {
                 document.getElementById('signalInput').value = '';
@@ -848,10 +778,11 @@ async function handleScrape() {
                 addLog('Cleared input field.', 'info');
             });
             document.getElementById('scrapeBtn').addEventListener('click', handleScrape);
+            document.getElementById('mythicScrapeBtn').addEventListener('click', handleMythicScrape);
             document.getElementById('pruneBtn').addEventListener('click', handlePrune);
             document.getElementById('signalInput').addEventListener('input', updateWordCount);
             
-            addLog(`⚡ Hermes Gate operational. ${BAND_CONFIG.frequency} · ${BAND_CONFIG.color} · Listening for ${BAND_CONFIG.minWords}-${BAND_CONFIG.maxWords} word reflexes.`, 'success');
+            addLog(`⚡ Hermes Gate operational. ${BAND_CONFIG.frequency} · ${BAND_CONFIG.color} · Mythic archives online.`, 'success');
         }
         
         init();
