@@ -453,8 +453,221 @@
                 return [];
             }
         }
+        // Add these after the existing fetch functions (around line 300)
+
+// ============================================
+// MYTHOLOGY & FOLKLORE API SOURCES
+// ============================================
+
+async function fetchMythologyApi() {
+    // Mythic-focused sources: gods, creatures, archetypes, sacred concepts
+    try {
+        // Source 1: Mythopedia-inspired list (curated mythological concepts)
+        const mythicConcepts = [
+            "khaos", "ananke", "moirai", "aether", "hemera", "nyx", "erebus", "tartarus",
+            "eros", "phanes", "protogonos", "physis", "thales", "anaximander", "pythagoras",
+            "hermetic", "caduceus", "ouroboros", "phoenix", "chimera", "griffin", "sphinx",
+            "dryad", "nymph", "satyr", "centaur", "harpy", "medusa", "titan", "cyclops",
+            "norn", "valkyrie", "alfar", "jotunn", "kami", "yokai", "asura", "deva",
+            "mandala", "karma", "dharma", "samsara", "nirvana", "tao", "wuwei", "yin yang"
+        ];
         
-        // ============================================
+        // Randomly select 5-8 mythic concepts
+        const shuffled = [...mythicConcepts].sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, Math.floor(Math.random() * 8) + 5);
+        
+        return selected.map(concept => ({
+            body: concept,
+            source: 'mythology',
+            score: 85 + Math.floor(Math.random() * 15), // High base score for mythic resonance
+            wordType: 'noun',
+            metadata: { 
+                frequency: 1,
+                domain: 'mythos',
+                archetype: concept.length < 6 ? 'primordial' : 'embodied'
+            }
+        }));
+    } catch(err) {
+        addLog(`Mythology API error: ${err.message}`, 'error');
+        return [];
+    }
+}
+
+async function fetchFolkloreWeatherSigns() {
+    // Traditional weather lore and folk wisdom
+    const weatherLore = [
+        "red sky morning", "red sky night", "rainbow morning", "halo moon", 
+        "cow lying down", "swallows fly low", "leaves turn", "woolly worm",
+        "frogs croak loud", "ants build high", "cat washes ears", "dogs eat grass",
+        "crickets chirp", "cicada sings", "butterfly landing", "dragonfly swarm",
+        "groundhog shadow", "thunder winter", "fog summer", "dew heavy"
+    ];
+    
+    const shuffled = [...weatherLore].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 5);
+    
+    return selected.map(concept => ({
+        body: concept,
+        source: 'folklore_weather',
+        score: 60 + Math.floor(Math.random() * 25),
+        wordType: 'phrase',
+        metadata: { 
+            frequency: 1,
+            domain: 'lore',
+            tradition: 'weather_wisdom'
+        }
+    }));
+}
+
+async function fetchSacredGeometries() {
+    // Sacred geometry and mystical patterns
+    const sacredForms = [
+        "golden ratio", "fibonacci spiral", "platonic solid", "flower of life",
+        "seed of life", "egg of life", "tree of life", "vesica piscis",
+        "merkaba", "sri yantra", "mandala", "labrys", "triskelion",
+        "toroidal field", "merkabah", "caduceus spiral", "chakra lotus",
+        "pentagram", "hexagram", "octagram", "enneagram", "dodecagram"
+    ];
+    
+    const shuffled = [...sacredForms].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 6);
+    
+    return selected.map(concept => ({
+        body: concept,
+        source: 'sacred_geometry',
+        score: 75 + Math.floor(Math.random() * 20),
+        wordType: 'noun',
+        metadata: { 
+            frequency: 1,
+            domain: 'symbol',
+            tradition: 'geometric_sacred'
+        }
+    }));
+}
+
+async function fetchAlchemicalTerms() {
+    // Alchemical processes and substances (proto-science folklore)
+    const alchemical = [
+        "prima materia", "philosopher stone", "elixir life", "magnum opus",
+        "nigredo", "albedo", "citrinitas", "rubedo", "solve coagula",
+        "quintessence", "azoth", "sulfur mercury salt", "green lion",
+        "ouroboros dragon", "rebis", "androgyne", "kerotakis", "athanor",
+        "lapis philosophorum", "aurum potabile", "tincture", "projection powder"
+    ];
+    
+    const shuffled = [...alchemical].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 7);
+    
+    return selected.map(concept => ({
+        body: concept,
+        source: 'alchemy',
+        score: 70 + Math.floor(Math.random() * 25),
+        wordType: 'noun',
+        metadata: { 
+            frequency: 1,
+            domain: 'alchemical',
+            phase: selected[0]?.includes('nigredo') ? 'blackening' : 'transmutation'
+        }
+    }));
+}
+
+async function fetchFolktaleMotifs() {
+    // Aarne-Thompson-Uther folktale motifs
+    const atuMotifs = [
+        "magic flight", "forbidden chamber", "grateful dead", "animal bride",
+        "talking skull", "seven league boots", "invisible cloak", "magic ring",
+        "sleeping beauty", "transformation chase", "false bride", "helpful animal",
+        "castle glass mountain", "dragon slayer", "trickster trades", "ogre defeated",
+        "fairy midwife", "changeling child", "elfshot arrow", "pucca horse"
+    ];
+    
+    const shuffled = [...atuMotifs].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 6);
+    
+    return selected.map(concept => ({
+        body: concept,
+        source: 'folktale_motif',
+        score: 65 + Math.floor(Math.random() * 20),
+        wordType: 'phrase',
+        metadata: { 
+            frequency: 1,
+            domain: 'narrative',
+            code: 'ATU-' + Math.floor(Math.random() * 1000)
+        }
+    }));
+}
+
+async function fetchUrbanLegends() {
+    // Modern folklore — urban legends and internet myths
+    const urbanMyths = [
+        "slenderman", "mothman", "jersey devil", "chupacabra", "flatwoods monster",
+        "hook hand", "killer clown", "phantom hitchhiker", "babysitter tapping",
+        "vanishing hitchhiker", "bloody mary", "candyman", "kuchisake onna",
+        "black eyed kids", "men in black", "shadow people", "hat man",
+        "polybius", "backrooms", "kazim earthquake", "cyber stalker"
+    ];
+    
+    const shuffled = [...urbanMyths].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 5);
+    
+    return selected.map(concept => ({
+        body: concept,
+        source: 'urban_legend',
+        score: 55 + Math.floor(Math.random() * 30),
+        wordType: 'noun',
+        metadata: { 
+            frequency: 1,
+            domain: 'contemporary_mythos',
+            era: 'modern'
+        }
+    }));
+}
+
+// ============================================
+// ENHANCED SCRAPE FUNCTION (includes mythology)
+// ============================================
+
+async function handleScrape() {
+    addLog('🌊 Scraping reflexes from all sources (Reddit, HN, GitHub + Mythological Archives)...', 'info');
+    
+    const [reddit, hn, github, mythology, weatherLore, sacredGeo, alchemy, folktale, urban] = await Promise.all([
+        fetchReddit(), 
+        fetchHackerNews(), 
+        fetchGitHub(),
+        fetchMythologyApi(),
+        fetchFolkloreWeatherSigns(),
+        fetchSacredGeometries(),
+        fetchAlchemicalTerms(),
+        fetchFolktaleMotifs(),
+        fetchUrbanLegends()
+    ]);
+    
+    const allConcepts = [
+        ...reddit, ...hn, ...github,
+        ...mythology, ...weatherLore, ...sacredGeo,
+        ...alchemy, ...folktale, ...urban
+    ];
+    
+    addLog(`📊 Raw signals: Reddit=${reddit.length}, HN=${hn.length}, GitHub=${github.length}, Mythology=${mythology.length}, Folklore Weather=${weatherLore.length}, Sacred Geometry=${sacredGeo.length}, Alchemy=${alchemy.length}, Folktale Motif=${folktale.length}, Urban Legend=${urban.length}`, 'info');
+    addLog(`🔮 Total raw signals: ${allConcepts.length} (${Math.round(allConcepts.filter(c => c.source !== 'reddit' && c.source !== 'hn' && c.source !== 'github').length / allConcepts.length * 100)}% mythological/folkloric)`, 'success');
+    
+    const results = await hermesGate.processBatch(allConcepts);
+    const added = results.filter(r => r.success).length;
+    const errors = results.filter(r => !r.success).length;
+    
+    addLog(`🎯 Hermes processed: ${added} new reflexes, ${errors} duplicates/rejected.`, added > 0 ? 'success' : 'warning');
+    
+    // Show which mythic sources contributed
+    const mythicAdded = results.filter(r => r.success && 
+        ['mythology', 'folklore_weather', 'sacred_geometry', 'alchemy', 'folktale_motif', 'urban_legend']
+        .includes(allConcepts.find(c => c.body === r.body)?.source)).length;
+    
+    if (mythicAdded > 0) {
+        addLog(`🏛️ ${mythicAdded} mythic/folkloric reflexes entered the Hermes gate.`, 'success');
+    }
+    
+    await updateStats();
+}        // ============================================
         // UI HELPERS
         // ============================================
         let supabase = null;
