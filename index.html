@@ -910,7 +910,6 @@ function updateFastNarrative(msg, type = 'info') {
     line.className = `narrative-line ${type}`;
     line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
     container.appendChild(line);
-    line.scrollIntoView({ behavior: 'smooth' });
     // Keep last 8 lines
     while (container.children.length > 8) container.removeChild(container.firstChild);
 }
