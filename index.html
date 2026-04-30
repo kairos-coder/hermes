@@ -299,12 +299,10 @@
 
 <script>
 // ============================================
-// CONFIGURATION - CLEAN FIX
+// CONFIGURATION - MATCHING YOUR SCHEMA
 // ============================================
 const SUPABASE_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
-
-// sb = Supabase client instance (does NOT overwrite the library namespace)
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const BAND_CONFIG = { name: 'hermes', minWords: 1, maxWords: 3, expiryDays: 3 };
@@ -333,96 +331,16 @@ let hermesGate;
 // MYTH-TECH DIGEST STORIES — LIVE 2026 EDITION
 // ============================================
 const MYTH_TECH_STORIES = [
-    {
-        category: "TECH + OUROBOROS",
-        title: "Recursive AI Enters the Wild",
-        summary: "Frontier labs race toward models that improve themselves after deployment.",
-        tags: ["AI","Recursive Learning","AGI"],
-        archetype: "Ouroboros",
-        source: "Axios / OpenAI / DeepMind",
-        url: "https://www.axios.com/"
-    },
-    {
-        category: "BUSINESS + TRANSMUTATION",
-        title: "Fusion Ignition Breaks New Records",
-        summary: "NIF experiments push fusion yields higher with repeated successful ignitions.",
-        tags: ["Fusion","Energy","Science"],
-        archetype: "Philosopher Stone",
-        source: "LLNL",
-        url: "https://lasers.llnl.gov/"
-    },
-    {
-        category: "HISTORY + PHOENIX",
-        title: "The Semiconductor Forge Reignites",
-        summary: "Western reshoring and Chinese 7nm expansion reshape the chip wars.",
-        tags: ["Semiconductors","Manufacturing","Geopolitics"],
-        archetype: "Phoenix",
-        source: "Reuters / Industry Reports",
-        url: "https://www.reuters.com/technology/"
-    },
-    {
-        category: "TECH + PROMETHEUS",
-        title: "Open Models Challenge Closed Empires",
-        summary: "Smaller open-weight reasoning systems rival massive proprietary AI stacks.",
-        tags: ["Open Source","LLMs","Reasoning"],
-        archetype: "Prometheus",
-        source: "Samsung AI / DeepSeek",
-        url: "https://huggingface.co/models"
-    },
-    {
-        category: "BUSINESS + ARIADNE",
-        title: "Quantum Error Correction Finds the Thread",
-        summary: "Logical qubits and stable architectures edge quantum systems toward viability.",
-        tags: ["Quantum","Qubits","Computing"],
-        archetype: "Ariadne",
-        source: "Quantum Research Labs",
-        url: "https://research.ibm.com/quantum"
-    },
-    {
-        category: "INFRASTRUCTURE + TITANS",
-        title: "The Age of Exaflop AI Begins",
-        summary: "New TPU and GPU superclusters scale toward agentic AI infrastructure.",
-        tags: ["TPUs","NVIDIA","Datacenters"],
-        archetype: "Titanomachy",
-        source: "Google Cloud / NVIDIA",
-        url: "https://blogs.nvidia.com/"
-    },
-    {
-        category: "HISTORY + DEMETER",
-        title: "Commodity Cycles Return with Force",
-        summary: "Energy, copper, and rare earth demand surge under AI industrial expansion.",
-        tags: ["Commodities","Mining","Cycles"],
-        archetype: "Demeter",
-        source: "Global Markets",
-        url: "https://www.bloomberg.com/markets"
-    },
-    {
-        category: "TECH + HERMES",
-        title: "AI Agents Learn to Coordinate",
-        summary: "Multi-agent systems begin routing tasks across specialized AI networks.",
-        tags: ["Agents","Automation","Workflows"],
-        archetype: "Hermes",
-        source: "Google Cloud Next",
-        url: "https://cloud.google.com/blog"
-    },
-    {
-        category: "MYTH + MACHINE",
-        title: "World Models Replace Static Transformers",
-        summary: "Researchers push toward memory-driven systems that simulate reality itself.",
-        tags: ["World Models","Memory","AI"],
-        archetype: "Mnemosyne",
-        source: "DeepMind Research",
-        url: "https://deepmind.google/discover/blog/"
-    },
-    {
-        category: "SYSTEMS + LABYRINTH",
-        title: "The New Compute Arms Race",
-        summary: "AI infrastructure becomes the defining geopolitical resource of the decade.",
-        tags: ["Compute","AI","Geopolitics"],
-        archetype: "Labyrinth",
-        source: "Industry Analysis",
-        url: "https://www.ft.com/technology"
-    }
+    { category: "TECH + OUROBOROS", title: "Recursive AI Enters the Wild", summary: "Frontier labs race toward models that improve themselves after deployment.", tags: ["AI","Recursive Learning","AGI"], archetype: "Ouroboros", source: "Axios / OpenAI / DeepMind", url: "https://www.axios.com/" },
+    { category: "BUSINESS + TRANSMUTATION", title: "Fusion Ignition Breaks New Records", summary: "NIF experiments push fusion yields higher with repeated successful ignitions.", tags: ["Fusion","Energy","Science"], archetype: "Philosopher Stone", source: "LLNL", url: "https://lasers.llnl.gov/" },
+    { category: "HISTORY + PHOENIX", title: "The Semiconductor Forge Reignites", summary: "Western reshoring and Chinese 7nm expansion reshape the chip wars.", tags: ["Semiconductors","Manufacturing","Geopolitics"], archetype: "Phoenix", source: "Reuters / Industry Reports", url: "https://www.reuters.com/technology/" },
+    { category: "TECH + PROMETHEUS", title: "Open Models Challenge Closed Empires", summary: "Smaller open-weight reasoning systems rival massive proprietary AI stacks.", tags: ["Open Source","LLMs","Reasoning"], archetype: "Prometheus", source: "Samsung AI / DeepSeek", url: "https://huggingface.co/models" },
+    { category: "BUSINESS + ARIADNE", title: "Quantum Error Correction Finds the Thread", summary: "Logical qubits and stable architectures edge quantum systems toward viability.", tags: ["Quantum","Qubits","Computing"], archetype: "Ariadne", source: "Quantum Research Labs", url: "https://research.ibm.com/quantum" },
+    { category: "INFRASTRUCTURE + TITANS", title: "The Age of Exaflop AI Begins", summary: "New TPU and GPU superclusters scale toward agentic AI infrastructure.", tags: ["TPUs","NVIDIA","Datacenters"], archetype: "Titanomachy", source: "Google Cloud / NVIDIA", url: "https://blogs.nvidia.com/" },
+    { category: "HISTORY + DEMETER", title: "Commodity Cycles Return with Force", summary: "Energy, copper, and rare earth demand surge under AI industrial expansion.", tags: ["Commodities","Mining","Cycles"], archetype: "Demeter", source: "Global Markets", url: "https://www.bloomberg.com/markets" },
+    { category: "TECH + HERMES", title: "AI Agents Learn to Coordinate", summary: "Multi-agent systems begin routing tasks across specialized AI networks.", tags: ["Agents","Automation","Workflows"], archetype: "Hermes", source: "Google Cloud Next", url: "https://cloud.google.com/blog" },
+    { category: "MYTH + MACHINE", title: "World Models Replace Static Transformers", summary: "Researchers push toward memory-driven systems that simulate reality itself.", tags: ["World Models","Memory","AI"], archetype: "Mnemosyne", source: "DeepMind Research", url: "https://deepmind.google/discover/blog/" },
+    { category: "SYSTEMS + LABYRINTH", title: "The New Compute Arms Race", summary: "AI infrastructure becomes the defining geopolitical resource of the decade.", tags: ["Compute","AI","Geopolitics"], archetype: "Labyrinth", source: "Industry Analysis", url: "https://www.ft.com/technology" }
 ];
 
 function renderDigest() {
@@ -444,7 +362,7 @@ function renderDigest() {
 }
 
 // ============================================
-// HERMES GATE CLASS
+// HERMES GATE CLASS - MATCHES YOUR SCHEMA
 // ============================================
 class HermesGate {
     constructor(sbClient) {
@@ -481,18 +399,22 @@ class HermesGate {
         const expiresAt = new Date(Date.now() + this.expiryDays * 86400000);
         const finalScore = raw.score || 50 + Math.floor(Math.random() * 40);
         
+        // MATCHING YOUR EXACT COLUMN NAMES
         const record = {
             body: raw.body.toLowerCase().trim(),
             band: 'hermes',
             source: raw.source,
-            source_loop: raw.source_loop || 'slow',
+            source_loop: raw.source_loop || 'slow',  // NOW EXISTS
             state: raw.source_loop === 'fast' ? 'raw' : 'in_transit',
             realm: raw.source_loop === 'fast' ? 'hephaestus' : null,
-            word_count: wordCount,
+            word_count: wordCount,  // NOW EXISTS
             score: finalScore,
-            metadata: { signal_strength: finalScore / 100, ...raw.metadata },
+            metadata: raw.metadata || {},
             expires_at: expiresAt.toISOString(),
-            created_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
+            gravity: 0,
+            libations: 0,
+            contests: 0
         };
         
         const { data, error } = await this.sb.from('concepts').insert(record).select().single();
@@ -572,6 +494,12 @@ async function fetchGitHub() {
         const freq = new Map();
         for (const t of tokens) freq.set(t, (freq.get(t) || 0) + 1);
         const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, 10);
+        if (sorted.length === 0) {
+            return ['api','data','cloud','native','scalable'].map(w => ({
+                body: w, source: 'github', source_loop: 'fast',
+                score: 70, metadata: { frequency: 1 }
+            }));
+        }
         return sorted.map(([word, count]) => ({
             body: word, source: 'github', source_loop: 'fast',
             score: calculateScore(word, count) + 15, metadata: { frequency: count }
@@ -586,7 +514,7 @@ const MYTHIC_CONCEPTS = [
     "chaos", "ananke", "moirai", "aether", "nyx", "erebus", "ouroboros", "phoenix",
     "chimera", "sphinx", "nymph", "centaur", "valkyrie", "kami", "mandala", "karma",
     "dharma", "samsara", "cerberus", "persephone", "elysium", "philosopher stone", "cocytus",
-    "lethe", "thanatos", "moirai", "golden ratio", "erinyes", "melinoe", "hypnos",
+    "lethe", "thanatos", "golden ratio", "erinyes", "melinoe", "hypnos",
     "acheron", "styx", "tartarus", "prometheus", "ariadne", "mnemosyne", "demeter"
 ];
 
@@ -634,13 +562,17 @@ async function fetchDevTo() {
     } catch(e) { addLog(`Dev.to error: ${e.message}`, 'error'); return []; }
 }
 
+async function fetchLobsters() {
+    // Lobsters blocks browser CORS - skip
+    return [];
+}
+
 async function fetchRSSFeeds() {
     const feeds = [
         { url: 'https://feeds.bbci.co.uk/news/technology/rss.xml', name: 'bbc_tech' },
         { url: 'https://techcrunch.com/feed/', name: 'techcrunch' },
         { url: 'https://www.wired.com/feed/rss', name: 'wired' },
-        { url: 'https://arstechnica.com/feed/', name: 'arstechnica' },
-        { url: 'https://www.theverge.com/rss/index.xml', name: 'theverge' }
+        { url: 'https://arstechnica.com/feed/', name: 'arstechnica' }
     ];
     
     const allArticles = [];
@@ -748,8 +680,16 @@ function addLog(msg, type = 'info') {
 }
 
 async function updateStats() {
-    const { data } = await sb.from('concepts').select('source_loop, score').eq('band', 'hermes');
-    if (!data) return;
+    const { data, error } = await sb.from('concepts').select('source_loop, score').eq('band', 'hermes');
+    if (error || !data) {
+        document.getElementById('statsGrid').innerHTML = `
+            <div class="stat-card"><div class="stat-number">0</div><div class="stat-label">Total</div></div>
+            <div class="stat-card"><div class="stat-number">0</div><div class="stat-label">⚡ Fast</div></div>
+            <div class="stat-card"><div class="stat-number">0</div><div class="stat-label">🐢 Slow</div></div>
+            <div class="stat-card"><div class="stat-number">0</div><div class="stat-label">Avg Score</div></div>
+        `;
+        return;
+    }
     const total = data.length;
     const fastCount = data.filter(d => d.source_loop === 'fast').length;
     const slowCount = data.filter(d => d.source_loop === 'slow').length;
