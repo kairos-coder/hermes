@@ -253,29 +253,31 @@
     </div>
 
     <div class="dual-spiral">
-        <div class="spiral-panel fast">
-    <div class="spiral-title">
-        <span class="spiral-name">⚡ FAST SPIRAL</span>
-        <span class="spiral-frequency">Half-Phi · 8.09s per source</span>
+    <!-- FAST SPIRAL PANEL - FIXED -->
+    <div class="spiral-panel fast">
+        <div class="spiral-title">
+            <span class="spiral-name">⚡ FAST SPIRAL</span>
+            <span class="spiral-frequency">Half-Phi · 8.09s per source</span>
+        </div>
+        <div class="pulse-container"><div class="pulse-ring fast"></div></div>
+        <div id="fastNarrative" class="fast-narrative">
+            <div class="narrative-line">🌀 Hermes awaits the first pulse...</div>
+        </div>
+        <button class="run-btn" id="fastRunBtn">🔍 Hunt Now</button>
     </div>
-    <div class="pulse-container"><div class="pulse-ring fast"></div></div>
-    <div id="fastNarrative" class="fast-narrative">
-        <div class="narrative-line">🌀 Hermes awaits the first pulse...</div>
+
+    <!-- SLOW SPIRAL PANEL -->
+    <div class="spiral-panel slow">
+        <div class="spiral-title">
+            <span class="spiral-name">🐢 SLOW SPIRAL</span>
+            <span class="spiral-frequency">~60 minutes · Real News</span>
+        </div>
+        <div class="pulse-container"><div class="pulse-ring slow"></div></div>
+        <div class="timer" id="slowTimer">60:00</div>
+        <div class="timer-label">until next dispatch cycle</div>
+        <button class="run-btn" id="slowRunBtn">📡 Fetch News Now</button>
     </div>
 </div>
-        </div>
-
-        <div class="spiral-panel slow">
-            <div class="spiral-title">
-                <span class="spiral-name">🐢 SLOW SPIRAL</span>
-                <span class="spiral-frequency">~60 minutes · Real News</span>
-            </div>
-            <div class="pulse-container"><div class="pulse-ring slow"></div></div>
-            <div class="timer" id="slowTimer">60:00</div>
-            <div class="timer-label">until next dispatch cycle</div>
-            <button class="run-btn" id="slowRunBtn">📡 Fetch News Now</button>
-        </div>
-    </div>
 
     <div class="digest-section">
         <div class="digest-title">
@@ -885,22 +887,10 @@ function updateWordCount() {
 
 function escapeHtml(str) { return String(str).replace(/[&<>]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c])); }
 
-function updateFastTimer() { document.getElementById('fastTimer').textContent = fastSeconds.toFixed(2); }
 function updateSlowTimer() {
     const minutes = Math.floor(slowSeconds / 60);
     const secs = Math.floor(slowSeconds % 60);
     document.getElementById('slowTimer').textContent = `${minutes}:${secs.toString().padStart(2, '0')}`;
-}
-
-function startFastSpiral() {
-    if (fastInterval) clearInterval(fastInterval);
-    fastInterval = setInterval(async () => {
-        if (fastSeconds <= 0.1) {
-            await fastSpiralHunt();
-            fastSeconds = 16.18;
-        } else { fastSeconds -= 0.1; }
-        updateFastTimer();
-    }, 100);
 }
 
 function startSlowSpiral() {
@@ -924,7 +914,15 @@ function updateFastNarrative(msg, type = 'info') {
     // Keep last 8 lines
     while (container.children.length > 8) container.removeChild(container.firstChild);
 }
-    
+    // Replace the old startFastSpiral with this:
+async function runFastSpiralLoop() {
+    while (true) {
+        await fastSpiralHunt();
+        await new Promise(r => setTimeout(r, 8090)); // Wait 8.09s between full cycles
+    }
+}
+
+// In init(), replace startFastSpiral() with:
 // ============================================
 // INITIALIZATION
 // ============================================
@@ -932,7 +930,7 @@ async function init() {
     hermesGate = new HermesGate(sb);
     renderDigest();
     await updateStats();
-    startFastSpiral();
+    runFastSpiralLoop();
     startSlowSpiral();
     
     document.getElementById('submitBtn').onclick = handleManualSignal;
