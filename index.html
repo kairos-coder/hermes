@@ -299,11 +299,13 @@
 
 <script>
 // ============================================
-// CONFIGURATION
+// CONFIGURATION - CLEAN FIX
 // ============================================
 const SUPABASE_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// sb = Supabase client instance (does NOT overwrite the library namespace)
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const BAND_CONFIG = { name: 'hermes', minWords: 1, maxWords: 3, expiryDays: 3 };
 
@@ -445,8 +447,8 @@ function renderDigest() {
 // HERMES GATE CLASS
 // ============================================
 class HermesGate {
-    constructor(supabaseClient) {
-        this.supabase = supabaseClient;
+    constructor(sbClient) {
+        this.sb = sbClient;
         this.minWords = BAND_CONFIG.minWords;
         this.maxWords = BAND_CONFIG.maxWords;
         this.expiryDays = BAND_CONFIG.expiryDays;
@@ -456,7 +458,7 @@ class HermesGate {
     
     async _isDuplicate(body, source, hours = 24) {
         const cutoff = new Date(Date.now() - hours * 3600000);
-        const { data } = await this.supabase
+        const { data } = await this.sb
             .from('concepts')
             .select('id')
             .eq('body', body.toLowerCase().trim())
@@ -493,7 +495,7 @@ class HermesGate {
             created_at: new Date().toISOString()
         };
         
-        const { data, error } = await this.supabase.from('concepts').insert(record).select().single();
+        const { data, error } = await this.sb.from('concepts').insert(record).select().single();
         if (error) return { success: false, error: error.message };
         return { success: true, id: data.id };
     }
@@ -539,7 +541,7 @@ async function fetchReddit() {
     } catch(err) { addLog(`Reddit error: ${err.message}`, 'error'); return []; }
 }
 
-async function fetchHackerNews() {
+async function fetchHackerNewsFast() {
     try {
         const storyRes = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
         const ids = await storyRes.json();
@@ -738,7 +740,7 @@ async function slowSpiralFetch() {
 // ============================================
 async function fastSpiralHunt() {
     addLog('⚡ FAST SPIRAL: Hunting reflexes...', 'info');
-    const [reddit, hn, github, mythic] = await Promise.all([fetchReddit(), fetchHackerNews(), fetchGitHub(), fetchMythicAll()]);
+    const [reddit, hn, github, mythic] = await Promise.all([fetchReddit(), fetchHackerNewsFast(), fetchGitHub(), fetchMythicAll()]);
     const allConcepts = [...reddit, ...hn, ...github, ...mythic];
     const results = await hermesGate.processBatch(allConcepts);
     const added = results.filter(r => r.success).length;
@@ -759,7 +761,7 @@ function addLog(msg, type = 'info') {
 }
 
 async function updateStats() {
-    const { data } = await supabase.from('concepts').select('source_loop, score').eq('band', 'hermes');
+    const { data } = await sb.from('concepts').select('source_loop, score').eq('band', 'hermes');
     if (!data) return;
     const total = data.length;
     const fastCount = data.filter(d => d.source_loop === 'fast').length;
@@ -775,7 +777,7 @@ async function updateStats() {
 }
 
 async function loadRecentSignals() {
-    const { data } = await supabase.from('concepts').select('body, score').eq('band', 'hermes').order('created_at', { ascending: false }).limit(15);
+    const { data } = await sb.from('concepts').select('body, score').eq('band', 'hermes').order('created_at', { ascending: false }).limit(15);
     if (!data || data.length === 0) {
         document.getElementById('signalTags').innerHTML = '<span style="color:#3a3a4a;">No signals yet. Scrape or enter one.</span>';
         return;
@@ -801,7 +803,7 @@ async function handleManualSignal() {
 
 async function handleScrape() {
     addLog('🌊 Scraping all sources (Tech + Mythic)...', 'info');
-    const [reddit, hn, github, mythic] = await Promise.all([fetchReddit(), fetchHackerNews(), fetchGitHub(), fetchMythicAll()]);
+    const [reddit, hn, github, mythic] = await Promise.all([fetchReddit(), fetchHackerNewsFast(), fetchGitHub(), fetchMythicAll()]);
     const allConcepts = [...reddit, ...hn, ...github, ...mythic];
     const results = await hermesGate.processBatch(allConcepts);
     const added = results.filter(r => r.success).length;
@@ -820,7 +822,7 @@ async function handleMythicScrape() {
 
 async function handlePrune() {
     addLog('🧹 Pruning expired...', 'info');
-    const { data } = await supabase.from('concepts').delete().lt('expires_at', new Date().toISOString()).eq('band', 'hermes').select();
+    const { data } = await sb.from('concepts').delete().lt('expires_at', new Date().toISOString()).eq('band', 'hermes').select();
     addLog(`🧹 Pruned ${data?.length || 0} expired.`, 'info');
     await updateStats();
 }
@@ -868,7 +870,7 @@ function startSlowSpiral() {
 // INITIALIZATION
 // ============================================
 async function init() {
-    hermesGate = new HermesGate(supabase);
+    hermesGate = new HermesGate(sb);
     renderDigest();
     await updateStats();
     startFastSpiral();
