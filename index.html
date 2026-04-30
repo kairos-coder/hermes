@@ -28,7 +28,6 @@
             letter-spacing: 1px;
         }
         
-        /* Dual Spiral Grid */
         .dual-spiral {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -102,7 +101,6 @@
         }
         .run-btn:hover { background: #8b5e3c; color: #0a0c12; }
         
-        /* Myth-Tech Digest */
         .digest-section { margin-bottom: 2rem; }
         .digest-title {
             font-size: 1rem;
@@ -134,7 +132,6 @@
         .card-tags { display: flex; gap: 0.3rem; flex-wrap: wrap; }
         .tag { font-size: 0.6rem; background: #1e2535; padding: 0.2rem 0.4rem; border-radius: 4px; }
         
-        /* Stats & Input */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -230,10 +227,9 @@
         <h1>🌀 HERMES · DUAL SPIRAL</h1>
         <div class="sub">ψυχοπομπός — Mythic-Tech Reflexes · Golden Ratio Pulse</div>
         <div class="thesis">⚡ FAST: 16.18s · Atomic word hunting → Hephaestus Forge</div>
-        <div class="thesis">🐢 SLOW: ~60m · Headline fetching → Zeus Court → God Pages</div>
+        <div class="thesis">🐢 SLOW: ~60m · Real News APIs → Zeus Court → God Pages</div>
     </div>
 
-    <!-- DUAL SPIRAL VISUALIZATION -->
     <div class="dual-spiral">
         <div class="spiral-panel fast">
             <div class="spiral-title">
@@ -249,16 +245,15 @@
         <div class="spiral-panel slow">
             <div class="spiral-title">
                 <span class="spiral-name">🐢 SLOW SPIRAL</span>
-                <span class="spiral-frequency">~60 minutes · Conscious Dispatch</span>
+                <span class="spiral-frequency">~60 minutes · Real News</span>
             </div>
             <div class="pulse-container"><div class="pulse-ring slow"></div></div>
             <div class="timer" id="slowTimer">60:00</div>
             <div class="timer-label">until next dispatch cycle</div>
-            <button class="run-btn" id="slowRunBtn">📡 Fetch Now</button>
+            <button class="run-btn" id="slowRunBtn">📡 Fetch News Now</button>
         </div>
     </div>
 
-    <!-- MYTH-TECH DIGEST -->
     <div class="digest-section">
         <div class="digest-title">
             <span>🏛️ MYTH-TECH DIGEST</span>
@@ -267,10 +262,8 @@
         <div class="digest-grid" id="mythTechGrid"></div>
     </div>
 
-    <!-- STATS -->
     <div class="stats-grid" id="statsGrid"></div>
 
-    <!-- MANUAL INPUT -->
     <div class="panel">
         <div class="panel-title">📡 MANUAL INPUT · RAW SIGNAL</div>
         <div class="input-area">
@@ -281,7 +274,6 @@
         <div class="word-count" id="wordCount">0 / 1-3 words</div>
     </div>
 
-    <!-- DATA SOURCES -->
     <div class="panel">
         <div class="panel-title">🌊 DATA SOURCES · SCRAPER INPUT</div>
         <button id="scrapeBtn">🌊 Scrape All (Tech + Mythic)</button>
@@ -293,11 +285,10 @@
         </div>
     </div>
 
-    <!-- LOG -->
     <div class="panel">
         <div class="panel-title">📋 GATE LOG</div>
         <div id="ingestLog" class="log-area">
-            <div class="log-entry">🌀 Dual Spiral active. Fast: 16.18s | Slow: 60m</div>
+            <div class="log-entry">🌀 Dual Spiral active. Fast: 16.18s | Slow: 60m (Real News APIs)</div>
         </div>
     </div>
 </div>
@@ -312,7 +303,6 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const BAND_CONFIG = { name: 'hermes', minWords: 1, maxWords: 3, expiryDays: 3 };
 
-// Stopwords
 const STOPWORDS = new Set([
     'the','and','for','with','this','that','from','have','are','was','were','how','why','what',
     'when','where','who','which','there','their','they','them','then','than','about','into',
@@ -326,10 +316,10 @@ const PRIORITY_WORDS = new Set([
     'fractal','quantum','neural','vector','semantic','intelligence','generative'
 ]);
 
-// Spiral timers
 let fastSeconds = 16.18;
 let slowSeconds = 3600;
 let fastInterval, slowInterval;
+let hermesGate;
 
 // ============================================
 // MYTH-TECH DIGEST STORIES
@@ -494,14 +484,14 @@ async function fetchGitHub() {
 }
 
 // ============================================
-// MYTHIC SOURCES (Curated)
+// MYTHIC SOURCES (Your Curated List)
 // ============================================
 const MYTHIC_CONCEPTS = [
     "chaos", "ananke", "moirai", "aether", "nyx", "erebus", "ouroboros", "phoenix",
     "chimera", "sphinx", "nymph", "centaur", "valkyrie", "kami", "mandala", "karma",
     "dharma", "samsara", "Cerberus", "Persephone", "Elysium", "philosopher stone", "Coctyus",
-    "Lethe", "Nyx", "Thanatos", "Moirai", "golden ratio", "Erinyes",
-    "Melinoe", "Hypnos", "Acheron", "Styx", "Tartarus", "Acheron"
+    "Lethe", "Thanatos", "Moirai", "golden ratio", "Erinyes",
+    "Melinoe", "Hypnos", "Acheron", "Styx", "Tartarus"
 ];
 
 async function fetchMythicAll() {
@@ -514,34 +504,165 @@ async function fetchMythicAll() {
 }
 
 // ============================================
-// SLOW SPIRAL: Headline fetching
+// REAL NEWS APIs FOR SLOW SPIRAL
 // ============================================
-const MOCK_HEADLINES = [
-    "OpenAI unveils new reasoning model capable of mathematical proofs",
-    "Federal Reserve signals rate cuts as inflation moderates",
-    "China builds world's first fusion power plant prototype",
-    "Google DeepMind solves protein folding for rare diseases",
-    "Tesla announces autonomous taxi fleet for 2026",
-    "Microsoft and OpenAI face antitrust investigation in EU",
-    "New solar cell technology achieves 40% efficiency breakthrough",
-    "US and China agree on AI safety research partnership"
-];
 
+// 1. Hacker News (Real-time tech news)
+async function fetchHNHeadlines() {
+    try {
+        const storyRes = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
+        const ids = await storyRes.json();
+        const topIds = ids.slice(0, 15);
+        const stories = await Promise.all(topIds.map(async id => {
+            const r = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
+            return r.json();
+        }));
+        return stories.filter(s => s && s.title && s.type === 'story').map(s => ({
+            body: s.title,
+            source: 'hackernews',
+            score: 65 + Math.floor(Math.random() * 25),
+            metadata: { url: s.url, score: s.score, comments: s.descendants }
+        }));
+    } catch(e) { addLog(`HN API error: ${e.message}`, 'error'); return []; }
+}
+
+// 2. Dev.to (Developer news)
+async function fetchDevTo() {
+    try {
+        const res = await fetch('https://dev.to/api/articles?top=15');
+        const articles = await res.json();
+        return articles.map(a => ({
+            body: a.title,
+            source: 'devto',
+            score: 60 + Math.floor(Math.random() * 25),
+            metadata: { url: a.url, tags: a.tag_list, likes: a.public_reactions_count }
+        }));
+    } catch(e) { addLog(`Dev.to error: ${e.message}`, 'error'); return []; }
+}
+
+// 3. Lobsters (Tech aggregation)
+async function fetchLobsters() {
+    try {
+        const res = await fetch('https://lobste.rs/hottest.json');
+        const stories = await res.json();
+        return stories.slice(0, 10).map(s => ({
+            body: s.title,
+            source: 'lobsters',
+            score: 60 + Math.floor(Math.random() * 25),
+            metadata: { url: s.url, comments: s.comment_count }
+        }));
+    } catch(e) { addLog(`Lobsters error: ${e.message}`, 'error'); return []; }
+}
+
+// 4. RSS Feeds via rss2json (TechCrunch, Wired, Ars Technica, BBC Tech, The Verge)
+async function fetchRSSFeeds() {
+    const feeds = [
+        { url: 'https://feeds.bbci.co.uk/news/technology/rss.xml', name: 'bbc_tech' },
+        { url: 'https://techcrunch.com/feed/', name: 'techcrunch' },
+        { url: 'https://www.wired.com/feed/rss', name: 'wired' },
+        { url: 'https://arstechnica.com/feed/', name: 'arstechnica' },
+        { url: 'https://www.theverge.com/rss/index.xml', name: 'theverge' }
+    ];
+    
+    const allArticles = [];
+    
+    for (const feed of feeds) {
+        try {
+            const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`;
+            const res = await fetch(proxyUrl);
+            const data = await res.json();
+            
+            if (data.items) {
+                const articles = data.items.slice(0, 4).map(item => ({
+                    body: item.title,
+                    source: `rss_${feed.name}`,
+                    score: 50 + Math.floor(Math.random() * 35),
+                    metadata: { url: item.link, published: item.pubDate }
+                }));
+                allArticles.push(...articles);
+            }
+        } catch(e) {
+            addLog(`RSS error (${feed.name}): ${e.message}`, 'error');
+        }
+        await new Promise(r => setTimeout(r, 300));
+    }
+    
+    return allArticles;
+}
+
+// 5. NewsAPI.org (requires free API key - optional)
+// Get key from: https://newsapi.org/register
+async function fetchNewsAPI() {
+    const apiKey = ''; // Add your NewsAPI key here
+    if (!apiKey) return [];
+    try {
+        const res = await fetch(`https://newsapi.org/v2/top-headlines?country=us&category=technology&pageSize=10&apiKey=${apiKey}`);
+        const data = await res.json();
+        if (data.articles) {
+            return data.articles.map(a => ({
+                body: a.title,
+                source: 'newsapi',
+                score: 55 + Math.floor(Math.random() * 30),
+                metadata: { url: a.url, source: a.source.name }
+            }));
+        }
+    } catch(e) { addLog(`NewsAPI error: ${e.message}`, 'error'); }
+    return [];
+}
+
+// Main slow spiral fetch - combines all real news sources
 async function slowSpiralFetch() {
-    addLog('🐢 SLOW SPIRAL: Fetching headlines...', 'info');
-    const shuffled = [...MOCK_HEADLINES].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, 4);
+    addLog('🐢 SLOW SPIRAL: Fetching headlines from real news APIs...', 'info');
+    
+    const results = await Promise.allSettled([
+        fetchHNHeadlines(),
+        fetchDevTo(),
+        fetchLobsters(),
+        fetchRSSFeeds()
+        // fetchNewsAPI() - uncomment when you add API key
+    ]);
+    
+    let allHeadlines = [];
+    for (const result of results) {
+        if (result.status === 'fulfilled' && result.value.length) {
+            allHeadlines = [...allHeadlines, ...result.value];
+        }
+    }
+    
+    // Deduplicate by title similarity
+    const seen = new Set();
+    const uniqueHeadlines = allHeadlines.filter(h => {
+        const normalized = h.body.toLowerCase().trim();
+        if (seen.has(normalized)) return false;
+        seen.add(normalized);
+        return true;
+    });
+    
+    const selected = uniqueHeadlines.slice(0, 12);
+    addLog(`📊 Found ${allHeadlines.length} headlines, ${uniqueHeadlines.length} unique, taking ${selected.length}`, 'info');
+    
     let deposited = 0;
+    let failed = 0;
+    
     for (const headline of selected) {
-        const wordCount = headline.split(/\s+/).length;
         const result = await hermesGate.process({
-            body: headline, source: 'news_api', source_loop: 'slow',
-            score: 40 + Math.floor(Math.random() * 40), metadata: { word_count: wordCount }
+            body: headline.body,
+            source: headline.source,
+            source_loop: 'slow',
+            score: headline.score,
+            metadata: headline.metadata
         });
-        if (result.success) deposited++;
+        
+        if (result.success) {
+            deposited++;
+            addLog(`📰 "${headline.body.substring(0, 55)}..." → ${headline.source}`, 'success');
+        } else {
+            failed++;
+        }
         await new Promise(r => setTimeout(r, 100));
     }
-    addLog(`🐢 Slow spiral: ${deposited} dispatches → Zeus`, 'success');
+    
+    addLog(`🐢 Slow spiral complete: ${deposited} dispatches → Zeus (${failed} duplicates/failed)`, deposited > 0 ? 'success' : 'warning');
     await updateStats();
 }
 
@@ -561,15 +682,13 @@ async function fastSpiralHunt() {
 // ============================================
 // UI HELPERS
 // ============================================
-let hermesGate;
-
 function addLog(msg, type = 'info') {
     const log = document.getElementById('ingestLog');
     const entry = document.createElement('div');
     entry.className = `log-entry ${type}`;
     entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
     log.insertBefore(entry, log.firstChild);
-    while (log.children.length > 40) log.removeChild(log.lastChild);
+    while (log.children.length > 50) log.removeChild(log.lastChild);
 }
 
 async function updateStats() {
@@ -580,7 +699,7 @@ async function updateStats() {
     const slowCount = data.filter(d => d.source_loop === 'slow').length;
     const avgScore = total > 0 ? Math.round(data.reduce((s, d) => s + (d.score || 0), 0) / total) : 0;
     document.getElementById('statsGrid').innerHTML = `
-        <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total</div></div>
+        <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total Dispatches</div></div>
         <div class="stat-card"><div class="stat-number">${fastCount}</div><div class="stat-label">⚡ Fast Spiral</div></div>
         <div class="stat-card"><div class="stat-number">${slowCount}</div><div class="stat-label">🐢 Slow Spiral</div></div>
         <div class="stat-card"><div class="stat-number">${avgScore}</div><div class="stat-label">Avg Score</div></div>
@@ -649,7 +768,6 @@ function updateWordCount() {
 
 function escapeHtml(str) { return String(str).replace(/[&<>]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c])); }
 
-// Timer functions
 function updateFastTimer() { document.getElementById('fastTimer').textContent = fastSeconds.toFixed(2); }
 function updateSlowTimer() {
     const minutes = Math.floor(slowSeconds / 60);
@@ -698,11 +816,10 @@ async function init() {
     document.getElementById('slowRunBtn').onclick = async () => { await slowSpiralFetch(); slowSeconds = 3600; updateSlowTimer(); };
     document.getElementById('signalInput').oninput = updateWordCount;
     
-    // Initial runs
     setTimeout(() => fastSpiralHunt(), 2000);
     setTimeout(() => slowSpiralFetch(), 5000);
     
-    addLog('🌀 Dual Spiral active. Fast: 16.18s (Golden Ratio) | Slow: 60m', 'success');
+    addLog('🌀 Dual Spiral active. Fast: 16.18s (Golden Ratio) | Slow: 60m real news', 'success');
 }
 
 init();
