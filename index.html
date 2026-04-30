@@ -634,19 +634,6 @@ async function fetchDevTo() {
     } catch(e) { addLog(`Dev.to error: ${e.message}`, 'error'); return []; }
 }
 
-async function fetchLobsters() {
-    try {
-        const res = await fetch('https://lobste.rs/hottest.json');
-        const stories = await res.json();
-        return stories.slice(0, 10).map(s => ({
-            body: s.title,
-            source: 'lobsters',
-            score: 60 + Math.floor(Math.random() * 25),
-            metadata: { url: s.url, comments: s.comment_count }
-        }));
-    } catch(e) { addLog(`Lobsters error: ${e.message}`, 'error'); return []; }
-}
-
 async function fetchRSSFeeds() {
     const feeds = [
         { url: 'https://feeds.bbci.co.uk/news/technology/rss.xml', name: 'bbc_tech' },
