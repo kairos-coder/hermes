@@ -655,57 +655,120 @@ async function slowSpiralFetch() {
 }
 
 // ============================================
-// FAST SPIRAL: Sequential API calls with Golden Ratio spacing
+// WORKING FAST SPIRAL SOURCES (No CORS)
 // ============================================
 
-// Define all your fast spiral sources here (easy to add more)
-const FAST_SPIRAL_SOURCES = [
-    { name: 'reddit', fetcher: fetchReddit, weight: 1 },
-    { name: 'hackernews', fetcher: fetchHackerNewsFast, weight: 1 },
-    { name: 'github', fetcher: fetchGitHub, weight: 1 },
-    { name: 'mythic', fetcher: fetchMythicAll, weight: 1 }
+// 1. Hacker News (no CORS, reliable)
+async function fetchHN_Tokens() {
+    const res = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
+    const ids = await res.json();
+    const topIds = ids.slice(0, 10);
+    const stories = await Promise.all(topIds.map(async id => {
+        const r = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
+        return r.json();
+    }));
+    const titles = stories.filter(s => s && s.title).map(s => s.title);
+    const tokens = titles.flatMap(t => extractTokens(t));
+    const unique = [...new Set(tokens)].slice(0, 8);
+    return unique.map(word => ({
+        body: word, source: 'hn_fast', source_loop: 'fast',
+        score: 70 + Math.floor(Math.random() * 20),
+        metadata: { domain: 'tech' }
+    }));
+}
+
+// 2. Static Mythic Pool (your curated list, randomized)
+async function fetchMythicTokens() {
+    const MYTHIC_WORDS = [
+        "chaos", "ananke", "aether", "nyx", "erebus", "ouroboros", "phoenix",
+        "chimera", "sphinx", "nymph", "centaur", "valkyrie", "mandala", "karma",
+        "dharma", "samsara", "cerberus", "persephone", "elysium", "lethe", "thanatos",
+        "erinyes", "melinoe", "hypnos", "acheron", "styx", "tartarus", "prometheus",
+        "ariadne", "mnemosyne", "demeter", "hermes", "hephaestus", "apollo"
+    ];
+    const shuffled = [...MYTHIC_WORDS].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 4);
+    return selected.map(word => ({
+        body: word, source: 'mythic_fast', source_loop: 'fast',
+        score: 85 + Math.floor(Math.random() * 15),
+        metadata: { domain: 'mythos' }
+    }));
+}
+
+// 3. Dev.to Articles -> Tokens (no CORS)
+async function fetchDevToTokens() {
+    const res = await fetch('https://dev.to/api/articles?top=10');
+    const articles = await res.json();
+    const titles = articles.map(a => a.title);
+    const tokens = titles.flatMap(t => extractTokens(t));
+    const unique = [...new Set(tokens)].slice(0, 6);
+    return unique.map(word => ({
+        body: word, source: 'devto_fast', source_loop: 'fast',
+        score: 60 + Math.floor(Math.random() * 25),
+        metadata: { domain: 'dev' }
+    }));
+}
+
+// 4. RSS via rss2json (no CORS)
+async function fetchRSSFastTokens() {
+    const feedUrls = [
+        'https://feeds.bbci.co.uk/news/technology/rss.xml',
+        'https://techcrunch.com/feed/'
+    ];
+    const allTokens = [];
+    for (const url of feedUrls) {
+        const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
+        const res = await fetch(proxyUrl);
+        const data = await res.json();
+        if (data.items) {
+            const titles = data.items.slice(0, 5).map(item => item.title);
+            const tokens = titles.flatMap(t => extractTokens(t));
+            allTokens.push(...tokens);
+        }
+        await new Promise(r => setTimeout(r, 500));
+    }
+    const unique = [...new Set(allTokens)].slice(0, 8);
+    return unique.map(word => ({
+        body: word, source: 'rss_fast', source_loop: 'fast',
+        score: 55 + Math.floor(Math.random() * 30),
+        metadata: { domain: 'news' }
+    }));
+}
+
+// Fast Spiral Runner — Sequential, 8.09s between calls
+const FAST_SOURCES = [
+    { name: 'Hacker News', fetcher: fetchHN_Tokens, icon: '⚡' },
+    { name: 'Mythic Archive', fetcher: fetchMythicTokens, icon: '🏛️' },
+    { name: 'Dev.to', fetcher: fetchDevToTokens, icon: '💻' },
+    { name: 'Tech RSS', fetcher: fetchRSSFastTokens, icon: '📡' }
 ];
 
 async function fastSpiralHunt() {
-    addLog('⚡ FAST SPIRAL: Hunting reflexes (sequential, φ = 1.618s)...', 'info');
-    
-    let allConcepts = [];
-    let sourceCount = 0;
-    
-    // Run each source sequentially with golden ratio spacing
-    for (const source of FAST_SPIRAL_SOURCES) {
-        sourceCount++;
-        addLog(`  🔍 Hunting ${source.name}... (${sourceCount}/${FAST_SPIRAL_SOURCES.length})`, 'info');
+    for (let i = 0; i < FAST_SOURCES.length; i++) {
+        const source = FAST_SOURCES[i];
+        updateFastNarrative(`${source.icon} ${source.name}: hunting...`);
         
         try {
             const concepts = await source.fetcher();
             if (concepts && concepts.length) {
-                allConcepts = [...allConcepts, ...concepts];
-                addLog(`  ✓ ${source.name}: ${concepts.length} reflexes found`, 'success');
+                const results = await hermesGate.processBatch(concepts);
+                const added = results.filter(r => r.success).length;
+                updateFastNarrative(`${source.icon} ${source.name}: ${added} new reflexes → Hephaestus`, 'success');
             } else {
-                addLog(`  ○ ${source.name}: no reflexes`, 'info');
+                updateFastNarrative(`${source.icon} ${source.name}: no tokens found`, 'warning');
             }
         } catch (err) {
-            addLog(`  ✗ ${source.name}: ${err.message}`, 'error');
+            updateFastNarrative(`${source.icon} ${source.name}: error — ${err.message}`, 'error');
         }
         
-        // Golden ratio spacing (1.618 seconds) between API calls
-        if (sourceCount < FAST_SPIRAL_SOURCES.length) {
-            await new Promise(r => setTimeout(r, 1618)); // φ seconds in ms
+        // Wait half-phi (8.09s) between sources, but not after the last one
+        if (i < FAST_SOURCES.length - 1) {
+            await new Promise(r => setTimeout(r, 8090)); // 8.09 seconds
         }
     }
-    
-    addLog(`📦 Total reflexes before dedup: ${allConcepts.length}`, 'info');
-    
-    // Process batch (this also has its own dedup)
-    const results = await hermesGate.processBatch(allConcepts);
-    const added = results.filter(r => r.success).length;
-    const duplicates = results.filter(r => !r.success).length;
-    
-    addLog(`⚡ Fast spiral complete: ${added} new → Hephaestus, ${duplicates} duplicates`, added > 0 ? 'success' : 'info');
-    await updateStats();
+    updateFastNarrative(`🌀 Cycle complete. Hermes rests for 8.09s before next round.`);
 }
-
+    
 // ============================================
 // UI HELPERS
 // ============================================
