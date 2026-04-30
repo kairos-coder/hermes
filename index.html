@@ -110,6 +110,8 @@
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
             gap: 0.5rem;
         }
         .digest-grid {
@@ -129,8 +131,10 @@
         .card-meta { font-size: 0.6rem; color: #8b5e3c; text-transform: uppercase; margin-bottom: 0.5rem; }
         .card-title { font-size: 0.9rem; font-weight: bold; margin-bottom: 0.5rem; }
         .card-summary { font-size: 0.7rem; color: #8a9aaa; margin-bottom: 0.5rem; }
-        .card-tags { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+        .card-source { font-size: 0.6rem; color: #6a7a8a; margin-top: 0.3rem; }
+        .card-tags { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.3rem; }
         .tag { font-size: 0.6rem; background: #1e2535; padding: 0.2rem 0.4rem; border-radius: 4px; }
+        .archetype-tag { border-left: 2px solid #8b5e3c; }
         
         .stats-grid {
             display: grid;
@@ -219,12 +223,13 @@
             body { padding: 1rem; }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="container">
     <div class="header">
         <h1>🌀 HERMES · DUAL SPIRAL</h1>
-        <div class="sub">ψυχοπομπός — Mythic-Tech Reflexes · Golden Ratio Pulse</div>
+        <div class="sub">ψυχοπομπός — Mythic-Tech Reflexes · Golden Ratio Pulse · LIVE 2026</div>
         <div class="thesis">⚡ FAST: 16.18s · Atomic word hunting → Hephaestus Forge</div>
         <div class="thesis">🐢 SLOW: ~60m · Real News APIs → Zeus Court → God Pages</div>
     </div>
@@ -255,7 +260,7 @@
 
     <div class="digest-section">
         <div class="digest-title">
-            <span>🏛️ MYTH-TECH DIGEST</span>
+            <span>🏛️ MYTH-TECH DIGEST · LIVE 2026 EDITION</span>
             <div class="live-indicator"><span class="pulse-dot"></span> Curated by Hermes</div>
         </div>
         <div class="digest-grid" id="mythTechGrid"></div>
@@ -312,7 +317,9 @@ const STOPWORDS = new Set([
 const PRIORITY_WORDS = new Set([
     'ai','ml','api','data','cloud','native','scalable','async','pipeline','frontier',
     'alignment','resonance','collapse','emergence','paradox','recursion','entropy',
-    'fractal','quantum','neural','vector','semantic','intelligence','generative'
+    'fractal','quantum','neural','vector','semantic','intelligence','generative',
+    'compute','inference','latency','throughput','embedding','agentic','ouroboros',
+    'phoenix','prometheus','ariadne','titanomachy','mnemosyne','labyrinth','demeter'
 ]);
 
 let fastSeconds = 16.18;
@@ -321,15 +328,99 @@ let fastInterval, slowInterval;
 let hermesGate;
 
 // ============================================
-// MYTH-TECH DIGEST STORIES
+// MYTH-TECH DIGEST STORIES — LIVE 2026 EDITION
 // ============================================
 const MYTH_TECH_STORIES = [
-    { category: "TECH + MYTHOS", title: "The Ouroboros of AI", summary: "Models training models creates self-eating recursion.", tags: ["AI","Recursion"], archetype: "Ouroboros" },
-    { category: "BUSINESS + ALCHEMY", title: "Fusion's Philosopher Stone", summary: "Net-positive ignition achieved after decades.", tags: ["Fusion","Breakthrough"], archetype: "Transmutation" },
-    { category: "HISTORY + CYCLES", title: "Phoenix of Sovereign Manufacturing", summary: "Chip fabrication rises in the West again.", tags: ["Semiconductors","Reshoring"], archetype: "Phoenix" },
-    { category: "TECH + TITANS", title: "Promethean Open Models", summary: "Open-weight LLMs democratize intelligence.", tags: ["Open Source","AI"], archetype: "Prometheus" },
-    { category: "BUSINESS + LABYRINTH", title: "Ariadne's Quantum Thread", summary: "Logical qubits emerge from error correction.", tags: ["Quantum"], archetype: "Ariadne" },
-    { category: "HISTORY + HARVEST", title: "Demeter's Commodity Cycles", summary: "Earth's abundance follows seasons of scarcity.", tags: ["Commodities","Cycles"], archetype: "Demeter" }
+    {
+        category: "TECH + OUROBOROS",
+        title: "Recursive AI Enters the Wild",
+        summary: "Frontier labs race toward models that improve themselves after deployment.",
+        tags: ["AI","Recursive Learning","AGI"],
+        archetype: "Ouroboros",
+        source: "Axios / OpenAI / DeepMind",
+        url: "https://www.axios.com/"
+    },
+    {
+        category: "BUSINESS + TRANSMUTATION",
+        title: "Fusion Ignition Breaks New Records",
+        summary: "NIF experiments push fusion yields higher with repeated successful ignitions.",
+        tags: ["Fusion","Energy","Science"],
+        archetype: "Philosopher Stone",
+        source: "LLNL",
+        url: "https://lasers.llnl.gov/"
+    },
+    {
+        category: "HISTORY + PHOENIX",
+        title: "The Semiconductor Forge Reignites",
+        summary: "Western reshoring and Chinese 7nm expansion reshape the chip wars.",
+        tags: ["Semiconductors","Manufacturing","Geopolitics"],
+        archetype: "Phoenix",
+        source: "Reuters / Industry Reports",
+        url: "https://www.reuters.com/technology/"
+    },
+    {
+        category: "TECH + PROMETHEUS",
+        title: "Open Models Challenge Closed Empires",
+        summary: "Smaller open-weight reasoning systems rival massive proprietary AI stacks.",
+        tags: ["Open Source","LLMs","Reasoning"],
+        archetype: "Prometheus",
+        source: "Samsung AI / DeepSeek",
+        url: "https://huggingface.co/models"
+    },
+    {
+        category: "BUSINESS + ARIADNE",
+        title: "Quantum Error Correction Finds the Thread",
+        summary: "Logical qubits and stable architectures edge quantum systems toward viability.",
+        tags: ["Quantum","Qubits","Computing"],
+        archetype: "Ariadne",
+        source: "Quantum Research Labs",
+        url: "https://research.ibm.com/quantum"
+    },
+    {
+        category: "INFRASTRUCTURE + TITANS",
+        title: "The Age of Exaflop AI Begins",
+        summary: "New TPU and GPU superclusters scale toward agentic AI infrastructure.",
+        tags: ["TPUs","NVIDIA","Datacenters"],
+        archetype: "Titanomachy",
+        source: "Google Cloud / NVIDIA",
+        url: "https://blogs.nvidia.com/"
+    },
+    {
+        category: "HISTORY + DEMETER",
+        title: "Commodity Cycles Return with Force",
+        summary: "Energy, copper, and rare earth demand surge under AI industrial expansion.",
+        tags: ["Commodities","Mining","Cycles"],
+        archetype: "Demeter",
+        source: "Global Markets",
+        url: "https://www.bloomberg.com/markets"
+    },
+    {
+        category: "TECH + HERMES",
+        title: "AI Agents Learn to Coordinate",
+        summary: "Multi-agent systems begin routing tasks across specialized AI networks.",
+        tags: ["Agents","Automation","Workflows"],
+        archetype: "Hermes",
+        source: "Google Cloud Next",
+        url: "https://cloud.google.com/blog"
+    },
+    {
+        category: "MYTH + MACHINE",
+        title: "World Models Replace Static Transformers",
+        summary: "Researchers push toward memory-driven systems that simulate reality itself.",
+        tags: ["World Models","Memory","AI"],
+        archetype: "Mnemosyne",
+        source: "DeepMind Research",
+        url: "https://deepmind.google/discover/blog/"
+    },
+    {
+        category: "SYSTEMS + LABYRINTH",
+        title: "The New Compute Arms Race",
+        summary: "AI infrastructure becomes the defining geopolitical resource of the decade.",
+        tags: ["Compute","AI","Geopolitics"],
+        archetype: "Labyrinth",
+        source: "Industry Analysis",
+        url: "https://www.ft.com/technology"
+    }
 ];
 
 function renderDigest() {
@@ -337,11 +428,15 @@ function renderDigest() {
     const selected = shuffled.slice(0, 3);
     const grid = document.getElementById('mythTechGrid');
     grid.innerHTML = selected.map(story => `
-        <div class="myth-tech-card" onclick="alert('${story.title}\\n\\n${story.summary}\\n\\nArchetype: ${story.archetype}')">
+        <div class="myth-tech-card" onclick="window.open('${story.url}', '_blank')">
             <div class="card-meta">${story.category}</div>
             <div class="card-title">${story.title}</div>
             <div class="card-summary">${story.summary}</div>
-            <div class="card-tags">${story.tags.map(t => `<span class="tag">${t}</span>`).join('')}<span class="tag">🏛️ ${story.archetype}</span></div>
+            <div class="card-source">📡 ${story.source}</div>
+            <div class="card-tags">
+                ${story.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                <span class="tag archetype-tag">🏛️ ${story.archetype}</span>
+            </div>
         </div>
     `).join('');
 }
@@ -488,9 +583,9 @@ async function fetchGitHub() {
 const MYTHIC_CONCEPTS = [
     "chaos", "ananke", "moirai", "aether", "nyx", "erebus", "ouroboros", "phoenix",
     "chimera", "sphinx", "nymph", "centaur", "valkyrie", "kami", "mandala", "karma",
-    "dharma", "samsara", "Cerberus", "Persephone", "Elysium", "philosopher stone", "Coctyus",
-    "Lethe", "Thanatos", "Moirai", "golden ratio", "Erinyes",
-    "Melinoe", "Hypnos", "Acheron", "Styx", "Tartarus"
+    "dharma", "samsara", "cerberus", "persephone", "elysium", "philosopher stone", "cocytus",
+    "lethe", "thanatos", "moirai", "golden ratio", "erinyes", "melinoe", "hypnos",
+    "acheron", "styx", "tartarus", "prometheus", "ariadne", "mnemosyne", "demeter"
 ];
 
 async function fetchMythicAll() {
@@ -506,7 +601,6 @@ async function fetchMythicAll() {
 // REAL NEWS APIs FOR SLOW SPIRAL
 // ============================================
 
-// 1. Hacker News (Real-time tech news)
 async function fetchHNHeadlines() {
     try {
         const storyRes = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
@@ -525,7 +619,6 @@ async function fetchHNHeadlines() {
     } catch(e) { addLog(`HN API error: ${e.message}`, 'error'); return []; }
 }
 
-// 2. Dev.to (Developer news)
 async function fetchDevTo() {
     try {
         const res = await fetch('https://dev.to/api/articles?top=15');
@@ -539,7 +632,6 @@ async function fetchDevTo() {
     } catch(e) { addLog(`Dev.to error: ${e.message}`, 'error'); return []; }
 }
 
-// 3. Lobsters (Tech aggregation)
 async function fetchLobsters() {
     try {
         const res = await fetch('https://lobste.rs/hottest.json');
@@ -553,7 +645,6 @@ async function fetchLobsters() {
     } catch(e) { addLog(`Lobsters error: ${e.message}`, 'error'); return []; }
 }
 
-// 4. RSS Feeds via rss2json (TechCrunch, Wired, Ars Technica, BBC Tech, The Verge)
 async function fetchRSSFeeds() {
     const feeds = [
         { url: 'https://feeds.bbci.co.uk/news/technology/rss.xml', name: 'bbc_tech' },
@@ -589,27 +680,6 @@ async function fetchRSSFeeds() {
     return allArticles;
 }
 
-// 5. NewsAPI.org (requires free API key - optional)
-// Get key from: https://newsapi.org/register
-async function fetchNewsAPI() {
-    const apiKey = ''; // Add your NewsAPI key here
-    if (!apiKey) return [];
-    try {
-        const res = await fetch(`https://newsapi.org/v2/top-headlines?country=us&category=technology&pageSize=10&apiKey=${apiKey}`);
-        const data = await res.json();
-        if (data.articles) {
-            return data.articles.map(a => ({
-                body: a.title,
-                source: 'newsapi',
-                score: 55 + Math.floor(Math.random() * 30),
-                metadata: { url: a.url, source: a.source.name }
-            }));
-        }
-    } catch(e) { addLog(`NewsAPI error: ${e.message}`, 'error'); }
-    return [];
-}
-
-// Main slow spiral fetch - combines all real news sources
 async function slowSpiralFetch() {
     addLog('🐢 SLOW SPIRAL: Fetching headlines from real news APIs...', 'info');
     
@@ -618,7 +688,6 @@ async function slowSpiralFetch() {
         fetchDevTo(),
         fetchLobsters(),
         fetchRSSFeeds()
-        // fetchNewsAPI() - uncomment when you add API key
     ]);
     
     let allHeadlines = [];
@@ -628,7 +697,6 @@ async function slowSpiralFetch() {
         }
     }
     
-    // Deduplicate by title similarity
     const seen = new Set();
     const uniqueHeadlines = allHeadlines.filter(h => {
         const normalized = h.body.toLowerCase().trim();
