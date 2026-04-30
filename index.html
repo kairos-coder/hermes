@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Hermes · Dual Spiral · 16.18s / 60m · KairosKernel</title>
+    <title>⚡ Hermes · Dual Spiral · Mythic-Tech Reflexes · KairosKernel</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -14,7 +14,6 @@
         }
         .container { max-width: 1400px; margin: 0 auto; }
         
-        /* Header */
         .header { 
             border-left: 4px solid #8b5e3c; 
             padding-left: 1rem; 
@@ -41,36 +40,18 @@
             border: 1px solid #1e2535;
             border-radius: 1rem;
             padding: 1.5rem;
-            position: relative;
-            overflow: hidden;
         }
-        .spiral-panel.fast {
-            border-top: 3px solid #FFD700;
-        }
-        .spiral-panel.slow {
-            border-top: 3px solid #8b5e3c;
-        }
+        .spiral-panel.fast { border-top: 3px solid #FFD700; }
+        .spiral-panel.slow { border-top: 3px solid #8b5e3c; }
         .spiral-title {
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
             margin-bottom: 1rem;
             flex-wrap: wrap;
         }
-        .spiral-name {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-        .spiral-frequency {
-            font-size: 0.7rem;
-            color: #6a7a8a;
-            font-family: monospace;
-        }
-        .pulse-container {
-            display: flex;
-            justify-content: center;
-            margin: 1.5rem 0;
-        }
+        .spiral-name { font-size: 1.2rem; font-weight: bold; }
+        .spiral-frequency { font-size: 0.7rem; color: #6a7a8a; }
+        .pulse-container { display: flex; justify-content: center; margin: 1.5rem 0; }
         .pulse-ring {
             width: 100px;
             height: 100px;
@@ -80,44 +61,34 @@
             justify-content: center;
             position: relative;
         }
-        .pulse-ring.active::before {
+        .pulse-ring.fast::before {
             content: '';
             position: absolute;
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            animation: pulse 1s ease-out infinite;
-        }
-        .pulse-ring.fast::before {
             border: 2px solid #FFD700;
-            animation-duration: 16.18s;
+            animation: pulseFast 16.18s linear infinite;
         }
         .pulse-ring.slow::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
             border: 2px solid #8b5e3c;
-            animation-duration: 3600s;
+            animation: pulseSlow 3600s linear infinite;
         }
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                opacity: 0.8;
-            }
-            100% {
-                transform: scale(1.8);
-                opacity: 0;
-            }
+        @keyframes pulseFast {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.8); opacity: 0; }
         }
-        .timer {
-            font-size: 2.5rem;
-            font-weight: bold;
-            font-family: monospace;
-            text-align: center;
+        @keyframes pulseSlow {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.8); opacity: 0; }
         }
-        .timer-label {
-            text-align: center;
-            font-size: 0.7rem;
-            color: #6a7a8a;
-            margin-top: 0.5rem;
-        }
+        .timer { font-size: 2rem; font-weight: bold; text-align: center; font-family: monospace; }
+        .timer-label { text-align: center; font-size: 0.7rem; color: #6a7a8a; margin-top: 0.5rem; }
         .run-btn {
             width: 100%;
             background: #1e2535;
@@ -127,32 +98,43 @@
             margin-top: 1rem;
             cursor: pointer;
             font-family: monospace;
-            font-size: 0.8rem;
             border-radius: 6px;
         }
-        .run-btn:hover {
-            background: #8b5e3c;
-            color: #0a0c12;
-        }
-        .dispatch-feed {
-            margin-top: 1rem;
-            max-height: 200px;
-            overflow-y: auto;
-            font-size: 0.7rem;
-        }
-        .dispatch-item {
-            padding: 0.3rem;
-            border-bottom: 1px solid #1a1f2a;
-            font-family: monospace;
-        }
-        .dispatch-time {
-            color: #6a7a8a;
-        }
-        .dispatch-body {
-            color: #FFD700;
-        }
+        .run-btn:hover { background: #8b5e3c; color: #0a0c12; }
         
-        /* Stats */
+        /* Myth-Tech Digest */
+        .digest-section { margin-bottom: 2rem; }
+        .digest-title {
+            font-size: 1rem;
+            color: #8b5e3c;
+            border-bottom: 1px solid #8b5e3c;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .digest-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        .myth-tech-card {
+            background: linear-gradient(135deg, #0b0e16 0%, #0f141e 100%);
+            border: 1px solid #1e2535;
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .myth-tech-card:hover { border-color: #8b5e3c; transform: translateY(-2px); }
+        .card-meta { font-size: 0.6rem; color: #8b5e3c; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .card-title { font-size: 0.9rem; font-weight: bold; margin-bottom: 0.5rem; }
+        .card-summary { font-size: 0.7rem; color: #8a9aaa; margin-bottom: 0.5rem; }
+        .card-tags { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+        .tag { font-size: 0.6rem; background: #1e2535; padding: 0.2rem 0.4rem; border-radius: 4px; }
+        
+        /* Stats & Input */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -166,57 +148,77 @@
             padding: 0.75rem;
             text-align: center;
         }
-        .stat-number {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #8b5e3c;
-        }
-        .stat-label {
-            font-size: 0.7rem;
-            color: #6a7a8a;
-        }
+        .stat-number { font-size: 1.5rem; font-weight: bold; color: #8b5e3c; }
+        .stat-label { font-size: 0.7rem; color: #6a7a8a; }
         
-        /* Log */
-        .log-area {
-            background: #060810;
+        .panel {
+            background: #0b0e16;
             border: 1px solid #1e2535;
             border-radius: 0.5rem;
             padding: 1rem;
-            max-height: 250px;
-            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+        .panel-title {
             font-size: 0.7rem;
-        }
-        .log-entry {
-            padding: 0.25rem 0;
-            border-bottom: 1px solid #1a1f2a;
+            text-transform: uppercase;
+            letter-spacing: 2px;
             color: #6a7a8a;
+            margin-bottom: 0.75rem;
         }
-        .log-entry.success { color: #6b8e23; }
-        .log-entry.warning { color: #8b5e3c; }
-        
+        .input-area { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+        input {
+            flex: 1;
+            background: #060810;
+            border: 1px solid #1e2535;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            color: #d4e0ed;
+            font-family: monospace;
+        }
         button {
             background: #1e2535;
             border: none;
             color: #d4e0ed;
             padding: 0.5rem 1rem;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             font-family: monospace;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
-        button:hover {
-            background: #8b5e3c;
-            color: #0a0c12;
+        button:hover { background: #8b5e3c; color: #0a0c12; }
+        button.primary { background: #8b5e3c; color: #0a0c12; }
+        button.mythic { background: #4a2a1a; border: 1px solid #8b5e3c; }
+        
+        .log-area {
+            background: #060810;
+            border: 1px solid #1e2535;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.7rem;
         }
-        .flex-row {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
+        .log-entry { padding: 0.2rem 0; border-bottom: 1px solid #1a1f2a; color: #6a7a8a; }
+        .log-entry.success { color: #6b8e23; }
+        .log-entry.error { color: #cd5c5c; }
+        .signal-badge {
+            display: inline-block;
+            background: #1e2535;
+            border-radius: 4px;
+            padding: 0.2rem 0.5rem;
+            margin: 0.2rem;
+            font-size: 0.7rem;
+            cursor: pointer;
         }
+        .signal-badge:hover { background: #8b5e3c; color: #0a0c12; }
+        .word-count { font-size: 0.7rem; color: #6a7a8a; text-align: right; margin-top: 0.3rem; }
+        .live-indicator { display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; }
+        .pulse-dot { width: 8px; height: 8px; background: #6b8e23; border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         
         @media (max-width: 900px) {
             .dual-spiral { grid-template-columns: 1fr; }
+            .digest-grid { grid-template-columns: 1fr; }
             body { padding: 1rem; }
         }
     </style>
@@ -226,333 +228,484 @@
 <div class="container">
     <div class="header">
         <h1>🌀 HERMES · DUAL SPIRAL</h1>
-        <div class="sub">ψυχοπομπός — The Messenger Between Worlds</div>
-        <div class="thesis">⚡ FAST: 16.18s · Golden Ratio Pulse — Word hunting · Atomic tokens → Hephaestus</div>
-        <div class="thesis">🐢 SLOW: ~60m — Headline fetching · Full dispatches → Zeus → God Pages</div>
+        <div class="sub">ψυχοπομπός — Mythic-Tech Reflexes · Golden Ratio Pulse</div>
+        <div class="thesis">⚡ FAST: 16.18s · Atomic word hunting → Hephaestus Forge</div>
+        <div class="thesis">🐢 SLOW: ~60m · Headline fetching → Zeus Court → God Pages</div>
     </div>
 
     <!-- DUAL SPIRAL VISUALIZATION -->
     <div class="dual-spiral">
-        <!-- FAST SPIRAL -->
         <div class="spiral-panel fast">
             <div class="spiral-title">
                 <span class="spiral-name">⚡ FAST SPIRAL</span>
                 <span class="spiral-frequency">Golden Ratio · 16.18s</span>
             </div>
-            <div class="pulse-container">
-                <div class="pulse-ring fast active" id="fastRing"></div>
-            </div>
+            <div class="pulse-container"><div class="pulse-ring fast"></div></div>
             <div class="timer" id="fastTimer">16.18</div>
             <div class="timer-label">seconds until next hunt</div>
             <button class="run-btn" id="fastRunBtn">🔍 Hunt Now</button>
-            <div class="dispatch-feed" id="fastFeed">
-                <div class="dispatch-item">⚡ Waiting for first fast spiral...</div>
-            </div>
         </div>
 
-        <!-- SLOW SPIRAL -->
         <div class="spiral-panel slow">
             <div class="spiral-title">
                 <span class="spiral-name">🐢 SLOW SPIRAL</span>
                 <span class="spiral-frequency">~60 minutes · Conscious Dispatch</span>
             </div>
-            <div class="pulse-container">
-                <div class="pulse-ring slow active" id="slowRing"></div>
-            </div>
+            <div class="pulse-container"><div class="pulse-ring slow"></div></div>
             <div class="timer" id="slowTimer">60:00</div>
             <div class="timer-label">until next dispatch cycle</div>
             <button class="run-btn" id="slowRunBtn">📡 Fetch Now</button>
-            <div class="dispatch-feed" id="slowFeed">
-                <div class="dispatch-item">🐢 Waiting for first slow spiral...</div>
-            </div>
         </div>
+    </div>
+
+    <!-- MYTH-TECH DIGEST -->
+    <div class="digest-section">
+        <div class="digest-title">
+            <span>🏛️ MYTH-TECH DIGEST</span>
+            <div class="live-indicator"><span class="pulse-dot"></span> Curated by Hermes</div>
+        </div>
+        <div class="digest-grid" id="mythTechGrid"></div>
     </div>
 
     <!-- STATS -->
     <div class="stats-grid" id="statsGrid"></div>
 
-    <!-- CONTROLS & LOG -->
-    <div class="flex-row">
-        <button id="pruneBtn">🧹 Prune Expired</button>
+    <!-- MANUAL INPUT -->
+    <div class="panel">
+        <div class="panel-title">📡 MANUAL INPUT · RAW SIGNAL</div>
+        <div class="input-area">
+            <input type="text" id="signalInput" placeholder="Enter 1-3 word reflex...">
+        </div>
+        <button id="submitBtn" class="primary">⚡ Process Signal</button>
+        <button id="clearBtn">Clear</button>
+        <div class="word-count" id="wordCount">0 / 1-3 words</div>
     </div>
 
-    <div class="log-area" id="ingestLog">
-        <div class="log-entry">🌀 Dual Spiral active. Fast: 16.18s | Slow: 60m</div>
+    <!-- DATA SOURCES -->
+    <div class="panel">
+        <div class="panel-title">🌊 DATA SOURCES · SCRAPER INPUT</div>
+        <button id="scrapeBtn">🌊 Scrape All (Tech + Mythic)</button>
+        <button id="mythicScrapeBtn" class="mythic">🏛️ Summon Mythic Reflexes Only</button>
+        <button id="pruneBtn">🧹 Prune Expired</button>
+        <div style="margin-top: 0.75rem; font-size: 0.7rem;">
+            💡 Click any signal to use:
+            <div id="signalTags" style="margin-top: 0.3rem;"></div>
+        </div>
+    </div>
+
+    <!-- LOG -->
+    <div class="panel">
+        <div class="panel-title">📋 GATE LOG</div>
+        <div id="ingestLog" class="log-area">
+            <div class="log-entry">🌀 Dual Spiral active. Fast: 16.18s | Slow: 60m</div>
+        </div>
     </div>
 </div>
 
 <script>
-    // ============================================
-    // CONFIGURATION
-    // ============================================
-    const SUPABASE_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
-    
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-    // Spiral timers
-    let fastSeconds = 16.18;
-    let slowSeconds = 3600;
-    let fastInterval, slowInterval;
-    let isRunning = true;
-    
-    // Stopwords for token extraction
-    const STOPWORDS = new Set([
-        'the','and','for','with','this','that','from','have','are','was','were','how','why','what',
-        'when','where','who','which','there','their','they','them','then','than','about','into',
-        'through','during','before','after','above','below','between','under','very','just','but',
-        'not','you','your','our','its','has','had','been','being','can','will','would','could'
-    ]);
-    
-    // ============================================
-    // FAST SPIRAL: Hunt for atomic tokens (1-3 words)
-    // ============================================
-    function extractTokens(text) {
-        const clean = text.toLowerCase().replace(/[^a-z\s]/g, '');
-        const words = clean.split(/\s+/).filter(w => w.length >= 3 && w.length <= 12 && !STOPWORDS.has(w));
-        return [...new Set(words)].slice(0, 8);
+// ============================================
+// CONFIGURATION
+// ============================================
+const SUPABASE_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const BAND_CONFIG = { name: 'hermes', minWords: 1, maxWords: 3, expiryDays: 3 };
+
+// Stopwords
+const STOPWORDS = new Set([
+    'the','and','for','with','this','that','from','have','are','was','were','how','why','what',
+    'when','where','who','which','there','their','they','them','then','than','about','into',
+    'through','during','before','after','above','below','between','under','very','just','but',
+    'not','you','your','our','its','has','had','been','being','can','will','would','could'
+]);
+
+const PRIORITY_WORDS = new Set([
+    'ai','ml','api','data','cloud','native','scalable','async','pipeline','frontier',
+    'alignment','resonance','collapse','emergence','paradox','recursion','entropy',
+    'fractal','quantum','neural','vector','semantic','intelligence','generative'
+]);
+
+// Spiral timers
+let fastSeconds = 16.18;
+let slowSeconds = 3600;
+let fastInterval, slowInterval;
+
+// ============================================
+// MYTH-TECH DIGEST STORIES
+// ============================================
+const MYTH_TECH_STORIES = [
+    { category: "TECH + MYTHOS", title: "The Ouroboros of AI", summary: "Models training models creates self-eating recursion.", tags: ["AI","Recursion"], archetype: "Ouroboros" },
+    { category: "BUSINESS + ALCHEMY", title: "Fusion's Philosopher Stone", summary: "Net-positive ignition achieved after decades.", tags: ["Fusion","Breakthrough"], archetype: "Transmutation" },
+    { category: "HISTORY + CYCLES", title: "Phoenix of Sovereign Manufacturing", summary: "Chip fabrication rises in the West again.", tags: ["Semiconductors","Reshoring"], archetype: "Phoenix" },
+    { category: "TECH + TITANS", title: "Promethean Open Models", summary: "Open-weight LLMs democratize intelligence.", tags: ["Open Source","AI"], archetype: "Prometheus" },
+    { category: "BUSINESS + LABYRINTH", title: "Ariadne's Quantum Thread", summary: "Logical qubits emerge from error correction.", tags: ["Quantum"], archetype: "Ariadne" },
+    { category: "HISTORY + HARVEST", title: "Demeter's Commodity Cycles", summary: "Earth's abundance follows seasons of scarcity.", tags: ["Commodities","Cycles"], archetype: "Demeter" }
+];
+
+function renderDigest() {
+    const shuffled = [...MYTH_TECH_STORIES].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 3);
+    const grid = document.getElementById('mythTechGrid');
+    grid.innerHTML = selected.map(story => `
+        <div class="myth-tech-card" onclick="alert('${story.title}\\n\\n${story.summary}\\n\\nArchetype: ${story.archetype}')">
+            <div class="card-meta">${story.category}</div>
+            <div class="card-title">${story.title}</div>
+            <div class="card-summary">${story.summary}</div>
+            <div class="card-tags">${story.tags.map(t => `<span class="tag">${t}</span>`).join('')}<span class="tag">🏛️ ${story.archetype}</span></div>
+        </div>
+    `).join('');
+}
+
+// ============================================
+// HERMES GATE CLASS
+// ============================================
+class HermesGate {
+    constructor(supabaseClient) {
+        this.supabase = supabaseClient;
+        this.minWords = BAND_CONFIG.minWords;
+        this.maxWords = BAND_CONFIG.maxWords;
+        this.expiryDays = BAND_CONFIG.expiryDays;
     }
     
-    async function fastSpiralHunt() {
-        addLog('⚡ FAST SPIRAL: Hunting for atomic tokens...', 'info');
-        
-        // Mock token sources — in production, replace with Reddit/HN feeds
-        const mockTexts = [
-            "quantum computing breakthrough achieved",
-            "neural networks learn faster with new architecture",
-            "fusion reactor reaches critical milestone",
-            "crypto markets surge on regulatory news",
-            "AI alignment problem remains unsolved",
-            "supply chains show resilience after disruption"
-        ];
-        
-        const allTokens = mockTexts.flatMap(t => extractTokens(t));
-        const uniqueTokens = [...new Set(allTokens)].slice(0, 6);
-        
-        let deposited = 0;
-        for (const token of uniqueTokens) {
-            const wordCount = token.split(/\s+/).length;
-            if (wordCount >= 1 && wordCount <= 3) {
-                const success = await depositToken(token, 'fast_spiral', wordCount);
-                if (success) deposited++;
-            }
-        }
-        
-        updateFastFeed(`⚡ Hunted ${deposited} atomic tokens → KairosDB (Hephaestus awaits)`);
-        addLog(`⚡ Fast spiral complete: ${deposited} tokens deposited`, 'success');
-        await updateStats();
-    }
+    _countWords(str) { return str.trim().split(/\s+/).filter(w => w.length > 0).length; }
     
-    async function depositToken(body, source, wordCount) {
-        try {
-            const { error } = await supabase.from('concepts').insert({
-                body: body.toLowerCase(),
-                band: 'hermes',
-                source: source,
-                source_loop: 'fast',
-                state: 'raw',
-                realm: 'hephaestus',
-                word_count: wordCount,
-                score: 50 + Math.floor(Math.random() * 30),
-                created_at: new Date().toISOString(),
-                expires_at: new Date(Date.now() + 3 * 86400000).toISOString()
-            });
-            return !error;
-        } catch(e) { return false; }
-    }
-    
-    // ============================================
-    // SLOW SPIRAL: Fetch full headlines
-    // ============================================
-    async function slowSpiralFetch() {
-        addLog('🐢 SLOW SPIRAL: Fetching dispatches from the mortal world...', 'info');
-        
-        const mockHeadlines = [
-            "OpenAI unveils new reasoning model capable of mathematical proofs",
-            "Federal Reserve signals rate cuts as inflation moderates",
-            "China builds world's first fusion power plant prototype",
-            "Google DeepMind solves protein folding for rare diseases",
-            "Tesla announces autonomous taxi fleet for 2026",
-            "Microsoft and OpenAI face antitrust investigation in EU",
-            "New solar cell technology achieves 40% efficiency breakthrough",
-            "US and China agree on AI safety research partnership"
-        ];
-        
-        const shuffled = [...mockHeadlines].sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, 4);
-        
-        let deposited = 0;
-        for (const headline of selected) {
-            const wordCount = headline.split(/\s+/).length;
-            const success = await depositDispatch(headline, 'slow_spiral', wordCount);
-            if (success) deposited++;
-        }
-        
-        updateSlowFeed(`🐢 Delivered ${deposited} dispatches → Zeus for decree`);
-        addLog(`🐢 Slow spiral complete: ${deposited} dispatches in_transit`, 'success');
-        await updateStats();
-    }
-    
-    async function depositDispatch(body, source, wordCount) {
-        try {
-            const { error } = await supabase.from('concepts').insert({
-                body: body,
-                band: 'hermes',
-                source: source,
-                source_loop: 'slow',
-                state: 'in_transit',
-                realm: null,
-                word_count: wordCount,
-                score: 40 + Math.floor(Math.random() * 40),
-                created_at: new Date().toISOString(),
-                expires_at: new Date(Date.now() + 7 * 86400000).toISOString()
-            });
-            return !error;
-        } catch(e) { return false; }
-    }
-    
-    // ============================================
-    // UI HELPERS
-    // ============================================
-    function addLog(msg, type = 'info') {
-        const log = document.getElementById('ingestLog');
-        const entry = document.createElement('div');
-        entry.className = `log-entry ${type}`;
-        entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-        log.insertBefore(entry, log.firstChild);
-        while (log.children.length > 50) log.removeChild(log.lastChild);
-    }
-    
-    function updateFastFeed(msg) {
-        const feed = document.getElementById('fastFeed');
-        const entry = document.createElement('div');
-        entry.className = 'dispatch-item';
-        entry.innerHTML = `<span class="dispatch-time">[${new Date().toLocaleTimeString()}]</span> <span class="dispatch-body">${msg}</span>`;
-        feed.insertBefore(entry, feed.firstChild);
-        while (feed.children.length > 10) feed.removeChild(feed.lastChild);
-    }
-    
-    function updateSlowFeed(msg) {
-        const feed = document.getElementById('slowFeed');
-        const entry = document.createElement('div');
-        entry.className = 'dispatch-item';
-        entry.innerHTML = `<span class="dispatch-time">[${new Date().toLocaleTimeString()}]</span> <span class="dispatch-body">${msg}</span>`;
-        feed.insertBefore(entry, feed.firstChild);
-        while (feed.children.length > 10) feed.removeChild(feed.lastChild);
-    }
-    
-    async function updateStats() {
-        const { data, error } = await supabase
+    async _isDuplicate(body, source, hours = 24) {
+        const cutoff = new Date(Date.now() - hours * 3600000);
+        const { data } = await this.supabase
             .from('concepts')
-            .select('source_loop, score')
-            .eq('band', 'hermes');
-        
-        if (error || !data) {
-            document.getElementById('statsGrid').innerHTML = `
-                <div class="stat-card"><div class="stat-number">0</div><div class="stat-label">Total</div></div>
-                <div class="stat-card"><div class="stat-number">0</div><div class="stat-label">Fast Spiral</div></div>
-                <div class="stat-card"><div class="stat-number">0</div><div class="stat-label">Slow Spiral</div></div>
-                <div class="stat-card"><div class="stat-number">0</div><div class="stat-label">Avg Score</div></div>
-            `;
-            return;
+            .select('id')
+            .eq('body', body.toLowerCase().trim())
+            .eq('source', source)
+            .gte('created_at', cutoff.toISOString())
+            .limit(1);
+        return data && data.length > 0;
+    }
+    
+    async process(raw) {
+        const wordCount = this._countWords(raw.body);
+        if (wordCount < this.minWords || wordCount > this.maxWords) {
+            return { success: false, error: `Need ${this.minWords}-${this.maxWords} words.` };
         }
         
-        const total = data.length;
-        const fastCount = data.filter(d => d.source_loop === 'fast').length;
-        const slowCount = data.filter(d => d.source_loop === 'slow').length;
-        const avgScore = total > 0 ? Math.round(data.reduce((s, d) => s + (d.score || 0), 0) / total) : 0;
+        if (await this._isDuplicate(raw.body, raw.source)) {
+            return { success: false, error: `Duplicate signal from ${raw.source}` };
+        }
         
-        document.getElementById('statsGrid').innerHTML = `
-            <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total Dispatches</div></div>
-            <div class="stat-card"><div class="stat-number">${fastCount}</div><div class="stat-label">⚡ Fast Spiral</div></div>
-            <div class="stat-card"><div class="stat-number">${slowCount}</div><div class="stat-label">🐢 Slow Spiral</div></div>
-            <div class="stat-card"><div class="stat-number">${avgScore}</div><div class="stat-label">Avg Score</div></div>
-        `;
+        const expiresAt = new Date(Date.now() + this.expiryDays * 86400000);
+        const finalScore = raw.score || 50 + Math.floor(Math.random() * 40);
+        
+        const record = {
+            body: raw.body.toLowerCase().trim(),
+            band: 'hermes',
+            source: raw.source,
+            source_loop: raw.source_loop || 'slow',
+            state: raw.source_loop === 'fast' ? 'raw' : 'in_transit',
+            realm: raw.source_loop === 'fast' ? 'hephaestus' : null,
+            word_count: wordCount,
+            score: finalScore,
+            metadata: { signal_strength: finalScore / 100, ...raw.metadata },
+            expires_at: expiresAt.toISOString(),
+            created_at: new Date().toISOString()
+        };
+        
+        const { data, error } = await this.supabase.from('concepts').insert(record).select().single();
+        if (error) return { success: false, error: error.message };
+        return { success: true, id: data.id };
     }
     
-    async function handlePrune() {
-        addLog('🧹 Pruning expired entries...', 'info');
-        const { data, error } = await supabase
-            .from('concepts')
-            .delete()
-            .lt('expires_at', new Date().toISOString())
-            .eq('band', 'hermes')
-            .select();
-        
-        addLog(`🧹 Pruned ${data?.length || 0} expired entries`, data?.length ? 'success' : 'info');
+    async processBatch(items) {
+        const results = [];
+        for (const item of items) {
+            const result = await this.process(item);
+            results.push({ body: item.body, ...result });
+            await new Promise(r => setTimeout(r, 50));
+        }
+        return results;
+    }
+}
+
+// ============================================
+// TECH SOURCES (Reddit, HN, GitHub)
+// ============================================
+function extractTokens(text) {
+    return text.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/)
+        .filter(w => w.length >= 4 && w.length <= 12 && !STOPWORDS.has(w));
+}
+
+function calculateScore(word, frequency) {
+    let score = Math.min(80, frequency * 6);
+    if (PRIORITY_WORDS.has(word)) score += 30;
+    return Math.min(100, score);
+}
+
+async function fetchReddit() {
+    try {
+        const res = await fetch('https://www.reddit.com/r/all/top.json?limit=50&t=day');
+        const data = await res.json();
+        const titles = data.data.children.map(c => c.data.title);
+        const tokens = titles.flatMap(t => extractTokens(t));
+        const freq = new Map();
+        for (const t of tokens) freq.set(t, (freq.get(t) || 0) + 1);
+        const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, 10);
+        return sorted.map(([word, count]) => ({
+            body: word, source: 'reddit', source_loop: 'fast',
+            score: calculateScore(word, count), metadata: { frequency: count }
+        }));
+    } catch(err) { addLog(`Reddit error: ${err.message}`, 'error'); return []; }
+}
+
+async function fetchHackerNews() {
+    try {
+        const storyRes = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
+        const ids = await storyRes.json();
+        const stories = await Promise.all(ids.slice(0, 30).map(async id => {
+            const r = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
+            return r.json();
+        }));
+        const titles = stories.filter(s => s && s.title).map(s => s.title);
+        const tokens = titles.flatMap(t => extractTokens(t));
+        const freq = new Map();
+        for (const t of tokens) freq.set(t, (freq.get(t) || 0) + 1);
+        const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, 10);
+        return sorted.map(([word, count]) => ({
+            body: word, source: 'hn', source_loop: 'fast',
+            score: calculateScore(word, count), metadata: { frequency: count }
+        }));
+    } catch(err) { addLog(`HN error: ${err.message}`, 'error'); return []; }
+}
+
+async function fetchGitHub() {
+    try {
+        const date = new Date();
+        date.setDate(date.getDate() - 7);
+        const res = await fetch(`https://api.github.com/search/repositories?q=created:>${date.toISOString().split('T')[0]}&sort=stars&order=desc&per_page=30`);
+        const data = await res.json();
+        const texts = data.items.flatMap(item => [item.name, item.description].filter(Boolean));
+        const tokens = texts.flatMap(t => extractTokens(t));
+        const freq = new Map();
+        for (const t of tokens) freq.set(t, (freq.get(t) || 0) + 1);
+        const sorted = Array.from(freq.entries()).sort((a,b) => b[1] - a[1]).slice(0, 10);
+        return sorted.map(([word, count]) => ({
+            body: word, source: 'github', source_loop: 'fast',
+            score: calculateScore(word, count) + 15, metadata: { frequency: count }
+        }));
+    } catch(err) { addLog(`GitHub error: ${err.message}`, 'error'); return []; }
+}
+
+// ============================================
+// MYTHIC SOURCES (Curated)
+// ============================================
+const MYTHIC_CONCEPTS = [
+    "khaos", "ananke", "moirai", "aether", "nyx", "erebus", "ouroboros", "phoenix",
+    "chimera", "sphinx", "nymph", "centaur", "valkyrie", "kami", "mandala", "karma",
+    "dharma", "samsara", "nirvana", "tao", "yin yang", "philosopher stone", "magnum opus",
+    "nigredo", "albedo", "rubedo", "quintessence", "golden ratio", "flower of life",
+    "merkaba", "triskelion", "slenderman", "mothman", "black eyed kids", "backrooms"
+];
+
+async function fetchMythicAll() {
+    const shuffled = [...MYTHIC_CONCEPTS].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 12);
+    return selected.map(concept => ({
+        body: concept, source: 'mythic_archive', source_loop: 'fast',
+        score: 75 + Math.floor(Math.random() * 25), metadata: { domain: 'mythos' }
+    }));
+}
+
+// ============================================
+// SLOW SPIRAL: Headline fetching
+// ============================================
+const MOCK_HEADLINES = [
+    "OpenAI unveils new reasoning model capable of mathematical proofs",
+    "Federal Reserve signals rate cuts as inflation moderates",
+    "China builds world's first fusion power plant prototype",
+    "Google DeepMind solves protein folding for rare diseases",
+    "Tesla announces autonomous taxi fleet for 2026",
+    "Microsoft and OpenAI face antitrust investigation in EU",
+    "New solar cell technology achieves 40% efficiency breakthrough",
+    "US and China agree on AI safety research partnership"
+];
+
+async function slowSpiralFetch() {
+    addLog('🐢 SLOW SPIRAL: Fetching headlines...', 'info');
+    const shuffled = [...MOCK_HEADLINES].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 4);
+    let deposited = 0;
+    for (const headline of selected) {
+        const wordCount = headline.split(/\s+/).length;
+        const result = await hermesGate.process({
+            body: headline, source: 'news_api', source_loop: 'slow',
+            score: 40 + Math.floor(Math.random() * 40), metadata: { word_count: wordCount }
+        });
+        if (result.success) deposited++;
+        await new Promise(r => setTimeout(r, 100));
+    }
+    addLog(`🐢 Slow spiral: ${deposited} dispatches → Zeus`, 'success');
+    await updateStats();
+}
+
+// ============================================
+// FAST SPIRAL: Hunt all fast sources
+// ============================================
+async function fastSpiralHunt() {
+    addLog('⚡ FAST SPIRAL: Hunting reflexes...', 'info');
+    const [reddit, hn, github, mythic] = await Promise.all([fetchReddit(), fetchHackerNews(), fetchGitHub(), fetchMythicAll()]);
+    const allConcepts = [...reddit, ...hn, ...github, ...mythic];
+    const results = await hermesGate.processBatch(allConcepts);
+    const added = results.filter(r => r.success).length;
+    addLog(`⚡ Fast spiral: ${added} atomic tokens → Hephaestus`, added > 0 ? 'success' : 'info');
+    await updateStats();
+}
+
+// ============================================
+// UI HELPERS
+// ============================================
+let hermesGate;
+
+function addLog(msg, type = 'info') {
+    const log = document.getElementById('ingestLog');
+    const entry = document.createElement('div');
+    entry.className = `log-entry ${type}`;
+    entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    log.insertBefore(entry, log.firstChild);
+    while (log.children.length > 40) log.removeChild(log.lastChild);
+}
+
+async function updateStats() {
+    const { data } = await supabase.from('concepts').select('source_loop, score').eq('band', 'hermes');
+    if (!data) return;
+    const total = data.length;
+    const fastCount = data.filter(d => d.source_loop === 'fast').length;
+    const slowCount = data.filter(d => d.source_loop === 'slow').length;
+    const avgScore = total > 0 ? Math.round(data.reduce((s, d) => s + (d.score || 0), 0) / total) : 0;
+    document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total</div></div>
+        <div class="stat-card"><div class="stat-number">${fastCount}</div><div class="stat-label">⚡ Fast Spiral</div></div>
+        <div class="stat-card"><div class="stat-number">${slowCount}</div><div class="stat-label">🐢 Slow Spiral</div></div>
+        <div class="stat-card"><div class="stat-number">${avgScore}</div><div class="stat-label">Avg Score</div></div>
+    `;
+    await loadRecentSignals();
+}
+
+async function loadRecentSignals() {
+    const { data } = await supabase.from('concepts').select('body, score').eq('band', 'hermes').order('created_at', { ascending: false }).limit(15);
+    if (!data || data.length === 0) {
+        document.getElementById('signalTags').innerHTML = '<span style="color:#3a3a4a;">No signals yet. Scrape or enter one.</span>';
+        return;
+    }
+    document.getElementById('signalTags').innerHTML = data.map(s => 
+        `<span class="signal-badge" onclick="document.getElementById('signalInput').value='${escapeHtml(s.body)}'; updateWordCount();">${escapeHtml(s.body)} (${s.score})</span>`
+    ).join('');
+}
+
+async function handleManualSignal() {
+    const input = document.getElementById('signalInput').value.trim();
+    if (!input) { addLog('Please enter a signal.', 'warning'); return; }
+    const wordCount = input.split(/\s+/).length;
+    if (wordCount < 1 || wordCount > 3) { addLog('Signal must be 1-3 words.', 'error'); return; }
+    addLog(`📡 Processing: "${input}"`, 'info');
+    const result = await hermesGate.process({ body: input, source: 'terminal', source_loop: 'slow', score: 70, metadata: {} });
+    if (result.success) {
+        addLog(`✅ Reflex accepted.`, 'success');
+        document.getElementById('signalInput').value = '';
         await updateStats();
-    }
-    
-    // Timer updates
-    function updateFastTimer() {
-        document.getElementById('fastTimer').textContent = fastSeconds.toFixed(2);
-    }
-    
-    function updateSlowTimer() {
-        const minutes = Math.floor(slowSeconds / 60);
-        const secs = Math.floor(slowSeconds % 60);
-        document.getElementById('slowTimer').textContent = `${minutes}:${secs.toString().padStart(2, '0')}`;
-    }
-    
-    // Spiral loops
-    function startFastSpiral() {
-        if (fastInterval) clearInterval(fastInterval);
-        fastInterval = setInterval(async () => {
-            if (!isRunning) return;
-            if (fastSeconds <= 0.1) {
-                await fastSpiralHunt();
-                fastSeconds = 16.18;
-            } else {
-                fastSeconds -= 0.1;
-            }
-            updateFastTimer();
-        }, 100);
-    }
-    
-    function startSlowSpiral() {
-        if (slowInterval) clearInterval(slowInterval);
-        slowInterval = setInterval(async () => {
-            if (!isRunning) return;
-            if (slowSeconds <= 1) {
-                await slowSpiralFetch();
-                slowSeconds = 3600;
-            } else {
-                slowSeconds--;
-            }
-            updateSlowTimer();
-        }, 1000);
-    }
-    
-    // Manual runs
-    document.getElementById('fastRunBtn').onclick = async () => {
-        addLog('🔍 Manual fast spiral triggered', 'info');
-        await fastSpiralHunt();
-        fastSeconds = 16.18;
+    } else { addLog(`❌ Rejected: ${result.error}`, 'error'); }
+}
+
+async function handleScrape() {
+    addLog('🌊 Scraping all sources (Tech + Mythic)...', 'info');
+    const [reddit, hn, github, mythic] = await Promise.all([fetchReddit(), fetchHackerNews(), fetchGitHub(), fetchMythicAll()]);
+    const allConcepts = [...reddit, ...hn, ...github, ...mythic];
+    const results = await hermesGate.processBatch(allConcepts);
+    const added = results.filter(r => r.success).length;
+    addLog(`🎯 Added ${added} new reflexes.`, added > 0 ? 'success' : 'warning');
+    await updateStats();
+}
+
+async function handleMythicScrape() {
+    addLog('🏛️ Summoning mythic reflexes...', 'info');
+    const mythic = await fetchMythicAll();
+    const results = await hermesGate.processBatch(mythic);
+    const added = results.filter(r => r.success).length;
+    addLog(`🏺 ${added} mythic reflexes entered Hermes.`, 'success');
+    await updateStats();
+}
+
+async function handlePrune() {
+    addLog('🧹 Pruning expired...', 'info');
+    const { data } = await supabase.from('concepts').delete().lt('expires_at', new Date().toISOString()).eq('band', 'hermes').select();
+    addLog(`🧹 Pruned ${data?.length || 0} expired.`, 'info');
+    await updateStats();
+}
+
+function updateWordCount() {
+    const input = document.getElementById('signalInput').value;
+    const count = input.trim().split(/\s+/).filter(w => w.length > 0).length;
+    const elem = document.getElementById('wordCount');
+    elem.textContent = `${count} / 1-3 words`;
+    elem.style.color = count >= 1 && count <= 3 ? '#6b8e23' : '#cd5c5c';
+}
+
+function escapeHtml(str) { return String(str).replace(/[&<>]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c])); }
+
+// Timer functions
+function updateFastTimer() { document.getElementById('fastTimer').textContent = fastSeconds.toFixed(2); }
+function updateSlowTimer() {
+    const minutes = Math.floor(slowSeconds / 60);
+    const secs = Math.floor(slowSeconds % 60);
+    document.getElementById('slowTimer').textContent = `${minutes}:${secs.toString().padStart(2, '0')}`;
+}
+
+function startFastSpiral() {
+    if (fastInterval) clearInterval(fastInterval);
+    fastInterval = setInterval(async () => {
+        if (fastSeconds <= 0.1) {
+            await fastSpiralHunt();
+            fastSeconds = 16.18;
+        } else { fastSeconds -= 0.1; }
         updateFastTimer();
-    };
-    
-    document.getElementById('slowRunBtn').onclick = async () => {
-        addLog('📡 Manual slow spiral triggered', 'info');
-        await slowSpiralFetch();
-        slowSeconds = 3600;
+    }, 100);
+}
+
+function startSlowSpiral() {
+    if (slowInterval) clearInterval(slowInterval);
+    slowInterval = setInterval(async () => {
+        if (slowSeconds <= 1) {
+            await slowSpiralFetch();
+            slowSeconds = 3600;
+        } else { slowSeconds--; }
         updateSlowTimer();
-    };
+    }, 1000);
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+async function init() {
+    hermesGate = new HermesGate(supabase);
+    renderDigest();
+    await updateStats();
+    startFastSpiral();
+    startSlowSpiral();
     
+    document.getElementById('submitBtn').onclick = handleManualSignal;
+    document.getElementById('clearBtn').onclick = () => { document.getElementById('signalInput').value = ''; updateWordCount(); };
+    document.getElementById('scrapeBtn').onclick = handleScrape;
+    document.getElementById('mythicScrapeBtn').onclick = handleMythicScrape;
     document.getElementById('pruneBtn').onclick = handlePrune;
+    document.getElementById('fastRunBtn').onclick = async () => { await fastSpiralHunt(); fastSeconds = 16.18; updateFastTimer(); };
+    document.getElementById('slowRunBtn').onclick = async () => { await slowSpiralFetch(); slowSeconds = 3600; updateSlowTimer(); };
+    document.getElementById('signalInput').oninput = updateWordCount;
     
-    // Initialize
-    async function init() {
-        startFastSpiral();
-        startSlowSpiral();
-        await updateStats();
-        addLog('🌀 Dual Spiral active. Fast: 16.18s (Golden Ratio) | Slow: 60m', 'success');
-        
-        // Initial runs
-        setTimeout(() => fastSpiralHunt(), 2000);
-        setTimeout(() => slowSpiralFetch(), 5000);
-    }
+    // Initial runs
+    setTimeout(() => fastSpiralHunt(), 2000);
+    setTimeout(() => slowSpiralFetch(), 5000);
     
-    init();
+    addLog('🌀 Dual Spiral active. Fast: 16.18s (Golden Ratio) | Slow: 60m', 'success');
+}
+
+init();
 </script>
 </body>
 </html>
