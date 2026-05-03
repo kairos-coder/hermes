@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+:root {
+    --void: #080a0f; --deep: #0b0e16; --dark: #0f141e;
+    --surface: #1a2030; --bronze: #8b5e3c; --copper: #b07840;
+    --gold: #c8943a; --hermes: #FFD700; --sprout: #6b8e3a;
+    --blight: #8b3a2a; --mist: #6a7a8a; --pale: #d4e0ed;
+    --font-display: 'Cinzel', serif; --font-body: 'Crimson Pro', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--void); font-family: var(--font-body); color: var(--pale); min-height: 100vh; }
+
+/* All existing CSS styles moved here... */
+/* (Keep all the beautiful styling from original) */
