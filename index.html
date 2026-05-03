@@ -817,6 +817,144 @@ let sessionPassed   = 0;
 // ============================================================
 // HERMES GATE CLASS
 // ============================================================
+// The bridge between Hermes and Demeter
+class HermesDemeterBridge {
+    constructor() {
+        this.queue = [];
+        this.processing = false;
+        this.resonanceThreshold = 0.6;
+        
+        // Both agents must be ready
+        this.hermesReady = false;
+        this.demeterReady = false;
+        
+        this.init();
+    }
+    
+    init() {
+        // Listen for both agents to signal readiness
+        window.addEventListener('hermes-ready', () => {
+            this.hermesReady = true;
+            this.checkReady();
+        });
+        
+        window.addEventListener('demeter-ready', () => {
+            this.demeterReady = true;
+            this.checkReady();
+        });
+    }
+    
+    checkReady() {
+        if (this.hermesReady && this.demeterReady) {
+            console.log('🧬 Hermes + Demeter synchronized. Synthesis active.');
+            this.startSynthesis();
+        }
+    }
+    
+    async startSynthesis() {
+        // Continuous loop
+        while (true) {
+            if (this.queue.length > 0 && !this.processing) {
+                await this.synthesizeNext();
+            }
+            await new Promise(r => setTimeout(r, 100));
+        }
+    }
+    
+    async synthesizeNext() {
+        this.processing = true;
+        const item = this.queue.shift();
+        
+        // Step 1: Hermes embedding
+        const hermesEmbedding = await window.HermesSemantic.getEmbedding(item.text);
+        
+        // Step 2: Check resonance with existing Demeter concepts
+        const resonance = await this.calculateResonance(hermesEmbedding);
+        
+        if (resonance > this.resonanceThreshold) {
+            // Step 3: Demeter cultivates with context
+            const cultivated = await window.Demeter.cultivateWithContext({
+                concept: item.text,
+                embedding: hermesEmbedding,
+                resonance: resonance,
+                relatedTo: await this.findRelated(item.text)
+            });
+            
+            // Step 4: If fertile, promote
+            if (cultivated.score > 70) {
+                await this.promoteToOrchestral(cultivated);
+                this.log('🌾', `Synthesized: "${item.text}" → Tier ${cultivated.tier}`);
+            } else {
+                this.log('🔄', `Re-cultivating: "${item.text}" (score ${cultivated.score})`);
+                // Send back to Demeter for another pass
+                this.queue.push({ ...item, attempts: (item.attempts || 0) + 1 });
+            }
+        } else {
+            this.log('⏸️', `Low resonance: "${item.text}" (${(resonance*100).toFixed(0)}%) - holding`);
+            // Store for later when resonance improves
+            this.holdingPen.push(item);
+        }
+        
+        this.processing = false;
+    }
+    
+    async calculateResonance(embedding) {
+        // Compare against Demeter's cultivated concepts
+        const cultivated = await window.Demeter.getRecentCultivated(50);
+        if (cultivated.length === 0) return 0.5;
+        
+        let totalSim = 0;
+        for (const concept of cultivated) {
+            if (concept.embedding) {
+                const sim = this.cosineSimilarity(embedding, concept.embedding);
+                totalSim += sim;
+            }
+        }
+        return totalSim / cultivated.length;
+    }
+    
+    async promoteToOrchestral(cultivated) {
+        // Send to Orchestral for permanent record
+        const response = await fetch('https://orchestral.dual-spiral.com/api/synthesize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                concept: cultivated,
+                synthesized_at: new Date().toISOString(),
+                hermes_version: window.Hermes?.version,
+                demeter_version: window.Demeter?.version
+            })
+        });
+        
+        if (response.ok) {
+            this.log('✨', `Promoted to Orchestral: "${cultivated.text}"`);
+        }
+    }
+    
+    log(emoji, message) {
+        console.log(`${emoji} [Hermes↔Demeter] ${message}`);
+        const logDiv = document.getElementById('synthesis-log');
+        if (logDiv) {
+            logDiv.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${emoji} ${message}</div>` + logDiv.innerHTML;
+            while (logDiv.children.length > 20) logDiv.removeChild(logDiv.lastChild);
+        }
+    }
+    
+    cosineSimilarity(a, b) {
+        if (!a || !b) return 0;
+        let dot = 0, magA = 0, magB = 0;
+        for (let i = 0; i < a.length; i++) {
+            dot += a[i] * b[i];
+            magA += a[i] * a[i];
+            magB += b[i] * b[i];
+        }
+        return dot / (Math.sqrt(magA) * Math.sqrt(magB));
+    }
+}
+
+// Initialize the bridge
+const synthesis = new HermesDemeterBridge();
+window.synthesis = synthesis;
 class HermesGate {
     constructor(sbClient) {
         this.sb          = sbClient;
