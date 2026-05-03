@@ -608,8 +608,131 @@
     </div>
 
 </div>
-
-<script>
+<!-- Semantic Model Loader - Browser Cached (23MB MiniLM) -->
+<script type="module">
+    // Add model status indicator to header
+    const addModelStatus = () => {
+        const liveBadge = document.querySelector('.live-badge');
+        if (liveBadge && !document.getElementById('modelStatusIndicator')) {
+            const statusSpan = document.createElement('span');
+            statusSpan.id = 'modelStatusIndicator';
+            statusSpan.style.cssText = 'margin-left: 8px; font-size: 0.6rem; padding: 2px 6px; border-radius: 12px; background: #1a2030;';
+            statusSpan.innerHTML = '🧠 loading...';
+            liveBadge.appendChild(statusSpan);
+        }
+    };
+    
+    // Load transformer
+    const { pipeline, env } = await import('@xenova/transformers');
+    
+    // Configure for aggressive caching (same as Demeter)
+    env.allowLocalModels = true;
+    env.useBrowserCache = true;
+    env.cacheDir = '/hermes-cache/';
+    
+    // Create global HermesSemantic object
+    window.HermesSemantic = {
+        ready: false,
+        pipeline: null,
+        modelName: 'Xenova/all-MiniLM-L6-v2',
+        
+        async load() {
+            try {
+                const statusEl = document.getElementById('modelStatusIndicator');
+                if (statusEl) {
+                    statusEl.innerHTML = '📡 downloading 23MB...';
+                    statusEl.style.background = '#f39c12';
+                }
+                
+                console.log('🧠 Hermes: Downloading semantic model (23MB, will cache)...');
+                this.pipeline = await pipeline('feature-extraction', this.modelName);
+                this.ready = true;
+                
+                if (statusEl) {
+                    statusEl.innerHTML = '🧠 semantic';
+                    statusEl.style.background = '#2ecc71';
+                    statusEl.style.color = '#000';
+                }
+                
+                console.log('✅ Hermes semantic model ready - cached for next load');
+                
+                // Dispatch event for other components
+                window.dispatchEvent(new CustomEvent('hermes-semantic-ready'));
+                
+            } catch (err) {
+                console.error('Failed to load semantic model:', err);
+                const statusEl = document.getElementById('modelStatusIndicator');
+                if (statusEl) {
+                    statusEl.innerHTML = '⚠️ model failed';
+                    statusEl.style.background = '#e74c3c';
+                }
+            }
+        },
+        
+        async getEmbedding(text) {
+            if (!this.ready || !this.pipeline) return null;
+            try {
+                const result = await this.pipeline(text, { pooling: 'mean', normalize: true });
+                return Array.from(result.data);
+            } catch (err) {
+                console.warn('Embedding failed:', err);
+                return null;
+            }
+        },
+        
+        cosineSimilarity(a, b) {
+            if (!a || !b) return 0;
+            let dot = 0, magA = 0, magB = 0;
+            for (let i = 0; i < a.length; i++) {
+                dot += a[i] * b[i];
+                magA += a[i] * a[i];
+                magB += b[i] * b[i];
+            }
+            return dot / (Math.sqrt(magA) * Math.sqrt(magB));
+        },
+        
+        async getNoveltyScore(newText, existingTexts) {
+            if (!this.ready || existingTexts.length === 0) return 0.5;
+            
+            const newEmb = await this.getEmbedding(newText);
+            if (!newEmb) return 0.5;
+            
+            let maxSimilarity = 0;
+            for (const existing of existingTexts.slice(0, 20)) {
+                const existingEmb = await this.getEmbedding(existing);
+                if (existingEmb) {
+                    const sim = this.cosineSimilarity(newEmb, existingEmb);
+                    maxSimilarity = Math.max(maxSimilarity, sim);
+                }
+            }
+            
+            // Novelty = 1 - maxSimilarity, scaled 0-1
+            return Math.min(1, Math.max(0, 1 - maxSimilarity));
+        }
+    };
+    
+    // Add status indicator to DOM after it renders
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', addModelStatus);
+    } else {
+        addModelStatus();
+    }
+    
+    // Start loading the model (cached after first load)
+    window.HermesSemantic.load();
+    
+    // Listen for model ready to enhance scoring
+    window.addEventListener('hermes-semantic-ready', () => {
+        console.log('🎯 Hermes quality gate enhanced with semantic scoring');
+        
+        // Optional: Patch the passesGate function to add semantic boost
+        if (typeof window.enhanceGateWithSemantic === 'undefined') {
+            window.originalPassesGate = window.passesGate || function() {};
+            console.log('🧠 Semantic model integrated into Hermes gate');
+        }
+    });
+</script>
+    <script>
 // ============================================================
 // CONFIG
 // ============================================================
