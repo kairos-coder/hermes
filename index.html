@@ -817,6 +817,125 @@ let sessionPassed   = 0;
 // ============================================================
 // HERMES GATE CLASS
 // ============================================================
+class HermesOracle {
+    constructor() {
+        this.insights = [];
+        this.lastSummary = null;
+        this.summaryInterval = null;
+    }
+    
+    start() {
+        // Generate summary every 10 pulses (~2.7 minutes)
+        this.summaryInterval = setInterval(() => this.generateInsight(), 161800); // 10 * 16.18s
+        this.generateInsight(); // First one immediately
+    }
+    
+    async generateInsight() {
+        // Gather data from the past pulse cycle
+        const stats = {
+            total: sessionPassed + sessionRejected,
+            passed: sessionPassed,
+            rejected: sessionRejected,
+            resonance: await this.calculateAverageResonance(),
+            topConcepts: await this.getTopConcepts(5),
+            emergingTheme: await this.detectEmergingTheme()
+        };
+        
+        // Synthesize using the 23MB model
+        const insight = await this.synthesizeInsight(stats);
+        
+        // Update the oracle panel
+        this.updateOraclePanel(insight, stats);
+        
+        // Store for history
+        this.insights.unshift({
+            timestamp: new Date(),
+            insight: insight,
+            stats: stats
+        });
+        
+        // Keep last 10 insights
+        this.insights = this.insights.slice(0, 10);
+    }
+    
+    async synthesizeInsight(stats) {
+        if (!window.HermesSemantic?.ready) {
+            return "🌾 Semantic model loading... Wisdom forthcoming.";
+        }
+        
+        // Use the model to generate a poetic summary
+        const prompt = `Based on harvesting ${stats.passed} concepts (${stats.rejected} rejected), resonance ${(stats.resonance*100).toFixed(0)}%, top concept: "${stats.topConcepts[0] || 'none'}". Write a single, oracular sentence about what Hermes is learning.`;
+        
+        // Simple template-based insight (can be enhanced with LLM later)
+        const insights = [
+            `🌀 The void speaks through ${stats.passed} harvested echoes.`,
+            `⚡ Resonance at ${(stats.resonance*100).toFixed(0)}% - the pattern holds.`,
+            `🌾 "${stats.topConcepts[0] || 'Silence'}" whispers of deeper currents.`,
+            `🏛️ Demeter's garden grows with ${stats.passed} new seeds.`,
+            `🔥 ${stats.passed} concepts passed the gate; ${stats.rejected} returned to the void.`
+        ];
+        
+        return insights[Math.floor(Math.random() * insights.length)];
+    }
+    
+    async getTopConcepts(n) {
+        const { data } = await sb
+            .from('concepts')
+            .select('body, score')
+            .eq('band', 'hermes')
+            .order('score', { ascending: false })
+            .limit(n);
+        return data?.map(d => d.body) || [];
+    }
+    
+    async calculateAverageResonance() {
+        // Calculate from recent bridge activity
+        if (window.synthesis?.resonanceHistory?.length) {
+            const avg = window.synthesis.resonanceHistory.reduce((a,b) => a + b, 0) / window.synthesis.resonanceHistory.length;
+            return Math.min(1, Math.max(0, avg));
+        }
+        return 0.5;
+    }
+    
+    async detectEmergingTheme() {
+        // Get recent high-scoring concepts
+        const { data } = await sb
+            .from('concepts')
+            .select('body')
+            .eq('band', 'hermes')
+            .gte('score', 70)
+            .order('created_at', { ascending: false })
+            .limit(10);
+        
+        if (!data?.length) return "unknown";
+        
+        // Simple theme detection based on keywords
+        const text = data.map(d => d.body).join(' ');
+        if (text.match(/quantum|neural|ai|intelligence/i)) return "⚡ Intelligence Emergence";
+        if (text.match(/myth|archetype|titan|olympus/i)) return "🏛️ Mythic Resonance";
+        if (text.match(/code|api|pipeline|agent/i)) return "🔧 Forge-Building";
+        return "🌀 Kairos Weaving";
+    }
+    
+    updateOraclePanel(insight, stats) {
+        const oracleDiv = document.getElementById('hermes-oracle');
+        if (!oracleDiv) return;
+        
+        oracleDiv.innerHTML = `
+            <div class="oracle-insight">${insight}</div>
+            <div class="oracle-stats">
+                <span>🎯 ${stats.passed} passed</span>
+                <span>⚡ ${(stats.resonance*100).toFixed(0)}% resonance</span>
+                <span>🏛️ ${stats.emergingTheme}</span>
+            </div>
+            <div class="oracle-timestamp">${new Date().toLocaleTimeString()}</div>
+        `;
+    }
+}
+
+// Initialize the oracle
+const hermesOracle = new HermesOracle();
+window.hermesOracle = hermesOracle;
 // The bridge between Hermes and Demeter
 class HermesDemeterBridge {
     constructor() {
