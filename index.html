@@ -986,20 +986,40 @@ class HermesOracle {
         return "🌀 Kairos Weaving";
     }
     
-    updateOraclePanel(insight, stats) {
-        const oracleDiv = document.getElementById('hermes-oracle');
-        if (!oracleDiv) return;
-        
+    async updateOraclePanel(insight, stats) {
+    // Update DOM
+    const oracleDiv = document.getElementById('hermes-oracle');
+    if (oracleDiv) {
         oracleDiv.innerHTML = `
+            <div class="oracle-header">🏛️ THE ORACLE SPEAKS</div>
             <div class="oracle-insight">${insight}</div>
             <div class="oracle-stats">
                 <span>🎯 ${stats.passed} passed</span>
-                <span>⚡ ${(stats.resonance*100).toFixed(0)}% resonance</span>
+                <span>⚡ ${(stats.resonance * 100).toFixed(0)}% resonance</span>
                 <span>🏛️ ${stats.emergingTheme}</span>
             </div>
             <div class="oracle-timestamp">${new Date().toLocaleTimeString()}</div>
         `;
     }
+
+    // Dispatch to Orchestral via shared Supabase table
+    try {
+        const { error } = await sb.from('oracle_dispatch').insert({
+            insight:    insight,
+            source:     'hermes_oracle',
+            score:      Math.round(stats.resonance * 100),
+            consumed:   false,
+            created_at: new Date().toISOString()
+        });
+        if (error) {
+            console.warn('Oracle dispatch failed:', error.message);
+        } else {
+            log('gate', `[oracle] Dispatched to Orchestral: "${insight.substring(0, 50)}…"`);
+        }
+    } catch (err) {
+        console.warn('Oracle dispatch error:', err);
+    }
+}
 }
 
 // Initialize the oracle
