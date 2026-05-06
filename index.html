@@ -13,60 +13,73 @@
         :root {
             --void: #080a0f; --deep: #0b0e16; --surface: #1e2535;
             --gold: #c8943a; --hermes: #FFD700; --mist: #6a7a8a; --pale: #d4e0ed;
-            --love: #b05870; --war: #c0382a; --forge: #c07040; --cultivation: #7a6a40;
-            --wild: #5a8050; --legacy: #5a7aaa; --flow: #3a7090;
-            --font-display: 'Cinzel', serif;
-            --font-body: 'Crimson Pro', serif;
-            --font-mono: 'JetBrains Mono', monospace;
+            --signal: #d4b84a; --love: #b05870; --war: #c0382a; --light: #d4a850;
+            --farm: #7a6a40; --forge: #c07040; --crown: #5a7aaa; --tide: #3a7090;
+            --wisdom: #6a8898; --storm: #9a8ac0; --wild: #5a8050; --vine: #8a4080;
+            --font-display: 'Cinzel', serif; --font-body: 'Crimson Pro', serif; --font-mono: 'JetBrains Mono', monospace;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--void); font-family: var(--font-body); color: var(--pale); min-height: 100vh; }
-        .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
-        
+        .container { max-width: 1300px; margin: 0 auto; padding: 2rem; }
+
         .header { text-align: center; border-bottom: 1px solid var(--surface); padding-bottom: 1rem; margin-bottom: 1.5rem; }
         .header h1 { font-family: var(--font-display); font-size: 2.2rem; color: var(--gold); letter-spacing: 3px; }
         .header-sub { font-family: var(--font-mono); font-size: 0.55rem; color: var(--mist); letter-spacing: 2px; margin-top: 0.3rem; }
-        
+
         .status-bar { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; font-family: var(--font-mono); font-size: 0.55rem; color: var(--mist); }
         .status-bar span { color: var(--pale); font-weight: 500; }
-        
-        .controls { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
-        button { font-family: var(--font-mono); font-size: 0.6rem; padding: 0.45rem 0.9rem; border-radius: 4px; cursor: pointer; border: 1px solid var(--surface); background: var(--deep); color: var(--pale); transition: all 0.2s; letter-spacing: 1px; }
+
+        .controls { display: flex; gap: 0.4rem; justify-content: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        button { font-family: var(--font-mono); font-size: 0.55rem; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; border: 1px solid var(--surface); background: var(--deep); color: var(--pale); transition: all 0.2s; letter-spacing: 1px; }
         button:hover:not(:disabled) { background: var(--gold); color: var(--void); border-color: var(--gold); }
         button.primary { background: var(--gold); color: var(--void); border-color: var(--gold); }
         button:disabled { opacity: 0.4; cursor: not-allowed; }
         .spin { display: inline-block; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .domain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.6rem; margin-bottom: 1.5rem; }
-        .domain-card { background: var(--deep); border: 1px solid var(--surface); border-radius: 8px; padding: 0.8rem; text-align: center; }
+
+        .domain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; margin-bottom: 1.5rem; }
+        .domain-card { background: var(--deep); border: 1px solid var(--surface); border-radius: 8px; padding: 0.7rem; text-align: center; }
+        .domain-card.signal { border-top: 2px solid var(--signal); }
         .domain-card.love { border-top: 2px solid var(--love); }
         .domain-card.war { border-top: 2px solid var(--war); }
+        .domain-card.light { border-top: 2px solid var(--light); }
+        .domain-card.farm { border-top: 2px solid var(--farm); }
         .domain-card.forge { border-top: 2px solid var(--forge); }
-        .domain-card.cultivation { border-top: 2px solid var(--cultivation); }
+        .domain-card.crown { border-top: 2px solid var(--crown); }
+        .domain-card.tide { border-top: 2px solid var(--tide); }
+        .domain-card.wisdom { border-top: 2px solid var(--wisdom); }
+        .domain-card.storm { border-top: 2px solid var(--storm); }
         .domain-card.wild { border-top: 2px solid var(--wild); }
-        .domain-name { font-family: var(--font-display); font-size: 0.7rem; margin-bottom: 0.2rem; }
-        .domain-count { font-family: var(--font-mono); font-size: 0.65rem; }
-        .domain-god { font-family: var(--font-mono); font-size: 0.45rem; color: var(--mist); margin-top: 0.2rem; }
-        
+        .domain-card.vine { border-top: 2px solid var(--vine); }
+        .domain-name { font-family: var(--font-display); font-size: 0.65rem; margin-bottom: 0.2rem; }
+        .domain-count { font-family: var(--font-mono); font-size: 0.6rem; }
+        .domain-god { font-family: var(--font-mono); font-size: 0.42rem; color: var(--mist); margin-top: 0.15rem; }
+
         .token-feed { background: var(--deep); border: 1px solid var(--surface); border-radius: 8px; padding: 0.8rem; max-height: 300px; overflow-y: auto; margin-bottom: 1.5rem; }
         .token-row { font-family: var(--font-mono); font-size: 0.52rem; padding: 0.2rem 0; border-bottom: 1px solid rgba(30,37,53,0.5); display: flex; justify-content: space-between; align-items: center; }
         .token-row:last-child { border-bottom: none; }
         .token-word { color: var(--pale); }
-        .token-tags { display: flex; gap: 0.2rem; }
-        .token-tag { font-size: 0.42rem; padding: 0.08rem 0.3rem; border-radius: 2px; }
+        .token-tags { display: flex; gap: 0.15rem; }
+        .token-tag { font-size: 0.4rem; padding: 0.06rem 0.25rem; border-radius: 2px; }
+        .tag-signal { background: rgba(212,184,74,0.2); color: var(--signal); }
         .tag-love { background: rgba(176,88,112,0.2); color: var(--love); }
         .tag-war { background: rgba(192,56,42,0.2); color: var(--war); }
+        .tag-light { background: rgba(212,168,80,0.2); color: var(--light); }
+        .tag-farm { background: rgba(122,106,64,0.2); color: var(--farm); }
         .tag-forge { background: rgba(192,112,64,0.2); color: var(--forge); }
-        .tag-cult { background: rgba(122,106,64,0.2); color: var(--cultivation); }
+        .tag-crown { background: rgba(90,122,170,0.2); color: var(--crown); }
+        .tag-tide { background: rgba(58,112,144,0.2); color: var(--tide); }
+        .tag-wisdom { background: rgba(106,136,152,0.2); color: var(--wisdom); }
+        .tag-storm { background: rgba(154,138,192,0.2); color: var(--storm); }
         .tag-wild { background: rgba(90,128,80,0.2); color: var(--wild); }
+        .tag-vine { background: rgba(138,64,128,0.2); color: var(--vine); }
         .tag-s { background: rgba(100,160,200,0.2); color: #7eb8da; }
         .tag-v { background: rgba(200,180,60,0.2); color: #c8a83c; }
         .tag-o { background: rgba(200,128,80,0.2); color: #c08050; }
-        
+
         .log { background: #060810; border: 1px solid var(--surface); border-radius: 6px; padding: 0.5rem; max-height: 120px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.5rem; color: var(--mist); }
-        
-        @media (max-width: 768px) { .domain-grid { grid-template-columns: repeat(3, 1fr); } }
+
+        @media (max-width: 768px) { .domain-grid { grid-template-columns: repeat(4, 1fr); } }
     </style>
 </head>
 <body>
@@ -74,28 +87,34 @@
 
     <div class="header">
         <h1>⚡ HER<span>MES</span></h1>
-        <div class="header-sub">TOKEN COURIER · EMBED · TAG · SERVE · PYTHAGOREAN #1 · THE MONAD</div>
+        <div class="header-sub">TOKEN COURIER · 12 DOMAINS · EMBED · TAG · SERVE · PYTHAGOREAN #1</div>
     </div>
 
     <div class="status-bar">
-        <div>Tokens scraped: <span id="totalScraped">—</span></div>
-        <div>In database: <span id="totalDB">—</span></div>
+        <div>Scraped: <span id="totalScraped">0</span></div>
+        <div>In DB: <span id="totalDB">—</span></div>
         <div>Model: <span id="modelStatus">loading...</span></div>
     </div>
 
     <div class="controls">
-        <button id="scrapeBtn" class="primary" disabled>⚡ Scrape All Sources</button>
-        <button id="loveBtn" disabled>💗 Love Sources</button>
-        <button id="warBtn" disabled>⚔️ War Sources</button>
-        <button id="generalBtn" disabled>🌐 General Sources</button>
+        <button id="scrapeAllBtn" class="primary" disabled>⚡ Scrape All</button>
+        <button id="scrapeGeneralBtn" disabled>🌐 General</button>
+        <button id="seedBtn" disabled>🌱 Seed All Domains</button>
     </div>
 
     <div class="domain-grid" id="domainGrid">
-        <div class="domain-card love"><div class="domain-name" style="color:var(--love)">💗 LOVE</div><div class="domain-count" id="loveCount">—</div><div class="domain-god">→ Aphrodite</div></div>
-        <div class="domain-card war"><div class="domain-name" style="color:var(--war)">⚔️ WAR</div><div class="domain-count" id="warCount">—</div><div class="domain-god">→ Ares</div></div>
-        <div class="domain-card forge"><div class="domain-name" style="color:var(--forge)">🔨 FORGE</div><div class="domain-count" id="forgeCount">—</div><div class="domain-god">→ Hephaestus</div></div>
-        <div class="domain-card cultivation"><div class="domain-name" style="color:var(--cultivation)">🌾 CULTIVATION</div><div class="domain-count" id="cultCount">—</div><div class="domain-god">→ Demeter</div></div>
-        <div class="domain-card wild"><div class="domain-name" style="color:var(--wild)">🏹 WILD</div><div class="domain-count" id="wildCount">—</div><div class="domain-god">→ Artemis</div></div>
+        <div class="domain-card signal"><div class="domain-name" style="color:var(--signal)">⚡ SIGNAL</div><div class="domain-count" id="signalCount">—</div><div class="domain-god">Hermes</div></div>
+        <div class="domain-card love"><div class="domain-name" style="color:var(--love)">💗 LOVE</div><div class="domain-count" id="loveCount">—</div><div class="domain-god">Aphrodite</div></div>
+        <div class="domain-card war"><div class="domain-name" style="color:var(--war)">⚔️ WAR</div><div class="domain-count" id="warCount">—</div><div class="domain-god">Ares</div></div>
+        <div class="domain-card light"><div class="domain-name" style="color:var(--light)">☀️ LIGHT</div><div class="domain-count" id="lightCount">—</div><div class="domain-god">Apollo</div></div>
+        <div class="domain-card farm"><div class="domain-name" style="color:var(--farm)">🌾 FARM</div><div class="domain-count" id="farmCount">—</div><div class="domain-god">Demeter</div></div>
+        <div class="domain-card forge"><div class="domain-name" style="color:var(--forge)">🔨 FORGE</div><div class="domain-count" id="forgeCount">—</div><div class="domain-god">Hephaestus</div></div>
+        <div class="domain-card crown"><div class="domain-name" style="color:var(--crown)">👑 CROWN</div><div class="domain-count" id="crownCount">—</div><div class="domain-god">Hera</div></div>
+        <div class="domain-card tide"><div class="domain-name" style="color:var(--tide)">🌊 TIDE</div><div class="domain-count" id="tideCount">—</div><div class="domain-god">Poseidon</div></div>
+        <div class="domain-card wisdom"><div class="domain-name" style="color:var(--wisdom)">🦉 WISDOM</div><div class="domain-count" id="wisdomCount">—</div><div class="domain-god">Athena</div></div>
+        <div class="domain-card storm"><div class="domain-name" style="color:var(--storm)">🌩️ STORM</div><div class="domain-count" id="stormCount">—</div><div class="domain-god">Zeus</div></div>
+        <div class="domain-card wild"><div class="domain-name" style="color:var(--wild)">🏹 WILD</div><div class="domain-count" id="wildCount">—</div><div class="domain-god">Artemis</div></div>
+        <div class="domain-card vine"><div class="domain-name" style="color:var(--vine)">🍇 VINE</div><div class="domain-count" id="vineCount">—</div><div class="domain-god">Dionysus</div></div>
     </div>
 
     <div class="token-feed" id="tokenFeed"><div class="token-row"><span class="token-word">No tokens scraped yet</span></div></div>
@@ -115,35 +134,68 @@ env.useBrowserCache = true;
 let embedder = null;
 let modelReady = false;
 let totalScraped = 0;
+let recentTokens = [];
 
 const STOPWORDS = new Set(['the','and','for','with','this','that','from','have','are','was','were','how','why','what','when','where','who','which','there','their','they','them','then','than','about','into','through','during','before','after','above','below','between','under','very','just','but','not','you','your','our','its','has','had','been','being','can','will','would','could','should','might','like','because','while','since','also','only','more','most','some','such','these','those','own','same','make','take','come','goes','went','made','look','time','know','people','good','new','first','last','long','great','little','right','big','high','different','small','large','next','early','young','important','few','public','bad','able']);
 
-// DOMAIN WORD LISTS
-const DOMAINS = {
-    love: new Set(['love','desire','beauty','passion','romance','heart','soul','kiss','embrace','union','wedding','devotion','adore','cherish','beloved','sweet','tender','gentle','soft','warm','bloom','flower','rose','garden','grace','elegant','radiant','luminous','golden','harmony','peace','kindness','joy','delight','pleasure','bliss','aphrodite','venus','eros','charm','attraction','allure','seduction','courtship','poetry','song','music','dance','art','beautiful']),
-    war: new Set(['war','battle','fight','conflict','destruction','attack','defense','army','soldier','weapon','sword','spear','shield','armor','fortress','castle','siege','invasion','conquest','victory','defeat','slaughter','carnage','blood','death','kill','destroy','shatter','break','crush','burn','rage','fury','wrath','violence','force','power','domination','rival','enemy','opponent','competition','strife','discord','chaos','ares','mars','combat','assault','strike','clash']),
-    forge: new Set(['forge','craft','build','create','make','tool','instrument','machine','engine','device','mechanism','structure','framework','architecture','system','design','construct','fabricate','assemble','forge','anvil','hammer','metal','iron','steel','fire','kiln','workshop','factory','industry','technology','engineer','artisan','hephaestus']),
-    cultivation: new Set(['grow','cultivate','harvest','plant','seed','soil','earth','field','crop','grain','wheat','barley','fruit','vine','tree','root','branch','leaf','bloom','flower','garden','farm','agriculture','fertile','abundant','yield','reap','sow','tend','nurture','demeter','growth','cycle','season','spring','summer','autumn','fall','winter']),
-    wild: new Set(['hunt','wild','wilderness','forest','mountain','beast','animal','prey','predator','track','trail','edge','boundary','frontier','unknown','undiscovered','hidden','secret','mystery','artemis','moon','night','shadow','bow','arrow','quiver','chase','pursuit','freedom','independence','solitary'])
+// ════════════════════════════════════════════════
+// 12 DOMAINS — SEED WORDS FOR EACH GOD
+// ════════════════════════════════════════════════
+const DOMAIN_SEEDS = {
+    signal:  ['speed','message','swift','trade','cross','travel','path','word','sign','herald','merchant','coin'],
+    love:    ['love','heart','beauty','desire','grace','kiss','embrace','sweet','tender','bloom','rose','charm'],
+    war:     ['war','fight','destroy','shatter','clash','strike','blade','shield','battle','rage','force','steel'],
+    light:   ['light','truth','harmony','vision','balance','prophecy','heal','clarity','dawn','golden','lyre','song'],
+    farm:    ['grow','earth','harvest','seed','grain','soil','field','crop','root','fruit','cycle','bloom'],
+    forge:   ['forge','build','craft','fire','iron','steel','hammer','anvil','shape','create','tool','work'],
+    crown:   ['crown','legacy','blood','oath','throne','lineage','house','reign','memory','stone','wall','law'],
+    tide:    ['tide','wave','deep','flow','current','ocean','sea','storm','flood','depth','blue','salt'],
+    wisdom:  ['wisdom','know','think','pattern','mind','learn','study','plan','design','logic','truth','seek'],
+    storm:   ['storm','rule','judge','bind','command','thunder','lightning','decree','order','break','wrath','sky'],
+    wild:    ['wild','hunt','track','edge','moon','forest','beast','free','roam','chase','bow','arrow'],
+    vine:    ['vine','chaos','frenzy','break','ecstasy','wild','dance','madness','release','fruit','wine','green']
 };
 
+// Word type lists
 const WORD_TYPES = {
-    S: new Set(['love','heart','soul','beauty','desire','war','army','soldier','enemy','rival','forge','craftsman','artisan','engineer','earth','soil','garden','hunt','forest','beast','ai','model','system','network','agent','algorithm','pipeline','framework','protocol','fate','time','light','void','shadow','fire','water','phoenix','dragon','serpent','ouroboros','titan','god','goddess','muse','oracle','prophet','king','queen','warrior','hero']),
-    V: new Set(['loves','adores','desires','embraces','kisses','holds','destroys','shatters','breaks','crushes','burns','kills','attacks','defends','forges','builds','creates','makes','crafts','grows','cultivates','harvests','plants','nurtures','hunts','tracks','pursues','finds','discovers','learns','predicts','generates','synthesizes','optimizes','processes','embeds','scores','filters','selects','routes','flows','rises','falls','binds','consumes','devours','awakens','transforms','emerges','resonates','becomes','shines','radiates','glows','weaves','tempers','elevates','converges','unravels','pierces','whispers','speaks','sings','calls']),
-    O: new Set(['heart','soul','beauty','love','desire','passion','war','battle','conflict','destruction','peace','forge','tool','creation','artifact','harvest','crop','garden','wild','edge','frontier','pattern','signal','form','threshold','void','deep','shadow','flame','light','darkness','chaos','order','harmony','discord','resonance','echo','memory','dream','vision','prophecy','wisdom','knowledge','output','input','parameter','token','embedding','vector','matrix','model','network','graph','tree','forest','stream','pipeline','fate','destiny','thread','weave','tapestry','labyrinth','mandala'])
+    S: new Set(['love','heart','soul','beauty','war','army','enemy','rival','light','truth','earth','soil','forge','fire','crown','throne','tide','wave','storm','sky','wild','beast','vine','chaos','ai','model','system','network','agent','algorithm','fate','time','void','shadow','phoenix','dragon','ouroboros','titan','god','king','queen','warrior','hero','wisdom','mind','thought','memory','legacy','blood','oath','hunt','moon','forest','speed','message','path','word','sign']),
+    V: new Set(['loves','adores','desires','embraces','kisses','destroys','shatters','breaks','crushes','burns','kills','attacks','defends','forges','builds','creates','makes','crafts','grows','cultivates','harvests','plants','nurtures','hunts','tracks','pursues','finds','discovers','learns','predicts','generates','synthesizes','optimizes','processes','embeds','scores','filters','selects','routes','flows','rises','falls','binds','consumes','devours','awakens','transforms','emerges','resonates','becomes','shines','radiates','glows','weaves','tempers','elevates','converges','unravels','pierces','whispers','speaks','sings','calls','rules','judges','commands','decrees','reigns','dances','releases','breaks','chases','roams','wanders','travels','crosses','trades']),
+    O: new Set(['heart','soul','beauty','love','war','battle','peace','light','darkness','earth','field','forge','tool','creation','crown','throne','tide','wave','ocean','storm','sky','wild','edge','vine','fruit','pattern','signal','form','threshold','void','deep','shadow','flame','harmony','discord','resonance','echo','memory','dream','vision','prophecy','wisdom','knowledge','output','input','token','vector','model','network','stream','pipeline','fate','destiny','thread','weave','tapestry','labyrinth','mandala','path','word','oath','law','decree','order'])
 };
 
 function classifyDomain(word) {
     const w = word.toLowerCase();
-    for (const [domain, words] of Object.entries(DOMAINS)) {
-        if (words.has(w)) return domain;
+    let bestDomain = 'general';
+    let bestScore = 0;
+    
+    for (const [domain, seeds] of Object.entries(DOMAIN_SEEDS)) {
+        let score = 0;
+        // Exact match
+        if (seeds.some(s => s === w)) score = 3;
+        // Contains seed
+        if (seeds.some(s => w.includes(s) || s.includes(w))) score = Math.max(score, 2);
+        // Starts with seed prefix
+        if (seeds.some(s => w.startsWith(s.slice(0, 4)))) score = Math.max(score, 1);
+        
+        if (score > bestScore) {
+            bestScore = score;
+            bestDomain = domain;
+        }
     }
-    if (w.includes('lov') || w.includes('heart') || w.includes('soul')) return 'love';
-    if (w.includes('war') || w.includes('batt') || w.includes('destro') || w.includes('strik')) return 'war';
-    if (w.includes('forg') || w.includes('craft') || w.includes('build')) return 'forge';
-    if (w.includes('grow') || w.includes('cult') || w.includes('harv')) return 'cultivation';
-    if (w.includes('hunt') || w.includes('wild') || w.includes('edge')) return 'wild';
-    return 'general';
+    
+    // Heuristic fallbacks
+    if (bestDomain === 'general') {
+        if (w.includes('lov') || w.includes('heart') || w.includes('beat')) bestDomain = 'love';
+        else if (w.includes('war') || w.includes('batt') || w.includes('strik') || w.includes('destro')) bestDomain = 'war';
+        else if (w.includes('grow') || w.includes('farm') || w.includes('harv') || w.includes('seed')) bestDomain = 'farm';
+        else if (w.includes('forg') || w.includes('craft') || w.includes('build') || w.includes('tool')) bestDomain = 'forge';
+        else if (w.includes('hunt') || w.includes('wild') || w.includes('edge') || w.includes('track')) bestDomain = 'wild';
+        else if (w.includes('know') || w.includes('think') || w.includes('wis') || w.includes('mind')) bestDomain = 'wisdom';
+        else if (w.includes('wave') || w.includes('tide') || w.includes('ocean') || w.includes('deep')) bestDomain = 'tide';
+        else if (w.includes('speed') || w.includes('swift') || w.includes('mess') || w.includes('sign')) bestDomain = 'signal';
+    }
+    
+    return bestDomain;
 }
 
 function tagWordType(word) {
@@ -151,9 +203,9 @@ function tagWordType(word) {
     if (WORD_TYPES.S.has(w)) return 'S';
     if (WORD_TYPES.V.has(w)) return 'V';
     if (WORD_TYPES.O.has(w)) return 'O';
-    if (w.endsWith('s') || w.endsWith('er') || w.endsWith('or')) return 'S';
-    if (w.endsWith('ed') || w.endsWith('ing') || w.endsWith('es')) return 'V';
-    if (w.endsWith('ion') || w.endsWith('ment') || w.endsWith('ure')) return 'O';
+    if (w.endsWith('s') || w.endsWith('er') || w.endsWith('or') || w.endsWith('ist')) return 'S';
+    if (w.endsWith('ed') || w.endsWith('ing') || w.endsWith('es') || w.endsWith('ize')) return 'V';
+    if (w.endsWith('ion') || w.endsWith('ment') || w.endsWith('ness') || w.endsWith('ity')) return 'O';
     return '—';
 }
 
@@ -169,24 +221,24 @@ async function loadModel() {
         modelReady = true;
         document.getElementById('modelStatus').textContent = 'MiniLM ✓';
         enableButtons();
-        log('MiniLM ready — tokens will be embedded.');
+        log('MiniLM ready.');
     } catch (err) {
         document.getElementById('modelStatus').textContent = 'offline';
         modelReady = false;
         enableButtons();
-        log('Model failed — tokens stored without embeddings.');
+        log('Model offline — tokens stored without embeddings.');
     }
 }
 
 function enableButtons() {
-    document.getElementById('scrapeBtn').disabled = false;
-    document.getElementById('loveBtn').disabled = false;
-    document.getElementById('warBtn').disabled = false;
-    document.getElementById('generalBtn').disabled = false;
+    document.getElementById('scrapeAllBtn').disabled = false;
+    document.getElementById('scrapeGeneralBtn').disabled = false;
+    document.getElementById('seedBtn').disabled = false;
 }
 
 function extractTokens(text) {
-    return text.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length >= 4 && w.length <= 14 && !STOPWORDS.has(w));
+    return text.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/)
+        .filter(w => w.length >= 3 && w.length <= 14 && !STOPWORDS.has(w));
 }
 
 async function embed(text) {
@@ -195,79 +247,163 @@ async function embed(text) {
     return Array.from(result.data);
 }
 
-async function scrapeAndStore(sources, sourceLabel) {
+// ════════════════════════════════════════════════
+// SCRAPE — CORS-friendly sources
+// ════════════════════════════════════════════════
+async function scrapeGeneral() {
+    const sources = [
+        { url: 'https://dev.to/api/articles?top=10', name: 'devto', parser: 'json', path: 'title' },
+        { url: 'https://api.rss2json.com/v1/api.json?rss_url=https://hnrss.org/frontpage', name: 'hn', parser: 'rss' }
+    ];
+    await scrapeSources(sources, 'general');
+}
+
+async function scrapeAll() {
+    await scrapeGeneral();
+    await seedAllDomains();
+}
+
+async function scrapeSources(sources, label) {
+    log(`Scraping ${label} sources...`);
     const allTokens = [];
+    
     for (const src of sources) {
         try {
             const res = await fetch(src.url);
-            const text = await res.text();
-            // Very rough text extraction — handles RSS and plain text
-            const clean = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
-            const tokens = extractTokens(clean);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            
+            let text = '';
+            if (src.parser === 'json' && src.path) {
+                text = data.map(item => item[src.path] || '').join(' ');
+            } else if (src.parser === 'rss') {
+                text = (data.items || []).map(item => item.title || '').join(' ');
+            } else {
+                text = JSON.stringify(data);
+            }
+            
+            const tokens = extractTokens(text);
             allTokens.push(...tokens.map(t => ({ word: t, source: src.name })));
         } catch (err) {
-            log(`Source ${src.name}: offline`);
+            log(`${src.name}: offline (${err.message})`);
         }
     }
-
+    
+    if (!allTokens.length) { log(`No tokens from ${label} sources`); return; }
+    
     const freq = new Map();
     allTokens.forEach(t => freq.set(t.word, (freq.get(t.word) || 0) + 1));
-    const unique = [...freq.entries()].sort((a, b) => b[1] - a[1]).slice(0, 20);
+    const unique = [...freq.entries()].sort((a, b) => b[1] - a[1]).slice(0, 30);
+    
+    await storeTokens(unique, label);
+}
 
+async function seedAllDomains() {
+    log('Seeding all 12 domains...');
+    const allSeeds = [];
+    
+    for (const [domain, seeds] of Object.entries(DOMAIN_SEEDS)) {
+        for (const seed of seeds) {
+            allSeeds.push({ word: seed, domain, source: 'seed' });
+        }
+    }
+    
+    const freq = new Map();
+    allSeeds.forEach(t => { const key = `${t.word}|${t.domain}`; freq.set(key, { word: t.word, domain: t.domain, count: 1 }); });
+    const unique = [...freq.values()];
+    
+    await storeDomainSeeds(unique);
+}
+
+async function storeTokens(tokenEntries, sourceLabel) {
     let stored = 0;
-    for (const [word, count] of unique) {
+    recentTokens = [];
+    
+    for (const [word, count] of tokenEntries) {
         const domain = classifyDomain(word);
         const wordType = tagWordType(word);
         const embedding = modelReady ? await embed(word) : null;
-        const score = Math.min(100, count * 6 + (domain !== 'general' ? 20 : 0));
+        const score = Math.min(100, count * 6 + (domain !== 'general' ? 15 : 0));
         const expiresAt = new Date(Date.now() + 3 * 86400000);
 
-        const { error } = await sb.from('concepts').insert({
+        const record = {
             body: word, band: 'hermes', source: sourceLabel,
             source_loop: 'fast', state: 'raw', word_count: 1,
-            word_type: wordType, domain: domain, score,
-            metadata: { frequency: count, embedding },
+            word_type: wordType, domain, score,
+            metadata: { frequency: count },
             expires_at: expiresAt.toISOString(),
             created_at: new Date().toISOString(),
             gravity: 0, libations: 0, contests: 0
-        });
-        if (!error) stored++;
-    }
+        };
+        if (embedding) record.metadata.embedding = embedding;
 
+        const { error } = await sb.from('concepts').insert(record);
+        if (!error) {
+            stored++;
+            recentTokens.push({ word, domain, wordType });
+        }
+    }
+    
     totalScraped += stored;
     document.getElementById('totalScraped').textContent = totalScraped;
-    log(`${sourceLabel}: ${stored} tokens stored`);
+    renderFeed(recentTokens);
+    log(`Stored ${stored} tokens (source: ${sourceLabel})`);
     await updateStats();
-    return stored;
 }
 
-const SOURCES = {
-    love: [
-        { url: 'https://poetryfoundation.org/feed', name: 'poetry' },
-        { url: 'https://www.artsy.net/rss', name: 'artsy' }
-    ],
-    war: [
-        { url: 'https://feeds.bbci.co.uk/news/world/rss.xml', name: 'bbc_world' },
-        { url: 'https://www.aljazeera.com/xml/rss/all.xml', name: 'aljazeera' }
-    ],
-    general: [
-        { url: 'https://hnrss.org/frontpage', name: 'hn' },
-        { url: 'https://dev.to/feed', name: 'devto' }
-    ]
-};
+async function storeDomainSeeds(seeds) {
+    let stored = 0;
+    
+    for (const seed of seeds) {
+        const wordType = tagWordType(seed.word);
+        const embedding = modelReady ? await embed(seed.word) : null;
+        const expiresAt = new Date(Date.now() + 7 * 86400000);
 
-async function scrapeAll() { await scrapeAndStore(SOURCES.general, 'general'); }
-async function scrapeLove() { await scrapeAndStore(SOURCES.love, 'love'); }
-async function scrapeWar() { await scrapeAndStore(SOURCES.war, 'war'); }
-async function scrapeGeneral() { await scrapeAndStore(SOURCES.general, 'general'); }
+        const record = {
+            body: seed.word, band: 'hermes', source: 'seed',
+            source_loop: 'fast', state: 'raw', word_count: 1,
+            word_type: wordType, domain: seed.domain, score: 90,
+            metadata: { seeded: true },
+            expires_at: expiresAt.toISOString(),
+            created_at: new Date().toISOString(),
+            gravity: 0, libations: 0, contests: 0
+        };
+        if (embedding) record.metadata.embedding = embedding;
 
-async function updateStats() {
-    for (const domain of ['love','war','forge','cultivation','wild']) {
-        const { count } = await sb.from('concepts').select('*', { count: 'exact', head: true }).eq('domain', domain).eq('state', 'raw');
-        document.getElementById(`${domain}Count`).textContent = count || 0;
+        const { error } = await sb.from('concepts').insert(record);
+        if (!error) {
+            stored++;
+            recentTokens.push({ word: seed.word, domain: seed.domain, wordType });
+        }
     }
-    const { count: total } = await sb.from('concepts').select('*', { count: 'exact', head: true }).eq('band', 'hermes');
-    document.getElementById('totalDB').textContent = total || 0;
+    
+    totalScraped += stored;
+    document.getElementById('totalScraped').textContent = totalScraped;
+    renderFeed(recentTokens.slice(0, 30));
+    log(`Seeded ${stored} domain words across 12 gods`);
+    await updateStats();
+}
+
+// ════════════════════════════════════════════════
+// UI
+// ════════════════════════════════════════════════
+async function updateStats() {
+    const domains = ['signal','love','war','light','farm','forge','crown','tide','wisdom','storm','wild','vine'];
+    for (const domain of domains) {
+        const el = document.getElementById(`${domain}Count`);
+        if (!el) continue;
+        try {
+            const { count } = await sb.from('concepts')
+                .select('*', { count: 'exact', head: true })
+                .eq('domain', domain).eq('state', 'raw');
+            el.textContent = count || 0;
+        } catch { el.textContent = '—'; }
+    }
+    try {
+        const { count: total } = await sb.from('concepts')
+            .select('*', { count: 'exact', head: true }).eq('band', 'hermes');
+        document.getElementById('totalDB').textContent = total || 0;
+    } catch {}
 }
 
 function renderFeed(tokens) {
@@ -278,32 +414,33 @@ function renderFeed(tokens) {
             <span class="token-word">${t.word}</span>
             <span class="token-tags">
                 <span class="token-tag tag-${t.domain}">${t.domain}</span>
-                <span class="token-tag tag-${t.wordType?.toLowerCase() || '—'}">${t.wordType || '—'}</span>
+                <span class="token-tag tag-${(t.wordType || '—').toLowerCase()}">${t.wordType || '—'}</span>
             </span>
         </div>
     `).join('');
 }
 
 async function archiveSelf() {
-    const html = document.documentElement.outerHTML;
-    await sb.from('html').upsert({
-        filename: 'hermes.html', title: '⚡ Hermes · Token Courier', type: 'chthonic',
-        content: html, description: 'Scrapes sources, tags tokens by domain and word type, embeds with MiniLM, serves all gods',
-        reads_from: [], writes_to: ['concepts'],
-        models_used: ['Xenova/all-MiniLM-L6-v2'],
-        url: window.location.href, updated_at: new Date().toISOString()
-    }, { onConflict: 'filename' });
+    try {
+        const html = document.documentElement.outerHTML;
+        await sb.from('html').upsert({
+            filename: 'hermes.html', title: '⚡ Hermes · Token Courier', type: 'chthonic',
+            content: html, description: 'Token courier for 12 Olympian domains. Embeds with MiniLM, tags by domain and word type.',
+            reads_from: [], writes_to: ['concepts'],
+            models_used: ['Xenova/all-MiniLM-L6-v2'],
+            url: window.location.href, updated_at: new Date().toISOString()
+        }, { onConflict: 'filename' });
+    } catch {}
 }
 
 function init() {
-    document.getElementById('scrapeBtn').onclick = scrapeAll;
-    document.getElementById('loveBtn').onclick = scrapeLove;
-    document.getElementById('warBtn').onclick = scrapeWar;
-    document.getElementById('generalBtn').onclick = scrapeGeneral;
+    document.getElementById('scrapeAllBtn').onclick = scrapeAll;
+    document.getElementById('scrapeGeneralBtn').onclick = scrapeGeneral;
+    document.getElementById('seedBtn').onclick = seedAllDomains;
     loadModel();
     updateStats();
     setTimeout(archiveSelf, 3000);
-    log('⚡ Hermes — Pythagorean #1, the Monad. Courier of tokens.');
+    log('⚡ Hermes — Pythagorean #1. Courier of 12 domains.');
 }
 init();
 </script>
