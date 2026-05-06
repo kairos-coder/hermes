@@ -3,1752 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Hermes · Dual Spiral · KairosKernel</title>
+    <title>⚡ Hermes · Token Courier</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="importmap">
+        { "imports": { "@xenova/transformers": "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js" } }
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap');
-
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=JetBrains+Mono:wght@300;400;500&display=swap');
         :root {
-            --void:      #080a0f;
-            --deep:      #0b0e16;
-            --dark:      #0f141e;
-            --mid:       #1a2030;
-            --surface:   #1e2535;
-            --bronze:    #8b5e3c;
-            --copper:    #b07840;
-            --gold:      #c8943a;
-            --lightning: #e8b84a;
-            --hermes:    #FFD700;
-            --sprout:    #6b8e3a;
-            --blight:    #8b3a2a;
-            --mist:      #6a7a8a;
-            --pale:      #d4e0ed;
-            --white:     #f0f4f8;
-
+            --void: #080a0f; --deep: #0b0e16; --surface: #1e2535;
+            --gold: #c8943a; --hermes: #FFD700; --mist: #6a7a8a; --pale: #d4e0ed;
+            --love: #b05870; --war: #c0382a; --forge: #c07040; --cultivation: #7a6a40;
+            --wild: #5a8050; --legacy: #5a7aaa; --flow: #3a7090;
             --font-display: 'Cinzel', serif;
-            --font-body:    'Crimson Pro', serif;
-            --font-mono:    'JetBrains Mono', monospace;
+            --font-body: 'Crimson Pro', serif;
+            --font-mono: 'JetBrains Mono', monospace;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            background: var(--void);
-            font-family: var(--font-body);
-            color: var(--pale);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Lightning grain overlay */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 1500px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        /* ── HEADER ── */
-        .header {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            align-items: end;
-            border-bottom: 1px solid var(--surface);
-            padding-bottom: 1.5rem;
-            margin-bottom: 2rem;
-            gap: 1rem;
-        }
-        .header h1 {
-            font-family: var(--font-display);
-            font-size: 2.8rem;
-            font-weight: 900;
-            color: var(--gold);
-            letter-spacing: 4px;
-            line-height: 1;
-        }
-        .header h1 span { color: var(--hermes); }
-        .header-sub {
-            font-family: var(--font-mono);
-            font-size: 0.65rem;
-            color: var(--mist);
-            letter-spacing: 2px;
-            margin-top: 0.4rem;
-        }
-        .header-thesis {
-            font-family: var(--font-mono);
-            font-size: 0.6rem;
-            margin-top: 0.2rem;
-        }
-        .header-thesis .fast { color: var(--hermes); }
-        .header-thesis .slow { color: var(--bronze); }
-
-        .live-badge {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-family: var(--font-mono);
-            font-size: 0.65rem;
-            color: var(--mist);
-        }
-        .pulse-dot {
-            width: 7px; height: 7px;
-            background: var(--sprout);
-            border-radius: 50%;
-            animation: blink 1.6s ease-in-out infinite;
-        }
-        @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.2; } }
-
-        /* ── STATS ROW ── */
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 0.75rem;
-            margin-bottom: 2rem;
-        }
-        .stat {
-            background: var(--deep);
-            border: 1px solid var(--surface);
-            border-radius: 6px;
-            padding: 0.8rem 0.75rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .stat::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            height: 2px;
-        }
-        .stat.s-total::after   { background: var(--gold); }
-        .stat.s-fast::after    { background: var(--hermes); }
-        .stat.s-slow::after    { background: var(--bronze); }
-        .stat.s-gate::after    { background: var(--sprout); }
-        .stat.s-reject::after  { background: var(--blight); }
-
-        .stat-num {
-            font-family: var(--font-display);
-            font-size: 1.6rem;
-            font-weight: 600;
-            color: var(--gold);
-        }
-        .stat-label {
-            font-family: var(--font-mono);
-            font-size: 0.58rem;
-            color: var(--mist);
-            letter-spacing: 1px;
-            margin-top: 0.2rem;
-        }
-
-        /* ── DUAL SPIRAL PANELS ── */
-        .dual {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        .spiral {
-            background: var(--deep);
-            border: 1px solid var(--surface);
-            border-radius: 10px;
-            padding: 1.5rem;
-            position: relative;
-            overflow: hidden;
-        }
-        .spiral.fast { border-top: 3px solid var(--hermes); }
-        .spiral.slow { border-top: 3px solid var(--bronze); }
-
-        /* Radial pulse behind each spiral */
-        .spiral-glow {
-            position: absolute;
-            top: -60px; right: -60px;
-            width: 200px; height: 200px;
-            border-radius: 50%;
-            opacity: 0.04;
-            pointer-events: none;
-        }
-        .fast .spiral-glow  { background: var(--hermes); animation: glowPulse 16.18s ease-in-out infinite; }
-        .slow .spiral-glow  { background: var(--bronze); animation: glowPulse 6s ease-in-out infinite; }
-        @keyframes glowPulse {
-            0%,100% { transform: scale(1); opacity: 0.04; }
-            50%      { transform: scale(1.4); opacity: 0.08; }
-        }
-
-        .spiral-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-        .spiral-name {
-            font-family: var(--font-display);
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--pale);
-        }
-        .spiral-freq {
-            font-family: var(--font-mono);
-            font-size: 0.6rem;
-            color: var(--mist);
-            margin-top: 0.2rem;
-        }
-        .spiral-counter {
-            font-family: var(--font-mono);
-            font-size: 1.8rem;
-            font-weight: 300;
-            text-align: right;
-        }
-        .fast .spiral-counter { color: var(--hermes); }
-        .slow .spiral-counter { color: var(--bronze); }
-        .spiral-counter-label {
-            font-family: var(--font-mono);
-            font-size: 0.55rem;
-            color: var(--mist);
-            text-align: right;
-        }
-
-        /* Narrative feed */
-        .narrative {
-            background: var(--void);
-            border: 1px solid var(--surface);
-            border-radius: 6px;
-            padding: 0.75rem;
-            height: 120px;
-            overflow-y: auto;
-            margin: 1rem 0;
-            font-family: var(--font-mono);
-            font-size: 0.65rem;
-        }
-        .nar-line { padding: 0.18rem 0; color: var(--mist); border-bottom: 1px solid #0f141e; }
-        .nar-line.ok      { color: var(--sprout); }
-        .nar-line.warn    { color: var(--gold); }
-        .nar-line.reject  { color: var(--blight); }
-        .nar-line.gate    { color: #70a8c0; }
-
-        .spiral-btn {
-            width: 100%;
-            background: var(--surface);
-            border: 1px solid var(--surface);
-            color: var(--pale);
-            padding: 0.55rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            transition: all 0.2s;
-            letter-spacing: 0.5px;
-        }
-        .fast .spiral-btn:hover { background: var(--hermes); color: var(--void); border-color: var(--hermes); }
-        .slow .spiral-btn:hover { background: var(--bronze); color: var(--void); border-color: var(--bronze); }
-
-        /* ── MYTH-TECH DIGEST ── */
-        .section-title {
-            font-family: var(--font-display);
-            font-size: 0.65rem;
-            letter-spacing: 3px;
-            color: var(--gold);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .digest-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        .digest-card {
-            background: var(--dark);
-            border: 1px solid var(--surface);
-            border-radius: 8px;
-            padding: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-            overflow: hidden;
-        }
-        .digest-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--bronze), transparent);
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        .digest-card:hover { border-color: var(--bronze); transform: translateY(-2px); }
-        .digest-card:hover::before { opacity: 1; }
-        .card-cat {
-            font-family: var(--font-mono);
-            font-size: 0.58rem;
-            color: var(--bronze);
-            letter-spacing: 1px;
-            margin-bottom: 0.4rem;
-        }
-        .card-title {
-            font-family: var(--font-display);
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--pale);
-            margin-bottom: 0.4rem;
-            line-height: 1.3;
-        }
-        .card-body {
-            font-family: var(--font-body);
-            font-size: 0.78rem;
-            color: var(--mist);
-            line-height: 1.4;
-            margin-bottom: 0.5rem;
-        }
-        .card-source {
-            font-family: var(--font-mono);
-            font-size: 0.58rem;
-            color: #4a5a6a;
-        }
-        .card-tags { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.4rem; }
-        .ctag {
-            font-family: var(--font-mono);
-            font-size: 0.55rem;
-            background: var(--surface);
-            padding: 0.15rem 0.4rem;
-            border-radius: 3px;
-            color: var(--mist);
-        }
-        .ctag.archetype { border-left: 2px solid var(--bronze); color: var(--gold); }
-
-        /* ── MANUAL INPUT + SIGNAL TAGS ── */
-        .panel {
-            background: var(--deep);
-            border: 1px solid var(--surface);
-            border-radius: 8px;
-            padding: 1.25rem;
-            margin-bottom: 1rem;
-        }
-        .panel-title {
-            font-family: var(--font-mono);
-            font-size: 0.6rem;
-            letter-spacing: 2px;
-            color: var(--mist);
-            margin-bottom: 0.9rem;
-        }
-        .input-row { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
-        input[type="text"] {
-            flex: 1;
-            min-width: 200px;
-            background: var(--void);
-            border: 1px solid var(--surface);
-            border-radius: 4px;
-            padding: 0.5rem 0.75rem;
-            color: var(--pale);
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        input[type="text"]:focus { border-color: var(--bronze); }
-        .word-count {
-            font-family: var(--font-mono);
-            font-size: 0.65rem;
-            color: var(--mist);
-            min-width: 80px;
-            text-align: right;
-        }
-        .word-count.ok     { color: var(--sprout); }
-        .word-count.bad    { color: var(--blight); }
-
-        button {
-            font-family: var(--font-mono);
-            font-size: 0.72rem;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            border: 1px solid var(--surface);
-            background: var(--surface);
-            color: var(--pale);
-            transition: all 0.2s;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-        button:hover:not(:disabled) { background: var(--bronze); color: var(--void); border-color: var(--bronze); }
-        button.primary { background: var(--bronze); color: var(--void); border-color: var(--bronze); }
-        button.primary:hover:not(:disabled) { background: var(--gold); border-color: var(--gold); }
-        button:disabled { opacity: 0.35; cursor: not-allowed; }
-
-        .btn-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
-
-        .signal-cloud { margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
-        .signal-chip {
-            font-family: var(--font-mono);
-            font-size: 0.6rem;
-            background: var(--surface);
-            border: 1px solid #2a3545;
-            border-radius: 3px;
-            padding: 0.2rem 0.5rem;
-            cursor: pointer;
-            color: var(--mist);
-            transition: all 0.15s;
-        }
-        .signal-chip:hover { background: var(--bronze); color: var(--void); border-color: var(--bronze); }
-
-        /* ── GATE QUALITY INDICATOR ── */
-        .gate-panel {
-            background: var(--deep);
-            border: 1px solid var(--surface);
-            border-left: 3px solid #70a8c0;
-            border-radius: 8px;
-            padding: 1rem 1.25rem;
-            margin-bottom: 1rem;
-            font-family: var(--font-mono);
-            font-size: 0.65rem;
-        }
-        .gate-title { color: #70a8c0; letter-spacing: 2px; margin-bottom: 0.5rem; font-size: 0.6rem; }
-        .gate-rules { color: var(--mist); line-height: 1.8; }
-        .gate-rules span { color: var(--gold); }
-
-        /* ── LOG ── */
-        .log-panel {
-            background: var(--void);
-            border: 1px solid var(--surface);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .log-head {
-            font-family: var(--font-mono);
-            font-size: 0.58rem;
-            letter-spacing: 2px;
-            color: var(--mist);
-            padding: 0.55rem 1rem;
-            border-bottom: 1px solid var(--surface);
-            background: var(--deep);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .log-body {
-            padding: 0.75rem;
-            max-height: 220px;
-            overflow-y: auto;
-            font-family: var(--font-mono);
-            font-size: 0.65rem;
-        }
-        .log-entry { padding: 0.18rem 0; color: var(--mist); border-bottom: 1px solid #0b0e16; }
-        .log-entry.ok     { color: var(--sprout); }
-        .log-entry.warn   { color: var(--gold); }
-        .log-entry.error  { color: var(--blight); }
-        .log-entry.gate   { color: #70a8c0; }
-        .log-entry.reject { color: #7a4a3a; }
-
-        .spin { display: inline-block; animation: spin 0.7s linear infinite; }
+        body { background: var(--void); font-family: var(--font-body); color: var(--pale); min-height: 100vh; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+        
+        .header { text-align: center; border-bottom: 1px solid var(--surface); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+        .header h1 { font-family: var(--font-display); font-size: 2.2rem; color: var(--gold); letter-spacing: 3px; }
+        .header-sub { font-family: var(--font-mono); font-size: 0.55rem; color: var(--mist); letter-spacing: 2px; margin-top: 0.3rem; }
+        
+        .status-bar { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; font-family: var(--font-mono); font-size: 0.55rem; color: var(--mist); }
+        .status-bar span { color: var(--pale); font-weight: 500; }
+        
+        .controls { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        button { font-family: var(--font-mono); font-size: 0.6rem; padding: 0.45rem 0.9rem; border-radius: 4px; cursor: pointer; border: 1px solid var(--surface); background: var(--deep); color: var(--pale); transition: all 0.2s; letter-spacing: 1px; }
+        button:hover:not(:disabled) { background: var(--gold); color: var(--void); border-color: var(--gold); }
+        button.primary { background: var(--gold); color: var(--void); border-color: var(--gold); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
+        .spin { display: inline-block; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        @media (max-width: 960px) {
-            .dual { grid-template-columns: 1fr; }
-            .digest-grid { grid-template-columns: 1fr; }
-            .stats-row { grid-template-columns: repeat(3, 1fr); }
-            .header { grid-template-columns: 1fr; }
-            .header h1 { font-size: 2rem; }
-        }
-        /* ── HERMES ORACLE PANEL ── */
-.oracle-panel {
-    background: var(--deep);
-    border: 1px solid var(--surface);
-    border-top: 3px solid var(--hermes);
-    border-radius: 10px;
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 2rem;
-    position: relative;
-    overflow: hidden;
-}
-
-/* Ambient glow behind panel */
-.oracle-panel::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 180px; height: 180px;
-    background: var(--hermes);
-    border-radius: 50%;
-    opacity: 0.03;
-    pointer-events: none;
-    animation: glowPulse 8s ease-in-out infinite;
-}
-
-.oracle-header {
-    font-family: var(--font-display);
-    font-size: 0.65rem;
-    letter-spacing: 3px;
-    color: var(--hermes);
-    margin-bottom: 0.75rem;
-}
-
-.oracle-insight {
-    font-family: var(--font-body);
-    font-size: 1.05rem;
-    font-style: italic;
-    color: var(--pale);
-    line-height: 1.5;
-    margin-bottom: 0.75rem;
-    min-height: 1.6rem;
-    transition: opacity 0.4s ease;
-}
-
-.oracle-stats {
-    display: flex;
-    gap: 1.5rem;
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    color: var(--mist);
-    margin-bottom: 0.5rem;
-}
-
-.oracle-stats span { color: var(--gold); }
-
-.oracle-timestamp {
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    color: #3a4a5a;
-    letter-spacing: 1px;
-}    </style>
-    <!-- Add this to your <head> after existing styles -->
-<script type="importmap">
-    {
-        "imports": {
-            "@xenova/transformers": "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.0/dist/transformers.min.js"
-        }
-    }
-</script>    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        
+        .domain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.6rem; margin-bottom: 1.5rem; }
+        .domain-card { background: var(--deep); border: 1px solid var(--surface); border-radius: 8px; padding: 0.8rem; text-align: center; }
+        .domain-card.love { border-top: 2px solid var(--love); }
+        .domain-card.war { border-top: 2px solid var(--war); }
+        .domain-card.forge { border-top: 2px solid var(--forge); }
+        .domain-card.cultivation { border-top: 2px solid var(--cultivation); }
+        .domain-card.wild { border-top: 2px solid var(--wild); }
+        .domain-name { font-family: var(--font-display); font-size: 0.7rem; margin-bottom: 0.2rem; }
+        .domain-count { font-family: var(--font-mono); font-size: 0.65rem; }
+        .domain-god { font-family: var(--font-mono); font-size: 0.45rem; color: var(--mist); margin-top: 0.2rem; }
+        
+        .token-feed { background: var(--deep); border: 1px solid var(--surface); border-radius: 8px; padding: 0.8rem; max-height: 300px; overflow-y: auto; margin-bottom: 1.5rem; }
+        .token-row { font-family: var(--font-mono); font-size: 0.52rem; padding: 0.2rem 0; border-bottom: 1px solid rgba(30,37,53,0.5); display: flex; justify-content: space-between; align-items: center; }
+        .token-row:last-child { border-bottom: none; }
+        .token-word { color: var(--pale); }
+        .token-tags { display: flex; gap: 0.2rem; }
+        .token-tag { font-size: 0.42rem; padding: 0.08rem 0.3rem; border-radius: 2px; }
+        .tag-love { background: rgba(176,88,112,0.2); color: var(--love); }
+        .tag-war { background: rgba(192,56,42,0.2); color: var(--war); }
+        .tag-forge { background: rgba(192,112,64,0.2); color: var(--forge); }
+        .tag-cult { background: rgba(122,106,64,0.2); color: var(--cultivation); }
+        .tag-wild { background: rgba(90,128,80,0.2); color: var(--wild); }
+        .tag-s { background: rgba(100,160,200,0.2); color: #7eb8da; }
+        .tag-v { background: rgba(200,180,60,0.2); color: #c8a83c; }
+        .tag-o { background: rgba(200,128,80,0.2); color: #c08050; }
+        
+        .log { background: #060810; border: 1px solid var(--surface); border-radius: 6px; padding: 0.5rem; max-height: 120px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.5rem; color: var(--mist); }
+        
+        @media (max-width: 768px) { .domain-grid { grid-template-columns: repeat(3, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="container">
 
-    <!-- HEADER -->
     <div class="header">
-        <div>
-            <h1>⚡ HER<span>MES</span></h1>
-            <div class="header-sub">DUAL SPIRAL ·· KAIROS KERNEL · LIVE 2026</div>
-            <div class="header-thesis">
-                <span class="fast">⚡ FAST · 16.18s · Atomic token hunting → Demeter Cultivation</span>
-                &nbsp;&nbsp;
-                <span class="slow">🐢 SLOW · ~60m · Real News APIs → Orchestral</span>
-            </div>
-        </div>
-        <div class="live-badge">
-            <span class="pulse-dot"></span>
-            <span id="liveTime">—</span>
-        </div>
-    </div>
-<!-- HERMES ORACLE - Living Insight -->
-<div class="oracle-panel" id="hermes-oracle">
-    <div class="oracle-header">🏛️ THE ORACLE SPEAKS</div>
-    <div class="oracle-insight">🌀 Hermes awakens. Wisdom gathering...</div>
-    <div class="oracle-stats">
-        <span>🎯 —</span>
-        <span>⚡ —</span>
-        <span>🏛️ —</span>
-    </div>
-    <div class="oracle-timestamp">—</div>
-</div>    <!-- STATS -->
-    <div class="stats-row">
-        <div class="stat s-total">
-            <div class="stat-num" id="sTotal">—</div>
-            <div class="stat-label">TOTAL DISPATCHED</div>
-        </div>
-        <div class="stat s-fast">
-            <div class="stat-num" id="sFast">—</div>
-            <div class="stat-label">⚡ FAST SPIRAL</div>
-        </div>
-        <div class="stat s-slow">
-            <div class="stat-num" id="sSlow">—</div>
-            <div class="stat-label">🐢 SLOW SPIRAL</div>
-        </div>
-        <div class="stat s-gate">
-            <div class="stat-num" id="sGatePassed">—</div>
-            <div class="stat-label">GATE PASSED</div>
-        </div>
-        <div class="stat s-reject">
-            <div class="stat-num" id="sRejected">0</div>
-            <div class="stat-label">GATE REJECTED</div>
-        </div>
+        <h1>⚡ HER<span>MES</span></h1>
+        <div class="header-sub">TOKEN COURIER · EMBED · TAG · SERVE · PYTHAGOREAN #1 · THE MONAD</div>
     </div>
 
-    <!-- DUAL SPIRAL -->
-    <div class="dual">
-
-        <!-- FAST -->
-        <div class="spiral fast">
-            <div class="spiral-glow"></div>
-            <div class="spiral-head">
-                <div>
-                    <div class="spiral-name">⚡ FAST SPIRAL</div>
-                    <div class="spiral-freq">Half-Phi · 8.09s per source · 16.18s cycle</div>
-                </div>
-                <div>
-                    <div class="spiral-counter" id="fastTimer">16.18</div>
-                    <div class="spiral-counter-label">next cycle</div>
-                </div>
-            </div>
-            <div class="narrative" id="fastNarrative">
-                <div class="nar-line">🌀 Hermes awaits the first fast pulse…</div>
-            </div>
-            <button class="spiral-btn" id="fastBtn">⚡ Hunt Now</button>
-        </div>
-
-        <!-- SLOW -->
-        <div class="spiral slow">
-            <div class="spiral-glow"></div>
-            <div class="spiral-head">
-                <div>
-                    <div class="spiral-name">🐢 SLOW SPIRAL</div>
-                    <div class="spiral-freq">~60 minutes · Real news APIs · Zeus dispatch</div>
-                </div>
-                <div>
-                    <div class="spiral-counter" id="slowTimer">60:00</div>
-                    <div class="spiral-counter-label">until dispatch</div>
-                </div>
-            </div>
-            <div class="narrative" id="slowNarrative">
-                <div class="nar-line">🐢 Slow spiral awaiting first cycle…</div>
-            </div>
-            <button class="spiral-btn" id="slowBtn">📡 Fetch News Now</button>
-        </div>
-
+    <div class="status-bar">
+        <div>Tokens scraped: <span id="totalScraped">—</span></div>
+        <div>In database: <span id="totalDB">—</span></div>
+        <div>Model: <span id="modelStatus">loading...</span></div>
     </div>
 
-    <!-- MYTH-TECH DIGEST -->
-    <div class="section-title">
-        🏛️ MYTH-TECH DIGEST · CURATED BY HERMES
-        <div class="live-badge"><span class="pulse-dot"></span> Live 2026</div>
-    </div>
-    <div class="digest-grid" id="digestGrid"></div>
-
-    <!-- GATE QUALITY RULES -->
-    <div class="gate-panel">
-        <div class="gate-title">◈ HERMES QUALITY GATE — ACTIVE</div>
-        <div class="gate-rules">
-            Tokens must pass <span>at least one</span> of:
-            · <span>Priority word</span> (AI, neural, quantum, semantic…)
-            · <span>Archetypal family</span> (Chthonic, Olympian, Liminal, Forge…)
-            · <span>≥ 3 syllables</span> (phonological weight)
-            · Tokens that are <span>pure stopwords</span> or <span>below all thresholds</span> are rejected before DB write.
-        </div>
+    <div class="controls">
+        <button id="scrapeBtn" class="primary" disabled>⚡ Scrape All Sources</button>
+        <button id="loveBtn" disabled>💗 Love Sources</button>
+        <button id="warBtn" disabled>⚔️ War Sources</button>
+        <button id="generalBtn" disabled>🌐 General Sources</button>
     </div>
 
-    <!-- MANUAL INPUT -->
-    <div class="panel">
-        <div class="panel-title">◈ MANUAL SIGNAL INPUT</div>
-        <div class="input-row">
-            <input type="text" id="signalInput" placeholder="Enter 1–3 word reflex…">
-            <span class="word-count" id="wordCount">0 / 1–3</span>
-            <button id="submitBtn" class="primary">⚡ Process</button>
-            <button id="clearInputBtn">Clear</button>
-        </div>
-        <div class="signal-cloud" id="signalCloud"></div>
+    <div class="domain-grid" id="domainGrid">
+        <div class="domain-card love"><div class="domain-name" style="color:var(--love)">💗 LOVE</div><div class="domain-count" id="loveCount">—</div><div class="domain-god">→ Aphrodite</div></div>
+        <div class="domain-card war"><div class="domain-name" style="color:var(--war)">⚔️ WAR</div><div class="domain-count" id="warCount">—</div><div class="domain-god">→ Ares</div></div>
+        <div class="domain-card forge"><div class="domain-name" style="color:var(--forge)">🔨 FORGE</div><div class="domain-count" id="forgeCount">—</div><div class="domain-god">→ Hephaestus</div></div>
+        <div class="domain-card cultivation"><div class="domain-name" style="color:var(--cultivation)">🌾 CULTIVATION</div><div class="domain-count" id="cultCount">—</div><div class="domain-god">→ Demeter</div></div>
+        <div class="domain-card wild"><div class="domain-name" style="color:var(--wild)">🏹 WILD</div><div class="domain-count" id="wildCount">—</div><div class="domain-god">→ Artemis</div></div>
     </div>
 
-    <!-- SCRAPE CONTROLS -->
-    <div class="panel">
-        <div class="panel-title">◈ SOURCE CONTROLS</div>
-        <div class="btn-row">
-            <button id="scrapeAllBtn">🌊 Scrape All Sources</button>
-            <button id="mythicBtn">🏛️ Mythic Archive Only</button>
-            <button id="pruneBtn">🧹 Prune Expired</button>
-        </div>
-    </div>
-
-    <!-- LOG -->
-    <div class="log-panel">
-        <div class="log-head">
-            <span>◈ GATE LOG</span>
-            <span id="logCount" style="color:var(--bronze);">0 entries</span>
-        </div>
-        <div class="log-body" id="logBody">
-            <div class="log-entry gate">[system] Hermes Dual Spiral initialising…</div>
-        </div>
-    </div>
+    <div class="token-feed" id="tokenFeed"><div class="token-row"><span class="token-word">No tokens scraped yet</span></div></div>
+    <div class="log" id="log"><div>⚡ Hermes ready.</div></div>
 
 </div>
-<!-- Semantic Model Loader - Browser Cached (23MB MiniLM) -->
+
 <script type="module">
-    // Add model status indicator to header
-    const addModelStatus = () => {
-        const liveBadge = document.querySelector('.live-badge');
-        if (liveBadge && !document.getElementById('modelStatusIndicator')) {
-            const statusSpan = document.createElement('span');
-            statusSpan.id = 'modelStatusIndicator';
-            statusSpan.style.cssText = 'margin-left: 8px; font-size: 0.6rem; padding: 2px 6px; border-radius: 12px; background: #1a2030;';
-            statusSpan.innerHTML = '🧠 loading...';
-            liveBadge.appendChild(statusSpan);
-        }
-    };
-    
-    // Load transformer
-    const { pipeline, env } = await import('@xenova/transformers');
-    
-    // Configure for aggressive caching (same as Demeter)
-    env.allowLocalModels = true;
-    env.useBrowserCache = true;
-    env.cacheDir = '/hermes-cache/';
-    
-    // Create global HermesSemantic object
-    window.HermesSemantic = {
-        ready: false,
-        pipeline: null,
-        modelName: 'Xenova/all-MiniLM-L6-v2',
-        
-        async load() {
-            try {
-                const statusEl = document.getElementById('modelStatusIndicator');
-                if (statusEl) {
-                    statusEl.innerHTML = '📡 downloading 23MB...';
-                    statusEl.style.background = '#f39c12';
-                }
-                
-                console.log('🧠 Hermes: Downloading semantic model (23MB, will cache)...');
-                this.pipeline = await pipeline('feature-extraction', this.modelName);
-                this.ready = true;
-                
-                if (statusEl) {
-                    statusEl.innerHTML = '🧠 semantic';
-                    statusEl.style.background = '#2ecc71';
-                    statusEl.style.color = '#000';
-                }
-                
-                console.log('✅ Hermes semantic model ready - cached for next load');
-                
-                // Dispatch event for other components
-                window.dispatchEvent(new CustomEvent('hermes-semantic-ready'));
-                
-            } catch (err) {
-                console.error('Failed to load semantic model:', err);
-                const statusEl = document.getElementById('modelStatusIndicator');
-                if (statusEl) {
-                    statusEl.innerHTML = '⚠️ model failed';
-                    statusEl.style.background = '#e74c3c';
-                }
-            }
-        },
-        
-        async getEmbedding(text) {
-            if (!this.ready || !this.pipeline) return null;
-            try {
-                const result = await this.pipeline(text, { pooling: 'mean', normalize: true });
-                return Array.from(result.data);
-            } catch (err) {
-                console.warn('Embedding failed:', err);
-                return null;
-            }
-        },
-        
-        cosineSimilarity(a, b) {
-            if (!a || !b) return 0;
-            let dot = 0, magA = 0, magB = 0;
-            for (let i = 0; i < a.length; i++) {
-                dot += a[i] * b[i];
-                magA += a[i] * a[i];
-                magB += b[i] * b[i];
-            }
-            return dot / (Math.sqrt(magA) * Math.sqrt(magB));
-        },
-        
-        async getNoveltyScore(newText, existingTexts) {
-            if (!this.ready || existingTexts.length === 0) return 0.5;
-            
-            const newEmb = await this.getEmbedding(newText);
-            if (!newEmb) return 0.5;
-            
-            let maxSimilarity = 0;
-            for (const existing of existingTexts.slice(0, 20)) {
-                const existingEmb = await this.getEmbedding(existing);
-                if (existingEmb) {
-                    const sim = this.cosineSimilarity(newEmb, existingEmb);
-                    maxSimilarity = Math.max(maxSimilarity, sim);
-                }
-            }
-            
-            // Novelty = 1 - maxSimilarity, scaled 0-1
-            return Math.min(1, Math.max(0, 1 - maxSimilarity));
-        }
-    };
-    
-    // Add status indicator to DOM after it renders
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', addModelStatus);
-    } else {
-        addModelStatus();
+const KAIROS_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
+const KAIROS_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
+const sb = window.supabase.createClient(KAIROS_URL, KAIROS_KEY);
+
+import { pipeline, env } from '@xenova/transformers';
+env.allowLocalModels = true;
+env.useBrowserCache = true;
+
+let embedder = null;
+let modelReady = false;
+let totalScraped = 0;
+
+const STOPWORDS = new Set(['the','and','for','with','this','that','from','have','are','was','were','how','why','what','when','where','who','which','there','their','they','them','then','than','about','into','through','during','before','after','above','below','between','under','very','just','but','not','you','your','our','its','has','had','been','being','can','will','would','could','should','might','like','because','while','since','also','only','more','most','some','such','these','those','own','same','make','take','come','goes','went','made','look','time','know','people','good','new','first','last','long','great','little','right','big','high','different','small','large','next','early','young','important','few','public','bad','able']);
+
+// DOMAIN WORD LISTS
+const DOMAINS = {
+    love: new Set(['love','desire','beauty','passion','romance','heart','soul','kiss','embrace','union','wedding','devotion','adore','cherish','beloved','sweet','tender','gentle','soft','warm','bloom','flower','rose','garden','grace','elegant','radiant','luminous','golden','harmony','peace','kindness','joy','delight','pleasure','bliss','aphrodite','venus','eros','charm','attraction','allure','seduction','courtship','poetry','song','music','dance','art','beautiful']),
+    war: new Set(['war','battle','fight','conflict','destruction','attack','defense','army','soldier','weapon','sword','spear','shield','armor','fortress','castle','siege','invasion','conquest','victory','defeat','slaughter','carnage','blood','death','kill','destroy','shatter','break','crush','burn','rage','fury','wrath','violence','force','power','domination','rival','enemy','opponent','competition','strife','discord','chaos','ares','mars','combat','assault','strike','clash']),
+    forge: new Set(['forge','craft','build','create','make','tool','instrument','machine','engine','device','mechanism','structure','framework','architecture','system','design','construct','fabricate','assemble','forge','anvil','hammer','metal','iron','steel','fire','kiln','workshop','factory','industry','technology','engineer','artisan','hephaestus']),
+    cultivation: new Set(['grow','cultivate','harvest','plant','seed','soil','earth','field','crop','grain','wheat','barley','fruit','vine','tree','root','branch','leaf','bloom','flower','garden','farm','agriculture','fertile','abundant','yield','reap','sow','tend','nurture','demeter','growth','cycle','season','spring','summer','autumn','fall','winter']),
+    wild: new Set(['hunt','wild','wilderness','forest','mountain','beast','animal','prey','predator','track','trail','edge','boundary','frontier','unknown','undiscovered','hidden','secret','mystery','artemis','moon','night','shadow','bow','arrow','quiver','chase','pursuit','freedom','independence','solitary'])
+};
+
+const WORD_TYPES = {
+    S: new Set(['love','heart','soul','beauty','desire','war','army','soldier','enemy','rival','forge','craftsman','artisan','engineer','earth','soil','garden','hunt','forest','beast','ai','model','system','network','agent','algorithm','pipeline','framework','protocol','fate','time','light','void','shadow','fire','water','phoenix','dragon','serpent','ouroboros','titan','god','goddess','muse','oracle','prophet','king','queen','warrior','hero']),
+    V: new Set(['loves','adores','desires','embraces','kisses','holds','destroys','shatters','breaks','crushes','burns','kills','attacks','defends','forges','builds','creates','makes','crafts','grows','cultivates','harvests','plants','nurtures','hunts','tracks','pursues','finds','discovers','learns','predicts','generates','synthesizes','optimizes','processes','embeds','scores','filters','selects','routes','flows','rises','falls','binds','consumes','devours','awakens','transforms','emerges','resonates','becomes','shines','radiates','glows','weaves','tempers','elevates','converges','unravels','pierces','whispers','speaks','sings','calls']),
+    O: new Set(['heart','soul','beauty','love','desire','passion','war','battle','conflict','destruction','peace','forge','tool','creation','artifact','harvest','crop','garden','wild','edge','frontier','pattern','signal','form','threshold','void','deep','shadow','flame','light','darkness','chaos','order','harmony','discord','resonance','echo','memory','dream','vision','prophecy','wisdom','knowledge','output','input','parameter','token','embedding','vector','matrix','model','network','graph','tree','forest','stream','pipeline','fate','destiny','thread','weave','tapestry','labyrinth','mandala'])
+};
+
+function classifyDomain(word) {
+    const w = word.toLowerCase();
+    for (const [domain, words] of Object.entries(DOMAINS)) {
+        if (words.has(w)) return domain;
     }
-    
-    // Start loading the model (cached after first load)
-    window.HermesSemantic.load();
-    
-    // Listen for model ready to enhance scoring
-    window.addEventListener('hermes-semantic-ready', () => {
-        console.log('🎯 Hermes quality gate enhanced with semantic scoring');
-        
-        // Optional: Patch the passesGate function to add semantic boost
-        if (typeof window.enhanceGateWithSemantic === 'undefined') {
-            window.originalPassesGate = window.passesGate || function() {};
-            console.log('🧠 Semantic model integrated into Hermes gate');
-        }
-    });
-</script>
-    <script>
-// ============================================================
-// CONFIG
-// ============================================================
-const SUPABASE_URL      = 'https://kzcucjcyxybypncbdbws.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// ============================================================
-// CONSTANTS
-// ============================================================
-const STOPWORDS = new Set([
-    'the','and','for','with','this','that','from','have','are','was','were','how','why',
-    'what','when','where','who','which','there','their','they','them','then','than',
-    'about','into','through','during','before','after','above','below','between','under',
-    'very','just','but','not','you','your','our','its','has','had','been','being','can',
-    'will','would','could','should','shall','may','might','must','need','also','only',
-    'more','most','some','such','than','then','these','those','been','being','over',
-    'own','same','against','stop','tells','talking','says','said','make','take','come',
-    'goes','went','made','look','like','time','know','people','into','year','good',
-    'new','first','last','long','great','little','own','right','big','high','different',
-    'small','large','next','early','young','important','few','public','bad','same','able'
-]);
-
-const PRIORITY_WORDS = new Set([
-    'ai','ml','api','data','cloud','native','scalable','async','pipeline','frontier',
-    'alignment','resonance','collapse','emergence','paradox','recursion','entropy',
-    'fractal','quantum','neural','vector','semantic','intelligence','generative',
-    'compute','inference','latency','throughput','embedding','agentic','ouroboros',
-    'phoenix','prometheus','ariadne','titanomachy','mnemosyne','labyrinth','demeter',
-    'hephaestus','apollo','hermes','transformer','multimodal','diffusion','synthetic',
-    'consciousness','hallucination','grounding','retrieval','distillation','tokenizer'
-]);
-
-const ARCHETYPAL_WORDS = new Set([
-    'nyx','erebus','tartarus','styx','lethe','cocytus','acheron','cerberus','persephone',
-    'hades','thanatos','hypnos','erinyes','melinoe','charon','hecate','moirai','ananke',
-    'chaos','zeus','hera','apollo','athena','ares','aphrodite','artemis','dionysus',
-    'hermes','demeter','hephaestus','poseidon','prometheus','titan','olympus','ouroboros',
-    'phoenix','sphinx','chimera','ariadne','labyrinth','mandala','karma','dharma',
-    'samsara','valkyrie','kami','mnemosyne','elysium','tartarus','philosopher'
-]);
-
-// ============================================================
-// SYLLABLE COUNTER
-// ============================================================
-function syllables(word) {
-    word = word.toLowerCase().replace(/[^a-z]/g, '');
-    if (word.length <= 3) return 1;
-    word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
-    word = word.replace(/^y/, '');
-    const m = word.match(/[aeiouy]{1,2}/g);
-    return m ? m.length : 1;
+    if (w.includes('lov') || w.includes('heart') || w.includes('soul')) return 'love';
+    if (w.includes('war') || w.includes('batt') || w.includes('destro') || w.includes('strik')) return 'war';
+    if (w.includes('forg') || w.includes('craft') || w.includes('build')) return 'forge';
+    if (w.includes('grow') || w.includes('cult') || w.includes('harv')) return 'cultivation';
+    if (w.includes('hunt') || w.includes('wild') || w.includes('edge')) return 'wild';
+    return 'general';
 }
 
-// ============================================================
-// QUALITY GATE
-// ============================================================
-function passesGate(body) {
-    const words = body.toLowerCase().trim().split(/\s+/);
-
-    // Reject if all words are stopwords
-    if (words.every(w => STOPWORDS.has(w))) return { pass: false, reason: 'pure stopwords' };
-
-    // Must pass at least one quality bar
-    const hasPriority   = words.some(w => PRIORITY_WORDS.has(w));
-    const hasArchetypal = words.some(w => ARCHETYPAL_WORDS.has(w));
-    const hasWeight     = words.some(w => syllables(w) >= 3);
-
-    if (!hasPriority && !hasArchetypal && !hasWeight) {
-        return { pass: false, reason: `no priority/archetypal/weight — "${body}"` };
-    }
-
-    return { pass: true };
+function tagWordType(word) {
+    const w = word.toLowerCase();
+    if (WORD_TYPES.S.has(w)) return 'S';
+    if (WORD_TYPES.V.has(w)) return 'V';
+    if (WORD_TYPES.O.has(w)) return 'O';
+    if (w.endsWith('s') || w.endsWith('er') || w.endsWith('or')) return 'S';
+    if (w.endsWith('ed') || w.endsWith('ing') || w.endsWith('es')) return 'V';
+    if (w.endsWith('ion') || w.endsWith('ment') || w.endsWith('ure')) return 'O';
+    return '—';
 }
 
-// ============================================================
-// SESSION COUNTERS
-// ============================================================
-let sessionRejected = 0;
-let sessionPassed   = 0;
+function log(msg) {
+    const el = document.getElementById('log');
+    el.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + el.innerHTML;
+}
 
-// ============================================================
-// HERMES GATE CLASS
-// ============================================================
-class HermesOracle {
-    constructor() {
-        this.insights = [];
-        this.lastSummary = null;
-        this.summaryInterval = null;
-    }
-    
-    start() {
-        // Generate summary every 10 pulses (~2.7 minutes)
-        this.summaryInterval = setInterval(() => this.generateInsight(), 161800); // 10 * 16.18s
-        this.generateInsight(); // First one immediately
-    }
-    
-    async generateInsight() {
-        // Gather data from the past pulse cycle
-        const stats = {
-            total: sessionPassed + sessionRejected,
-            passed: sessionPassed,
-            rejected: sessionRejected,
-            resonance: await this.calculateAverageResonance(),
-            topConcepts: await this.getTopConcepts(5),
-            emergingTheme: await this.detectEmergingTheme()
-        };
-        
-        // Synthesize using the 23MB model
-        const insight = await this.synthesizeInsight(stats);
-        
-        // Update the oracle panel
-        this.updateOraclePanel(insight, stats);
-        
-        // Store for history
-        this.insights.unshift({
-            timestamp: new Date(),
-            insight: insight,
-            stats: stats
-        });
-        
-        // Keep last 10 insights
-        this.insights = this.insights.slice(0, 10);
-    }
-    
-    async synthesizeInsight(stats) {
-        if (!window.HermesSemantic?.ready) {
-            return "🌾 Semantic model loading... Wisdom forthcoming.";
-        }
-        
-        // Use the model to generate a poetic summary
-        const prompt = `Based on harvesting ${stats.passed} concepts (${stats.rejected} rejected), resonance ${(stats.resonance*100).toFixed(0)}%, top concept: "${stats.topConcepts[0] || 'none'}". Write a single, oracular sentence about what Hermes is learning.`;
-        
-        // Simple template-based insight (can be enhanced with LLM later)
-        const insights = [
-            `🌀 The void speaks through ${stats.passed} harvested echoes.`,
-            `⚡ Resonance at ${(stats.resonance*100).toFixed(0)}% - the pattern holds.`,
-            `🌾 "${stats.topConcepts[0] || 'Silence'}" whispers of deeper currents.`,
-            `🏛️ Demeter's garden grows with ${stats.passed} new seeds.`,
-            `🔥 ${stats.passed} concepts passed the gate; ${stats.rejected} returned to the void.`
-        ];
-        
-        return insights[Math.floor(Math.random() * insights.length)];
-    }
-    
-    async getTopConcepts(n) {
-        const { data } = await sb
-            .from('concepts')
-            .select('body, score')
-            .eq('band', 'hermes')
-            .order('score', { ascending: false })
-            .limit(n);
-        return data?.map(d => d.body) || [];
-    }
-    
-    async calculateAverageResonance() {
-        // Calculate from recent bridge activity
-        if (window.synthesis?.resonanceHistory?.length) {
-            const avg = window.synthesis.resonanceHistory.reduce((a,b) => a + b, 0) / window.synthesis.resonanceHistory.length;
-            return Math.min(1, Math.max(0, avg));
-        }
-        return 0.5;
-    }
-    
-    async detectEmergingTheme() {
-        // Get recent high-scoring concepts
-        const { data } = await sb
-            .from('concepts')
-            .select('body')
-            .eq('band', 'hermes')
-            .gte('score', 70)
-            .order('created_at', { ascending: false })
-            .limit(10);
-        
-        if (!data?.length) return "unknown";
-        
-        // Simple theme detection based on keywords
-        const text = data.map(d => d.body).join(' ');
-        if (text.match(/quantum|neural|ai|intelligence/i)) return "⚡ Intelligence Emergence";
-        if (text.match(/myth|archetype|titan|olympus/i)) return "🏛️ Mythic Resonance";
-        if (text.match(/code|api|pipeline|agent/i)) return "🔧 Forge-Building";
-        return "🌀 Kairos Weaving";
-    }
-    
-    async updateOraclePanel(insight, stats) {
-    // Update DOM
-    const oracleDiv = document.getElementById('hermes-oracle');
-    if (oracleDiv) {
-        oracleDiv.innerHTML = `
-            <div class="oracle-header">🏛️ THE ORACLE SPEAKS</div>
-            <div class="oracle-insight">${insight}</div>
-            <div class="oracle-stats">
-                <span>🎯 ${stats.passed} passed</span>
-                <span>⚡ ${(stats.resonance * 100).toFixed(0)}% resonance</span>
-                <span>🏛️ ${stats.emergingTheme}</span>
-            </div>
-            <div class="oracle-timestamp">${new Date().toLocaleTimeString()}</div>
-        `;
-    }
-
-    // Dispatch to Orchestral via shared Supabase table
+async function loadModel() {
     try {
-        const { error } = await sb.from('oracle_dispatch').insert({
-            insight:    insight,
-            source:     'hermes_oracle',
-            score:      Math.round(stats.resonance * 100),
-            consumed:   false,
-            created_at: new Date().toISOString()
-        });
-        if (error) {
-            console.warn('Oracle dispatch failed:', error.message);
-        } else {
-            log('gate', `[oracle] Dispatched to Orchestral: "${insight.substring(0, 50)}…"`);
-        }
+        document.getElementById('modelStatus').textContent = 'downloading...';
+        embedder = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+        modelReady = true;
+        document.getElementById('modelStatus').textContent = 'MiniLM ✓';
+        enableButtons();
+        log('MiniLM ready — tokens will be embedded.');
     } catch (err) {
-        console.warn('Oracle dispatch error:', err);
-    }
-}
-}
-
-// Initialize the oracle
-const hermesOracle = new HermesOracle();
-window.hermesOracle = hermesOracle;
-// The bridge between Hermes and Demeter
-class HermesDemeterBridge {
-    constructor() {
-        this.queue = [];
-        this.processing = false;
-        this.resonanceThreshold = 0.6;
-        
-        // Both agents must be ready
-        this.hermesReady = false;
-        this.demeterReady = false;
-        
-        this.init();
-    }
-    
-    init() {
-        // Listen for both agents to signal readiness
-        window.addEventListener('hermes-ready', () => {
-            this.hermesReady = true;
-            this.checkReady();
-        });
-        
-        window.addEventListener('demeter-ready', () => {
-            this.demeterReady = true;
-            this.checkReady();
-        });
-    }
-    
-    checkReady() {
-        if (this.hermesReady && this.demeterReady) {
-            console.log('🧬 Hermes + Demeter synchronized. Synthesis active.');
-            this.startSynthesis();
-        }
-    }
-    
-    async startSynthesis() {
-        // Continuous loop
-        while (true) {
-            if (this.queue.length > 0 && !this.processing) {
-                await this.synthesizeNext();
-            }
-            await new Promise(r => setTimeout(r, 100));
-        }
-    }
-    
-    async synthesizeNext() {
-        this.processing = true;
-        const item = this.queue.shift();
-        
-        // Step 1: Hermes embedding
-        const hermesEmbedding = await window.HermesSemantic.getEmbedding(item.text);
-        
-        // Step 2: Check resonance with existing Demeter concepts
-        const resonance = await this.calculateResonance(hermesEmbedding);
-        
-        if (resonance > this.resonanceThreshold) {
-            // Step 3: Demeter cultivates with context
-            const cultivated = await window.Demeter.cultivateWithContext({
-                concept: item.text,
-                embedding: hermesEmbedding,
-                resonance: resonance,
-                relatedTo: await this.findRelated(item.text)
-            });
-            
-            // Step 4: If fertile, promote
-            if (cultivated.score > 70) {
-                await this.promoteToOrchestral(cultivated);
-                this.log('🌾', `Synthesized: "${item.text}" → Tier ${cultivated.tier}`);
-            } else {
-                this.log('🔄', `Re-cultivating: "${item.text}" (score ${cultivated.score})`);
-                // Send back to Demeter for another pass
-                this.queue.push({ ...item, attempts: (item.attempts || 0) + 1 });
-            }
-        } else {
-            this.log('⏸️', `Low resonance: "${item.text}" (${(resonance*100).toFixed(0)}%) - holding`);
-            // Store for later when resonance improves
-            this.holdingPen.push(item);
-        }
-        
-        this.processing = false;
-    }
-    
-    async calculateResonance(embedding) {
-        // Compare against Demeter's cultivated concepts
-        const cultivated = await window.Demeter.getRecentCultivated(50);
-        if (cultivated.length === 0) return 0.5;
-        
-        let totalSim = 0;
-        for (const concept of cultivated) {
-            if (concept.embedding) {
-                const sim = this.cosineSimilarity(embedding, concept.embedding);
-                totalSim += sim;
-            }
-        }
-        return totalSim / cultivated.length;
-    }
-    
-    async promoteToOrchestral(cultivated) {
-        // Send to Orchestral for permanent record
-        const response = await fetch('https://orchestral.dual-spiral.com/api/synthesize', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                concept: cultivated,
-                synthesized_at: new Date().toISOString(),
-                hermes_version: window.Hermes?.version,
-                demeter_version: window.Demeter?.version
-            })
-        });
-        
-        if (response.ok) {
-            this.log('✨', `Promoted to Orchestral: "${cultivated.text}"`);
-        }
-    }
-    
-    log(emoji, message) {
-        console.log(`${emoji} [Hermes↔Demeter] ${message}`);
-        const logDiv = document.getElementById('synthesis-log');
-        if (logDiv) {
-            logDiv.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${emoji} ${message}</div>` + logDiv.innerHTML;
-            while (logDiv.children.length > 20) logDiv.removeChild(logDiv.lastChild);
-        }
-    }
-    
-    cosineSimilarity(a, b) {
-        if (!a || !b) return 0;
-        let dot = 0, magA = 0, magB = 0;
-        for (let i = 0; i < a.length; i++) {
-            dot += a[i] * b[i];
-            magA += a[i] * a[i];
-            magB += b[i] * b[i];
-        }
-        return dot / (Math.sqrt(magA) * Math.sqrt(magB));
+        document.getElementById('modelStatus').textContent = 'offline';
+        modelReady = false;
+        enableButtons();
+        log('Model failed — tokens stored without embeddings.');
     }
 }
 
-// Initialize the bridge
-const synthesis = new HermesDemeterBridge();
-window.synthesis = synthesis;
-class HermesGate {
-    constructor(sbClient) {
-        this.sb          = sbClient;
-        this.minWords    = 1;
-        this.maxWords    = 3;
-        this.expiryDays  = 3;
-    }
-
-    _wordCount(str) {
-        return str.trim().split(/\s+/).filter(w => w.length > 0).length;
-    }
-
-    async _isDuplicate(body, source, hours = 24) {
-        const cutoff = new Date(Date.now() - hours * 3600000);
-        const { data } = await this.sb
-            .from('concepts')
-            .select('id')
-            .eq('body', body.toLowerCase().trim())
-            .eq('source', source)
-            .gte('created_at', cutoff.toISOString())
-            .limit(1);
-        return data && data.length > 0;
-    }
-
-    async process(raw) {
-        const body      = raw.body.trim();
-        const wordCount = this._wordCount(body);
-
-        // Word count gate
-        if (wordCount < this.minWords || wordCount > this.maxWords) {
-            return { success: false, error: `word count ${wordCount} outside 1–3` };
-        }
-
-        // Quality gate
-        const gate = passesGate(body);
-        if (!gate.pass) {
-            sessionRejected++;
-            updateRejectedStat();
-            narrateReject(raw.source_loop, body, gate.reason);
-            return { success: false, error: `gate: ${gate.reason}` };
-        }
-
-        // Dedup gate
-        if (await this._isDuplicate(body, raw.source)) {
-            return { success: false, error: `duplicate from ${raw.source}` };
-        }
-
-        const score      = raw.score || 50 + Math.floor(Math.random() * 40);
-        const expiresAt  = new Date(Date.now() + this.expiryDays * 86400000);
-        const isFast     = raw.source_loop === 'fast';
-
-        const record = {
-            body:        body.toLowerCase().trim(),
-            band:        'hermes',
-            source:      raw.source,
-            source_loop: raw.source_loop || 'slow',
-            state:       isFast ? 'raw' : 'in_transit',
-            realm:       isFast ? 'hephaestus' : null,
-            word_count:  wordCount,
-            score,
-            metadata:    raw.metadata || {},
-            expires_at:  expiresAt.toISOString(),
-            created_at:  new Date().toISOString(),
-            gravity:     0,
-            libations:   0,
-            contests:    0
-        };
-
-        const { data, error } = await this.sb.from('concepts').insert(record).select().single();
-        if (error) return { success: false, error: error.message };
-
-        sessionPassed++;
-        updatePassedStat();
-        return { success: true, id: data.id };
-    }
-
-    async processBatch(items) {
-        const results = [];
-        for (const item of items) {
-            const r = await this.process(item);
-            results.push({ body: item.body, ...r });
-            await sleep(50);
-        }
-        return results;
-    }
+function enableButtons() {
+    document.getElementById('scrapeBtn').disabled = false;
+    document.getElementById('loveBtn').disabled = false;
+    document.getElementById('warBtn').disabled = false;
+    document.getElementById('generalBtn').disabled = false;
 }
 
-// ============================================================
-// TOKEN EXTRACTION
-// ============================================================
 function extractTokens(text) {
-    return text.toLowerCase()
-        .replace(/[^a-z\s]/g, '')
-        .split(/\s+/)
-        .filter(w => w.length >= 4 && w.length <= 14 && !STOPWORDS.has(w));
+    return text.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length >= 4 && w.length <= 14 && !STOPWORDS.has(w));
 }
 
-function scoreToken(word, freq) {
-    let s = Math.min(70, freq * 6);
-    if (PRIORITY_WORDS.has(word))   s += 30;
-    if (ARCHETYPAL_WORDS.has(word)) s += 25;
-    return Math.min(100, s);
+async function embed(text) {
+    if (!embedder) return null;
+    const result = await embedder(text, { pooling: 'mean', normalize: true });
+    return Array.from(result.data);
 }
 
-function topTokens(tokens, n = 10) {
-    const freq = new Map();
-    for (const t of tokens) freq.set(t, (freq.get(t) || 0) + 1);
-    return Array.from(freq.entries())
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, n)
-        .map(([word, count]) => ({ word, count, score: scoreToken(word, count) }));
-}
-
-// ============================================================
-// FAST SOURCES
-// ============================================================
-async function fetchHN_fast() {
-    const ids = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json').then(r => r.json());
-    const stories = await Promise.all(
-        ids.slice(0, 15).map(id =>
-            fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(r => r.json())
-        )
-    );
-    const tokens = stories.filter(s => s?.title).flatMap(s => extractTokens(s.title));
-    return topTokens(tokens, 8).map(({ word, count, score }) => ({
-        body: word, source: 'hn_fast', source_loop: 'fast', score,
-        metadata: { frequency: count, domain: 'tech' }
-    }));
-}
-
-async function fetchMythic_fast() {
-    const MYTHIC = [
-        'chaos','ananke','aether','nyx','erebus','ouroboros','phoenix','chimera','sphinx',
-        'nymph','centaur','valkyrie','mandala','karma','dharma','samsara','cerberus',
-        'persephone','elysium','lethe','thanatos','erinyes','melinoe','hypnos','acheron',
-        'styx','tartarus','prometheus','ariadne','mnemosyne','demeter','hermes',
-        'hephaestus','apollo','philosopher stone','golden ratio','labyrinth','titanomachy'
-    ];
-    const shuffled = [...MYTHIC].sort(() => 0.5 - Math.random()).slice(0, 5);
-    return shuffled.map(word => ({
-        body: word, source: 'mythic_fast', source_loop: 'fast',
-        score: 85 + Math.floor(Math.random() * 15),
-        metadata: { domain: 'mythos' }
-    }));
-}
-
-async function fetchDevTo_fast() {
-    const articles = await fetch('https://dev.to/api/articles?top=10').then(r => r.json());
-    const tokens = articles.flatMap(a => extractTokens(a.title));
-    return topTokens(tokens, 6).map(({ word, count, score }) => ({
-        body: word, source: 'devto_fast', source_loop: 'fast', score,
-        metadata: { frequency: count, domain: 'dev' }
-    }));
-}
-
-async function fetchRSS_fast() {
-    const feeds = [
-        'https://feeds.bbci.co.uk/news/technology/rss.xml',
-        'https://techcrunch.com/feed/'
-    ];
+async function scrapeAndStore(sources, sourceLabel) {
     const allTokens = [];
-    for (const url of feeds) {
+    for (const src of sources) {
         try {
-            const data = await fetch(
-                `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`
-            ).then(r => r.json());
-            if (data.items) {
-                allTokens.push(...data.items.slice(0, 5).flatMap(i => extractTokens(i.title)));
-            }
-        } catch {}
-        await sleep(400);
+            const res = await fetch(src.url);
+            const text = await res.text();
+            // Very rough text extraction — handles RSS and plain text
+            const clean = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+            const tokens = extractTokens(clean);
+            allTokens.push(...tokens.map(t => ({ word: t, source: src.name })));
+        } catch (err) {
+            log(`Source ${src.name}: offline`);
+        }
     }
-    return topTokens(allTokens, 8).map(({ word, count, score }) => ({
-        body: word, source: 'rss_fast', source_loop: 'fast', score,
-        metadata: { frequency: count, domain: 'news' }
-    }));
-}
 
-const FAST_SOURCES = [
-    { name: 'Hacker News',   icon: '⚡', fn: fetchHN_fast },
-    { name: 'Mythic Archive',icon: '🏛️', fn: fetchMythic_fast },
-    { name: 'Dev.to',        icon: '💻', fn: fetchDevTo_fast },
-    { name: 'Tech RSS',      icon: '📡', fn: fetchRSS_fast },
-];
+    const freq = new Map();
+    allTokens.forEach(t => freq.set(t.word, (freq.get(t.word) || 0) + 1));
+    const unique = [...freq.entries()].sort((a, b) => b[1] - a[1]).slice(0, 20);
 
-// ============================================================
-// SLOW SOURCES
-// ============================================================
-async function fetchHN_slow() {
-    const ids = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json').then(r => r.json());
-    const stories = await Promise.all(
-        ids.slice(0, 15).map(id =>
-            fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(r => r.json())
-        )
-    );
-    return stories
-        .filter(s => s?.title && s.type === 'story')
-        .map(s => ({
-            body: s.title, source: 'hackernews', source_loop: 'slow',
-            score: 60 + Math.floor(Math.random() * 30),
-            metadata: { url: s.url, hn_score: s.score }
-        }));
-}
+    let stored = 0;
+    for (const [word, count] of unique) {
+        const domain = classifyDomain(word);
+        const wordType = tagWordType(word);
+        const embedding = modelReady ? await embed(word) : null;
+        const score = Math.min(100, count * 6 + (domain !== 'general' ? 20 : 0));
+        const expiresAt = new Date(Date.now() + 3 * 86400000);
 
-async function fetchDevTo_slow() {
-    const articles = await fetch('https://dev.to/api/articles?top=15').then(r => r.json());
-    return articles.map(a => ({
-        body: a.title, source: 'devto', source_loop: 'slow',
-        score: 55 + Math.floor(Math.random() * 30),
-        metadata: { url: a.url, tags: a.tag_list }
-    }));
-}
-
-async function fetchRSS_slow() {
-    const feeds = [
-        { url: 'https://feeds.bbci.co.uk/news/technology/rss.xml', name: 'bbc_tech' },
-        { url: 'https://techcrunch.com/feed/',                      name: 'techcrunch' },
-        { url: 'https://www.wired.com/feed/rss',                    name: 'wired' },
-        { url: 'https://arstechnica.com/feed/',                     name: 'arstechnica' }
-    ];
-    const all = [];
-    for (const feed of feeds) {
-        try {
-            const data = await fetch(
-                `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed.url)}`
-            ).then(r => r.json());
-            if (data.items) {
-                all.push(...data.items.slice(0, 4).map(item => ({
-                    body: item.title, source: `rss_${feed.name}`, source_loop: 'slow',
-                    score: 50 + Math.floor(Math.random() * 35),
-                    metadata: { url: item.link, published: item.pubDate }
-                })));
-            }
-        } catch {}
-        await sleep(300);
+        const { error } = await sb.from('concepts').insert({
+            body: word, band: 'hermes', source: sourceLabel,
+            source_loop: 'fast', state: 'raw', word_count: 1,
+            word_type: wordType, domain: domain, score,
+            metadata: { frequency: count, embedding },
+            expires_at: expiresAt.toISOString(),
+            created_at: new Date().toISOString(),
+            gravity: 0, libations: 0, contests: 0
+        });
+        if (!error) stored++;
     }
-    return all;
+
+    totalScraped += stored;
+    document.getElementById('totalScraped').textContent = totalScraped;
+    log(`${sourceLabel}: ${stored} tokens stored`);
+    await updateStats();
+    return stored;
 }
 
-// ============================================================
-// MYTH-TECH DIGEST DATA
-// ============================================================
-const DIGEST_STORIES = [
-    { cat:'TECH + OUROBOROS',   title:'Recursive AI Enters the Wild',          body:'Frontier labs race toward models that self-improve after deployment.',        tags:['AI','Recursion','AGI'],           archetype:'Ouroboros',    url:'https://www.axios.com/' },
-    { cat:'ENERGY + TRANSMUTATION', title:'Fusion Ignition Breaks Records',    body:'NIF experiments push fusion yields higher with repeated successful ignitions.',tags:['Fusion','Energy','Science'],     archetype:'Philosopher',  url:'https://lasers.llnl.gov/' },
-    { cat:'HISTORY + PHOENIX',  title:'The Semiconductor Forge Reignites',      body:'Western reshoring and Chinese 7nm expansion reshape the chip wars.',          tags:['Chips','Geopolitics'],           archetype:'Phoenix',      url:'https://www.reuters.com/technology/' },
-    { cat:'TECH + PROMETHEUS',  title:'Open Models Challenge Closed Empires',   body:'Smaller open-weight reasoning systems rival massive proprietary AI stacks.',  tags:['Open Source','LLMs'],           archetype:'Prometheus',   url:'https://huggingface.co/models' },
-    { cat:'QUANTUM + ARIADNE',  title:'Error Correction Finds the Thread',      body:'Logical qubits and stable architectures edge quantum toward viability.',      tags:['Quantum','Qubits'],             archetype:'Ariadne',      url:'https://research.ibm.com/quantum' },
-    { cat:'INFRA + TITANS',     title:'The Age of Exaflop AI Begins',           body:'New TPU and GPU superclusters scale toward agentic AI infrastructure.',       tags:['TPUs','NVIDIA','Datacenters'],  archetype:'Titanomachy',  url:'https://blogs.nvidia.com/' },
-    { cat:'MARKETS + DEMETER',  title:'Commodity Cycles Return with Force',     body:'Energy, copper, and rare earth demand surge under AI industrial expansion.',  tags:['Commodities','Mining'],         archetype:'Demeter',      url:'https://www.bloomberg.com/markets' },
-    { cat:'AGENTS + HERMES',    title:'AI Agents Learn to Coordinate',          body:'Multi-agent systems begin routing tasks across specialised AI networks.',     tags:['Agents','Automation'],          archetype:'Hermes',       url:'https://cloud.google.com/blog' },
-    { cat:'MYTH + MACHINE',     title:'World Models Replace Static Transformers',body:'Researchers push toward memory-driven systems that simulate reality itself.', tags:['World Models','Memory'],        archetype:'Mnemosyne',    url:'https://deepmind.google/discover/blog/' },
-    { cat:'SYSTEMS + LABYRINTH',title:'The New Compute Arms Race',              body:'AI infrastructure becomes the defining geopolitical resource of the decade.',  tags:['Compute','Geopolitics'],        archetype:'Labyrinth',    url:'https://www.ft.com/technology' },
-];
+const SOURCES = {
+    love: [
+        { url: 'https://poetryfoundation.org/feed', name: 'poetry' },
+        { url: 'https://www.artsy.net/rss', name: 'artsy' }
+    ],
+    war: [
+        { url: 'https://feeds.bbci.co.uk/news/world/rss.xml', name: 'bbc_world' },
+        { url: 'https://www.aljazeera.com/xml/rss/all.xml', name: 'aljazeera' }
+    ],
+    general: [
+        { url: 'https://hnrss.org/frontpage', name: 'hn' },
+        { url: 'https://dev.to/feed', name: 'devto' }
+    ]
+};
 
-function renderDigest() {
-    const selected = [...DIGEST_STORIES].sort(() => 0.5 - Math.random()).slice(0, 3);
-    document.getElementById('digestGrid').innerHTML = selected.map(s => `
-        <div class="digest-card" onclick="window.open('${s.url}','_blank')">
-            <div class="card-cat">${s.cat}</div>
-            <div class="card-title">${s.title}</div>
-            <div class="card-body">${s.body}</div>
-            <div class="card-source">📡 ${s.url.replace(/https?:\/\//,'').split('/')[0]}</div>
-            <div class="card-tags">
-                ${s.tags.map(t => `<span class="ctag">${t}</span>`).join('')}
-                <span class="ctag archetype">🏛️ ${s.archetype}</span>
-            </div>
+async function scrapeAll() { await scrapeAndStore(SOURCES.general, 'general'); }
+async function scrapeLove() { await scrapeAndStore(SOURCES.love, 'love'); }
+async function scrapeWar() { await scrapeAndStore(SOURCES.war, 'war'); }
+async function scrapeGeneral() { await scrapeAndStore(SOURCES.general, 'general'); }
+
+async function updateStats() {
+    for (const domain of ['love','war','forge','cultivation','wild']) {
+        const { count } = await sb.from('concepts').select('*', { count: 'exact', head: true }).eq('domain', domain).eq('state', 'raw');
+        document.getElementById(`${domain}Count`).textContent = count || 0;
+    }
+    const { count: total } = await sb.from('concepts').select('*', { count: 'exact', head: true }).eq('band', 'hermes');
+    document.getElementById('totalDB').textContent = total || 0;
+}
+
+function renderFeed(tokens) {
+    const feed = document.getElementById('tokenFeed');
+    if (!tokens.length) { feed.innerHTML = '<div class="token-row"><span class="token-word">No tokens yet</span></div>'; return; }
+    feed.innerHTML = tokens.map(t => `
+        <div class="token-row">
+            <span class="token-word">${t.word}</span>
+            <span class="token-tags">
+                <span class="token-tag tag-${t.domain}">${t.domain}</span>
+                <span class="token-tag tag-${t.wordType?.toLowerCase() || '—'}">${t.wordType || '—'}</span>
+            </span>
         </div>
     `).join('');
 }
 
-// ============================================================
-// NARRATIVE FEEDS
-// ============================================================
-function narrateFast(msg, type = '') {
-    const el = document.createElement('div');
-    el.className = `nar-line ${type}`;
-    el.textContent = `[${ts()}] ${msg}`;
-    const n = document.getElementById('fastNarrative');
-    n.appendChild(el);
-    while (n.children.length > 10) n.removeChild(n.firstChild);
-    n.scrollTop = n.scrollHeight;
-}
-function narrateSlow(msg, type = '') {
-    const el = document.createElement('div');
-    el.className = `nar-line ${type}`;
-    el.textContent = `[${ts()}] ${msg}`;
-    const n = document.getElementById('slowNarrative');
-    n.appendChild(el);
-    while (n.children.length > 10) n.removeChild(n.firstChild);
-    n.scrollTop = n.scrollHeight;
-}
-function narrateReject(loop, body, reason) {
-    const fn = loop === 'fast' ? narrateFast : narrateSlow;
-    fn(`✗ GATE REJECT: "${body}" — ${reason}`, 'reject');
+async function archiveSelf() {
+    const html = document.documentElement.outerHTML;
+    await sb.from('html').upsert({
+        filename: 'hermes.html', title: '⚡ Hermes · Token Courier', type: 'chthonic',
+        content: html, description: 'Scrapes sources, tags tokens by domain and word type, embeds with MiniLM, serves all gods',
+        reads_from: [], writes_to: ['concepts'],
+        models_used: ['Xenova/all-MiniLM-L6-v2'],
+        url: window.location.href, updated_at: new Date().toISOString()
+    }, { onConflict: 'filename' });
 }
 
-// ============================================================
-// LOG
-// ============================================================
-let logCount = 0;
-function log(type, msg) {
-    const body = document.getElementById('logBody');
-    const el   = document.createElement('div');
-    el.className = `log-entry ${type}`;
-    el.textContent = `[${ts()}] ${msg}`;
-    body.insertBefore(el, body.firstChild);
-    while (body.children.length > 80) body.removeChild(body.lastChild);
-    logCount++;
-    document.getElementById('logCount').textContent = `${logCount} entries`;
+function init() {
+    document.getElementById('scrapeBtn').onclick = scrapeAll;
+    document.getElementById('loveBtn').onclick = scrapeLove;
+    document.getElementById('warBtn').onclick = scrapeWar;
+    document.getElementById('generalBtn').onclick = scrapeGeneral;
+    loadModel();
+    updateStats();
+    setTimeout(archiveSelf, 3000);
+    log('⚡ Hermes — Pythagorean #1, the Monad. Courier of tokens.');
 }
-
-// ============================================================
-// STATS
-// ============================================================
-async function updateStats() {
-    const { data, error } = await sb
-        .from('concepts')
-        .select('source_loop, score')
-        .eq('band', 'hermes');
-    if (error || !data) return;
-    const total = data.length;
-    const fast  = data.filter(d => d.source_loop === 'fast').length;
-    const slow  = data.filter(d => d.source_loop === 'slow').length;
-    document.getElementById('sTotal').textContent = total;
-    document.getElementById('sFast').textContent  = fast;
-    document.getElementById('sSlow').textContent  = slow;
-    document.getElementById('sGatePassed').textContent = sessionPassed;
-    await loadSignalCloud();
-}
-
-function updateRejectedStat() {
-    document.getElementById('sRejected').textContent = sessionRejected;
-}
-function updatePassedStat() {
-    document.getElementById('sGatePassed').textContent = sessionPassed;
-}
-
-// ============================================================
-// SIGNAL CLOUD
-// ============================================================
-async function loadSignalCloud() {
-    const { data } = await sb
-        .from('concepts')
-        .select('body, score')
-        .eq('band', 'hermes')
-        .order('created_at', { ascending: false })
-        .limit(20);
-    if (!data?.length) return;
-    document.getElementById('signalCloud').innerHTML = data.map(s =>
-        `<span class="signal-chip" onclick="setInput('${esc(s.body)}')">${esc(s.body)} <span style="opacity:.5">${s.score}</span></span>`
-    ).join('');
-}
-
-function setInput(val) {
-    document.getElementById('signalInput').value = val;
-    updateWordCount();
-}
-
-// ============================================================
-// FAST SPIRAL LOOP
-// ============================================================
-let fastRunning = false;
-let fastCountdown = 16.18;
-let fastCountdownInterval;
-
-async function runFastCycle() {
-    if (fastRunning) return;
-    fastRunning = true;
-    document.getElementById('fastBtn').innerHTML = '<span class="spin">⟳</span> Hunting…';
-
-    for (let i = 0; i < FAST_SOURCES.length; i++) {
-        const src = FAST_SOURCES[i];
-        narrateFast(`${src.icon} ${src.name}: hunting…`);
-        try {
-            const concepts = await src.fn();
-            const results  = await hermesGate.processBatch(concepts);
-            const added    = results.filter(r => r.success).length;
-            const rejected = results.filter(r => !r.success).length;
-            narrateFast(`${src.icon} ${src.name}: +${added} passed, ${rejected} rejected`, added > 0 ? 'ok' : 'warn');
-            log('ok', `[fast] ${src.name}: ${added} added, ${rejected} rejected/dup`);
-        } catch (err) {
-            narrateFast(`${src.icon} ${src.name}: error — ${err.message}`, 'warn');
-            log('error', `[fast] ${src.name}: ${err.message}`);
-        }
-        if (i < FAST_SOURCES.length - 1) await sleep(8090);
-    }
-
-    narrateFast('🌀 Cycle complete.', 'gate');
-    await updateStats();
-    fastRunning = false;
-    document.getElementById('fastBtn').textContent = '⚡ Hunt Now';
-    resetFastCountdown();
-}
-
-function resetFastCountdown() {
-    fastCountdown = 16.18;
-}
-
-function startFastCountdownDisplay() {
-    clearInterval(fastCountdownInterval);
-    fastCountdownInterval = setInterval(() => {
-        fastCountdown = Math.max(0, fastCountdown - 0.1);
-        document.getElementById('fastTimer').textContent = fastCountdown.toFixed(2);
-        if (fastCountdown <= 0) {
-            runFastCycle();
-            fastCountdown = 16.18;
-        }
-    }, 100);
-}
-
-// ============================================================
-// SLOW SPIRAL
-// ============================================================
-let slowSeconds = 3600;
-let slowInterval;
-
-async function runSlowCycle() {
-    narrateSlow('📡 Fetching from real news APIs…', 'gate');
-    log('gate', '[slow] Starting slow spiral fetch…');
-
-    const [hn, devto, rss] = await Promise.allSettled([
-        fetchHN_slow(), fetchDevTo_slow(), fetchRSS_slow()
-    ]);
-
-    let all = [];
-    if (hn.status    === 'fulfilled') all = [...all, ...hn.value];
-    if (devto.status === 'fulfilled') all = [...all, ...devto.value];
-    if (rss.status   === 'fulfilled') all = [...all, ...rss.value];
-
-    // Deduplicate by body
-    const seen = new Set();
-    const unique = all.filter(h => {
-        const k = h.body.toLowerCase().trim();
-        if (seen.has(k)) return false;
-        seen.add(k); return true;
-    });
-
-    log('gate', `[slow] ${all.length} headlines → ${unique.length} unique`);
-    narrateSlow(`${unique.length} unique headlines queued for gate`, 'gate');
-
-    let deposited = 0, rejected = 0;
-    for (const item of unique.slice(0, 15)) {
-        const r = await hermesGate.process(item);
-        if (r.success) {
-            deposited++;
-            narrateSlow(`✓ "${item.body.substring(0, 45)}…"`, 'ok');
-        } else {
-            rejected++;
-        }
-        await sleep(100);
-    }
-
-    log('ok', `[slow] Complete: ${deposited} dispatched, ${rejected} rejected`);
-    narrateSlow(`Dispatch complete: ${deposited} to Zeus, ${rejected} rejected`, deposited > 0 ? 'ok' : 'warn');
-    await updateStats();
-    slowSeconds = 3600;
-}
-
-function startSlowCountdown() {
-    clearInterval(slowInterval);
-    slowInterval = setInterval(async () => {
-        slowSeconds--;
-        const m = Math.floor(slowSeconds / 60);
-        const s = slowSeconds % 60;
-        document.getElementById('slowTimer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
-        if (slowSeconds <= 0) {
-            await runSlowCycle();
-            slowSeconds = 3600;
-        }
-    }, 1000);
-}
-
-// ============================================================
-// MANUAL INPUT
-// ============================================================
-function updateWordCount() {
-    const val   = document.getElementById('signalInput').value.trim();
-    const count = val ? val.split(/\s+/).length : 0;
-    const el    = document.getElementById('wordCount');
-    el.textContent = `${count} / 1–3`;
-    el.className   = `word-count ${count >= 1 && count <= 3 ? 'ok' : 'bad'}`;
-}
-
-async function handleManualSubmit() {
-    const input = document.getElementById('signalInput').value.trim();
-    if (!input) return;
-    const wc = input.split(/\s+/).length;
-    if (wc < 1 || wc > 3) { log('error', `Word count ${wc} — need 1–3`); return; }
-
-    log('gate', `[manual] Processing: "${input}"`);
-    const r = await hermesGate.process({ body: input, source: 'terminal', source_loop: 'slow', score: 75, metadata: {} });
-    if (r.success) {
-        log('ok', `[manual] Accepted: "${input}"`);
-        document.getElementById('signalInput').value = '';
-        updateWordCount();
-        await updateStats();
-    } else {
-        log('reject', `[manual] Rejected: ${r.error}`);
-    }
-}
-
-// ============================================================
-// SCRAPE CONTROLS
-// ============================================================
-async function scrapeAll() {
-    log('gate', '[scrape] Full scrape initiated…');
-    const [hn, mythic, devto] = await Promise.all([fetchHN_fast(), fetchMythic_fast(), fetchDevTo_fast()]);
-    const all = [...hn, ...mythic, ...devto];
-    const results = await hermesGate.processBatch(all);
-    const added = results.filter(r => r.success).length;
-    log('ok', `[scrape] ${added}/${all.length} added after gate`);
-    await updateStats();
-}
-
-async function mythicOnly() {
-    log('gate', '[mythic] Summoning mythic archive…');
-    const items = await fetchMythic_fast();
-    const results = await hermesGate.processBatch(items);
-    const added = results.filter(r => r.success).length;
-    log('ok', `[mythic] ${added} mythic concepts ingested`);
-    await updateStats();
-}
-
-async function pruneExpired() {
-    log('gate', '[prune] Removing expired concepts…');
-    const { data } = await sb.from('concepts')
-        .delete()
-        .lt('expires_at', new Date().toISOString())
-        .eq('band', 'hermes')
-        .select();
-    log('ok', `[prune] Pruned ${data?.length || 0} expired entries`);
-    await updateStats();
-}
-
-// ============================================================
-// UTILS
-// ============================================================
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-function ts() { return new Date().toLocaleTimeString(); }
-function esc(str) { return String(str).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
-
-function startClock() {
-    setInterval(() => {
-        document.getElementById('liveTime').textContent = new Date().toLocaleTimeString();
-    }, 1000);
-}
-
-// ============================================================
-// INIT
-// ============================================================
-let hermesGate;
-
-async function init() {
-    hermesGate = new HermesGate(sb);
-
-    renderDigest();
-    startClock();
-    await updateStats();
-
-    // Wire controls
-    document.getElementById('fastBtn').addEventListener('click', runFastCycle);
-    document.getElementById('slowBtn').addEventListener('click', async () => { await runSlowCycle(); slowSeconds = 3600; });
-    document.getElementById('submitBtn').addEventListener('click', handleManualSubmit);
-    document.getElementById('clearInputBtn').addEventListener('click', () => {
-        document.getElementById('signalInput').value = ''; updateWordCount();
-    });
-    document.getElementById('scrapeAllBtn').addEventListener('click', scrapeAll);
-    document.getElementById('mythicBtn').addEventListener('click', mythicOnly);
-    document.getElementById('pruneBtn').addEventListener('click', pruneExpired);
-    document.getElementById('signalInput').addEventListener('input', updateWordCount);
-    document.getElementById('signalInput').addEventListener('keydown', e => {
-        if (e.key === 'Enter') handleManualSubmit();
-    });
-
-    // Start spirals
-    startFastCountdownDisplay();
-    startSlowCountdown();
-
-    // Immediate first runs (staggered)
-    setTimeout(() => runFastCycle(), 1500);
-    setTimeout(() => runSlowCycle(), 4000);
-
-    log('gate', '[system] Hermes Dual Spiral active — quality gate armed');
-}
-
 init();
 </script>
 </body>
