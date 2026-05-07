@@ -3,177 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Hermes v4 · Semantic Hunter</title>
+    <title>⚡ Hermes v5 · HTML Hunt</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=JetBrains+Mono:wght@300;400;500&display=swap');
         :root {
             --void: #080a0f; --deep: #0b0e16; --surface: #1e2535;
             --gold: #c8943a; --hermes: #FFD700; --mist: #6a7a8a; --pale: #d4e0ed;
-            --signal: #d4b84a; --love: #b05870; --war: #c0382a; --light: #d4a850;
-            --wisdom: #6a8898; --wild: #5a8050; --vine: #8a4080;
-            --spawn: #4ade80; --death: #f87171; --mutate: #f0c060;
+            --spawn: #4ade80; --incubating: #f0c060; --integrated: #8ab8c8;
             --font-display: 'Cinzel', serif; --font-body: 'Crimson Pro', serif; --font-mono: 'JetBrains Mono', monospace;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--void); font-family: var(--font-body); color: var(--pale); min-height: 100vh; }
-        .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
 
-        .shrine-hero { position: relative; width: 100%; height: 280px; overflow: hidden; border-radius: 10px; margin-bottom: 1.5rem; }
-        .shrine-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .shrine-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(8,10,15,0.1) 0%, rgba(8,10,15,0.7) 75%, rgba(8,10,15,1) 100%); }
-        .shrine-hero-label { position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); font-family: var(--font-mono); font-size: 0.45rem; letter-spacing: 4px; color: var(--gold); opacity: 0.7; }
+        .header { text-align: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--surface); }
+        .header h1 { font-family: var(--font-display); font-size: 2rem; color: var(--hermes); letter-spacing: 3px; }
+        .header-sub { font-family: var(--font-mono); font-size: 0.5rem; color: var(--mist); letter-spacing: 2px; margin-top: 0.3rem; }
 
-        .header { text-align: center; border-bottom: 1px solid var(--surface); padding-bottom: 1rem; margin-bottom: 1rem; }
-        .header h1 { font-family: var(--font-display); font-size: 2rem; color: var(--gold); letter-spacing: 3px; }
-        .variant-badge { display: inline-block; font-family: var(--font-mono); font-size: 0.5rem; padding: 0.15rem 0.5rem; border-radius: 3px; margin-top: 0.3rem; }
-        .badge-parent { background: rgba(200,148,58,0.15); color: var(--gold); }
-        .badge-a { background: rgba(74,222,128,0.15); color: var(--spawn); }
-        .badge-b { background: rgba(192,112,64,0.15); color: #c07040; }
+        .status-bar { display: flex; gap: 2rem; justify-content: center; margin-bottom: 1.5rem; font-family: var(--font-mono); font-size: 0.55rem; color: var(--mist); flex-wrap: wrap; }
+        .status-bar span { color: var(--pale); font-weight: 500; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 0.3rem; }
+        .dot-live { background: var(--spawn); } .dot-off { background: #f87171; }
 
-        .status-bar { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; font-family: var(--font-mono); font-size: 0.55rem; color: var(--mist); }
-        .status-bar span { color: var(--pale); }
-        .live-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 0.3rem; }
-        .dot-ok { background: #4ade80; } .dot-off { background: #f87171; }
-
-        .controls { display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
-        button { font-family: var(--font-mono); font-size: 0.55rem; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; border: 1px solid var(--surface); background: var(--deep); color: var(--pale); transition: all 0.2s; }
-        button:hover:not(:disabled) { background: var(--gold); color: var(--void); border-color: var(--gold); }
-        button.primary { background: var(--gold); color: var(--void); }
-        button.spawn-btn { border-color: var(--spawn); color: var(--spawn); }
-        button.spawn-btn:hover:not(:disabled) { background: var(--spawn); color: var(--void); }
+        .controls { display: flex; gap: 0.4rem; justify-content: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        button { font-family: var(--font-mono); font-size: 0.55rem; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; border: 1px solid var(--surface); background: var(--deep); color: var(--pale); transition: all 0.2s; letter-spacing: 1px; }
+        button:hover:not(:disabled) { background: var(--hermes); color: var(--void); border-color: var(--hermes); }
+        button.primary { background: var(--hermes); color: var(--void); border-color: var(--hermes); }
+        button.spawn { border-color: var(--spawn); color: var(--spawn); }
+        button.spawn:hover:not(:disabled) { background: var(--spawn); color: var(--void); }
         button:disabled { opacity: 0.3; }
 
         .section { background: var(--deep); border: 1px solid var(--surface); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
         .section-title { font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 2px; color: var(--mist); margin-bottom: 0.8rem; }
 
-        .domain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.4rem; margin-bottom: 1rem; }
-        .domain-card { background: var(--surface); border: 1px solid var(--surface); border-radius: 6px; padding: 0.5rem; text-align: center; }
-        .domain-card.signal { border-top: 2px solid var(--signal); } .domain-card.love { border-top: 2px solid var(--love); }
-        .domain-card.war { border-top: 2px solid var(--war); } .domain-card.light { border-top: 2px solid var(--light); }
-        .domain-name { font-family: var(--font-display); font-size: 0.55rem; }
-        .domain-count { font-family: var(--font-mono); font-size: 0.5rem; margin-top: 0.2rem; }
+        .repo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0.6rem; }
+        .repo-card { background: var(--surface); border: 1px solid var(--surface); border-radius: 6px; padding: 0.8rem; transition: all 0.2s; cursor: pointer; }
+        .repo-card:hover { border-color: var(--hermes); transform: translateY(-2px); }
+        .repo-card.discovered { border-left: 2px solid var(--hermes); }
+        .repo-card.incubating { border-left: 2px solid var(--incubating); }
+        .repo-card.integrated { border-left: 2px solid var(--integrated); }
+        .repo-name { font-family: var(--font-mono); font-size: 0.65rem; font-weight: 600; margin-bottom: 0.3rem; }
+        .repo-desc { font-family: var(--font-body); font-size: 0.7rem; color: var(--mist); line-height: 1.3; margin-bottom: 0.4rem; }
+        .repo-meta { font-family: var(--font-mono); font-size: 0.45rem; color: var(--mist); display: flex; gap: 0.8rem; }
+        .repo-patterns { margin-top: 0.4rem; display: flex; gap: 0.3rem; flex-wrap: wrap; }
+        .pattern-tag { font-family: var(--font-mono); font-size: 0.4rem; padding: 0.12rem 0.4rem; border-radius: 2px; background: rgba(74,222,128,0.12); color: var(--spawn); }
+        .pattern-tag.incubating-tag { background: rgba(240,192,96,0.12); color: var(--incubating); }
+        .pattern-tag.integrated-tag { background: rgba(138,184,200,0.12); color: var(--integrated); }
 
-        .variant-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
-        .variant-card { background: var(--surface); border: 1px solid var(--surface); border-radius: 6px; padding: 0.8rem; }
-        .variant-card.child-a { border-left: 2px solid var(--spawn); }
-        .variant-card.child-b { border-left: 2px solid #c07040; }
-        .variant-name { font-family: var(--font-display); font-size: 0.65rem; letter-spacing: 2px; margin-bottom: 0.4rem; }
-        .variant-score { font-family: var(--font-mono); font-size: 0.5rem; color: var(--mist); }
-        .variant-mutation { font-family: var(--font-mono); font-size: 0.42rem; color: var(--mutate); margin-top: 0.3rem; }
+        .custom-hunt { display: flex; gap: 0.4rem; }
+        .custom-hunt input { flex: 1; font-family: var(--font-mono); font-size: 0.55rem; padding: 0.4rem 0.6rem; background: var(--surface); border: 1px solid var(--surface); color: var(--pale); border-radius: 4px; }
+        .custom-hunt input:focus { outline: none; border-color: var(--hermes); }
 
-        .token-feed { max-height: 200px; overflow-y: auto; }
-        .token-row { font-family: var(--font-mono); font-size: 0.5rem; padding: 0.2rem 0; border-bottom: 1px solid rgba(30,37,53,0.5); display: flex; justify-content: space-between; }
-        .token-row:last-child { border-bottom: none; }
+        .log { background: #060810; border: 1px solid var(--surface); border-radius: 4px; padding: 0.5rem; max-height: 120px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.45rem; color: var(--mist); }
 
-        .log { background: #060810; border: 1px solid var(--surface); border-radius: 4px; padding: 0.5rem; max-height: 100px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.45rem; color: var(--mist); }
-
-        .shrine-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; margin-bottom: 1rem; }
-        .shrine-strip-item { border: 1px solid var(--surface); border-radius: 4px; overflow: hidden; height: 120px; }
-        .shrine-strip-item img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); transition: filter 0.3s; }
-        .shrine-strip-item:hover img { filter: brightness(1); }
-
-        @media (max-width: 768px) { .variant-panel { grid-template-columns: 1fr; } .shrine-strip { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .repo-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 <div class="container">
 
-    <div class="shrine-hero">
-        <img src="assets/images/hermes-courier.jpg" alt="Hermes" onerror="this.src='https://image.pollinations.ai/prompt/hermes+token+courier+golden+light+sacred+geometry?width=1200&height=400&nologo=true'">
-        <div class="shrine-hero-overlay"></div>
-        <div class="shrine-hero-label">⚡ hunter of novel concepts · semantic router</div>
-    </div>
-
     <div class="header">
-        <h1>⚡ HER<span>MES</span></h1>
-        <div style="font-family:var(--font-mono);font-size:0.5rem;color:var(--mist);">
-            <span id="versionDisplay">v4</span> · 
-            <span class="variant-badge badge-parent" id="variantBadge">parent</span>
-        </div>
-        <div style="font-family:var(--font-mono);font-size:0.42rem;color:var(--mist);margin-top:0.2rem;" id="mutationDisplay"></div>
+        <h1>⚡ HERMES v5</h1>
+        <div class="header-sub">HTML HUNT · GITHUB REPO DISCOVERY → DEMETER SANDBOX</div>
     </div>
 
     <div class="status-bar">
-        <div><span class="live-dot dot-ok" id="edgeDot"></span>Edge: <span id="edgeStatus">checking</span></div>
-        <div>Tokens: <span id="tokenCount">—</span></div>
-        <div>Score: <span id="myScore">—</span></div>
-        <div>Children: <span id="childrenCount">0</span></div>
+        <div><span class="dot dot-live" id="edgeDot"></span> Edge: <span id="edgeStatus">checking</span></div>
+        <div>Repos: <span id="repoCount">—</span></div>
+        <div>Discovered: <span id="discoveredCount">—</span></div>
+        <div>Incubating: <span id="incubatingCount">—</span></div>
     </div>
 
     <div class="controls">
-        <button id="huntBtn" class="primary">⚡ Hunt Tokens</button>
-        <button id="seedBtn">🌱 Seed Domains</button>
-        <button id="spawnBtn" class="spawn-btn">🧬 Spawn Variants</button>
-        <button id="testBtn">🧪 Test Mutation</button>
+        <button id="huntBtn" class="primary">🔍 Hunt GitHub</button>
+        <button id="extractBtn">📥 Extract HTML</button>
+        <button id="refreshBtn">🔄 Refresh</button>
     </div>
 
     <div class="section">
-        <div class="section-title">🌐 DOMAIN DISTRIBUTION</div>
-        <div class="domain-grid" id="domainGrid"></div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">🧬 VARIANT LINEAGE</div>
-        <div class="variant-panel" id="variantPanel">
-            <div class="variant-card child-a">
-                <div class="variant-name" style="color:var(--spawn)">🧬 CHILD A</div>
-                <div class="variant-score">Not spawned yet</div>
-                <div class="variant-mutation">Experimental variant — mutates one parameter</div>
-            </div>
-            <div class="variant-card child-b">
-                <div class="variant-name" style="color:#c07040">⚒️ CHILD B</div>
-                <div class="variant-score">Not spawned yet</div>
-                <div class="variant-mutation">Conservative variant — preserves parent settings</div>
-            </div>
+        <div class="section-title">🎯 CUSTOM HUNT</div>
+        <div class="custom-hunt">
+            <input type="text" id="customQuery" placeholder="e.g., generative art html canvas" />
+            <button id="customHuntBtn">Hunt</button>
         </div>
     </div>
 
     <div class="section">
-        <div class="section-title">⚡ RECENT TOKENS</div>
-        <div class="token-feed" id="tokenFeed"><div class="token-row">Hunt to see tokens...</div></div>
+        <div class="section-title">📦 DISCOVERED REPOS</div>
+        <div class="repo-grid" id="repoGrid">
+            <div class="repo-card"><div class="repo-desc">No repos discovered yet. Click Hunt.</div></div>
+        </div>
     </div>
 
-    <div class="shrine-strip">
-        <div class="shrine-strip-item"><img src="assets/images/hermes-chthonic2.jpg" alt="Courier" onerror="this.style.display='none'"></div>
-        <div class="shrine-strip-item"><img src="assets/images/hermes-runic.jpg" alt="Rune" onerror="this.style.display='none'"></div>
-        <div class="shrine-strip-item"><img src="assets/images/hermes-chthonic.jpg" alt="Chthonic" onerror="this.style.display='none'"></div>
-    </div>
-
-    <div class="log" id="log">⚡ Hermes v4 · Semantic hunter. Spawn threshold: 0.7</div>
+    <div class="log" id="log">⚡ Hermes v5 ready. Hunts GitHub for HTML repos.</div>
 
 </div>
 
 <script type="module">
-// ═══════════════════ CONFIG ═══════════════════
+const EDGE_URL = 'https://kzcucjcyxybypncbdbws.supabase.co/functions/v1/hermes-extract';
 const KAIROS_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
 const KAIROS_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
-const EDGE_URL = `${KAIROS_URL}/functions/v1/hermes-extract`;
 const sb = window.supabase.createClient(KAIROS_URL, KAIROS_KEY);
 
-// ═══════════════════ VARIANT METADATA ═══════════════════
-const MY_VERSION = 'v4';
-const MY_VARIANT = 'parent'; // 'parent', 'a', 'b'
-const MY_PARENT = null;
-const REPRODUCTION_THRESHOLD = 0.7;
-const DEATH_THRESHOLD = 0.2;
-
-// My mutation parameters (differ per variant)
-let MUTATION = {
-    similarity_threshold: 0.35,
-    hunger_weight: 1.0,
-    domain_focus: null, // null = all domains, or 'wisdom', 'love', etc.
-    mutation_history: []
-};
-
-// ═══════════════════ UTILS ═══════════════════
 function log(msg) {
-    document.getElementById('log').innerHTML = 
-        `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + 
-        document.getElementById('log').innerHTML;
+    const el = document.getElementById('log');
+    el.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + el.innerHTML;
 }
 
-// ═══════════════════ EDGE CALL ═══════════════════
 async function callEdge(payload) {
     try {
         const res = await fetch(EDGE_URL, {
@@ -186,231 +123,101 @@ async function callEdge(payload) {
     } catch (err) { log(`Edge: ${err.message}`); return null; }
 }
 
-// ═══════════════════ CHECK EDGE ═══════════════════
 async function checkEdge() {
-    const result = await callEdge({ text: 'test signal', source: 'healthcheck' });
+    const result = await callEdge({ action: 'status' });
     const dot = document.getElementById('edgeDot');
     const status = document.getElementById('edgeStatus');
-    if (result && result.success !== false) {
-        dot.className = 'live-dot dot-ok';
+    if (result?.success !== false) {
+        dot.className = 'dot dot-live';
         status.textContent = 'live ✓';
     } else {
-        dot.className = 'live-dot dot-off';
+        dot.className = 'dot dot-off';
         status.textContent = 'offline';
     }
 }
 
-// ═══════════════════ HUNT TOKENS ═══════════════════
-async function hunt() {
-    log('⚡ Hunting for novel concepts...');
+async function hunt(query = null) {
+    log('🔍 Hunting GitHub...');
+    const payload = { action: 'hunt' };
+    if (query) payload.query = query;
     
-    // Use a mix of domain seed words as hunting targets
-    const seeds = [
-        'love heart desire beauty grace',
-        'war battle strike blade rage',
-        'truth mind wisdom pattern knowledge',
-        'ocean tide wave current flow',
-        'hunt beast moon wild forest',
-        'forge hammer fire craft build',
-        'dawn light harmony prophecy balance',
-        'storm thunder decree order command',
-        'ecstasy dance vine chaos frenzy',
-        'seed harvest field earth growth',
-        'legacy throne crown memory oath',
-        'signal message speed trade cross'
-    ];
-    
-    const text = seeds[Math.floor(Math.random() * seeds.length)];
-    
-    const result = await callEdge({ text, source: 'hunt' });
-    
+    const result = await callEdge(payload);
     if (result?.success) {
-        log(`✅ Stored: ${result.stored || 0} · Dropped: ${result.dropped || 0} · Novel: ${result.novel || 0}`);
-        if (result.domains) {
-            log(`   Domains: ${JSON.stringify(result.domains)}`);
+        log(`✅ Found ${result.repos_found} repos · Stored ${result.stored}`);
+        if (result.sample) {
+            log(`   ${result.sample.join(', ')}`);
         }
     }
-    
     await refresh();
 }
 
-// ═══════════════════ SEED ALL DOMAINS ═══════════════════
-async function seedDomains() {
-    log('🌱 Seeding all domains...');
-    const allSeeds = [
-        'message signal swift trade path word code travel cross courier speed threshold',
-        'love heart desire beauty grace tenderness embrace longing bloom devotion soul charm',
-        'battle strike clash blade shield rage force conquest enemy siege weapon army',
-        'truth mind pattern knowledge logic reason insight clarity thought learning vision',
-        'thunder lightning decree command order rule wrath judgment authority law dominion',
-        'ocean wave current depth flow sea flood salt surge abyss drift water',
-        'hunt beast moon forest fang claw track chase instinct roam predator wilderness',
-        'ecstasy dance madness release wine frenzy ritual trance abandon revelry intoxication',
-        'hammer fire anvil craft iron shape creation tool metal build smelt temper',
-        'seed harvest soil grain crop cycle growth field earth cultivate season root',
-        'legacy oath throne lineage memory law reign blood honor dynasty covenant stone',
-        'dawn harmony prophecy song balance golden lyre oracle radiance healing clarity truth'
-    ];
+async function extractAll() {
+    const { data } = await sb.from('repos').select('url').eq('status', 'discovered').limit(10);
+    if (!data?.length) { log('No repos to extract'); return; }
     
-    let totalStored = 0;
-    for (const text of allSeeds) {
-        const result = await callEdge({ text, source: 'seed' });
-        if (result?.success) totalStored += (result.stored || 0);
+    log(`📥 Extracting HTML from ${data.length} repos...`);
+    let extracted = 0;
+    for (const r of data) {
+        const result = await callEdge({ action: 'extract', url: r.url });
+        if (result?.success && result.extracted) extracted++;
+        await new Promise(r => setTimeout(r, 300));
     }
-    
-    log(`🌱 Seeded ${totalStored} tokens across all domains`);
+    log(`📥 Extracted HTML from ${extracted}/${data.length} repos → Demeter sandbox`);
     await refresh();
 }
 
-// ═══════════════════ CALCULATE SCORE ═══════════════════
-async function calculateScore() {
-    // Score = token count × domain diversity × avg score
-    const { count, data } = await sb.from('tokens')
-        .select('domain, score', { count: 'exact' });
+async function refresh() {
+    const { data, count } = await sb.from('repos').select('*', { count: 'exact' }).order('score', { ascending: false }).limit(24);
     
-    if (!data?.length) return 0;
+    document.getElementById('repoCount').textContent = count || 0;
+    document.getElementById('discoveredCount').textContent = data?.filter(r => r.status === 'discovered').length || 0;
+    document.getElementById('incubatingCount').textContent = data?.filter(r => r.status === 'incubating' || r.status === 'integrated').length || 0;
     
-    const domains = new Set(data.map(t => t.domain)).size;
-    const avgScore = data.reduce((s, t) => s + (t.score || 50), 0) / data.length;
-    const diversity = domains / 12; // 12 possible domains
-    
-    return (count / 100) * diversity * (avgScore / 100);
-}
-
-// ═══════════════════ SPAWN VARIANTS ═══════════════════
-async function spawnVariants() {
-    const score = await calculateScore();
-    
-    if (score < REPRODUCTION_THRESHOLD) {
-        log(`🧬 Score ${score.toFixed(2)} below threshold ${REPRODUCTION_THRESHOLD}. Cannot spawn.`);
+    const grid = document.getElementById('repoGrid');
+    if (!data?.length) {
+        grid.innerHTML = '<div class="repo-card"><div class="repo-desc">No repos discovered yet. Click Hunt to search GitHub.</div></div>';
         return;
     }
     
-    log(`🧬 Score ${score.toFixed(2)} exceeds threshold! Spawning variants...`);
-    
-    // Child A: Experimental — mutate similarity threshold
-    const mutationA = {
-        similarity_threshold: MUTATION.similarity_threshold * (Math.random() > 0.5 ? 0.7 : 1.3),
-        hunger_weight: MUTATION.hunger_weight,
-        domain_focus: ['wisdom', 'wild', 'love', 'war'][Math.floor(Math.random() * 4)],
-        mutation_history: [...MUTATION.mutation_history, `lowered threshold to ${(MUTATION.similarity_threshold * 0.7).toFixed(3)}`]
-    };
-    
-    // Child B: Conservative — preserves parent
-    const mutationB = {
-        similarity_threshold: MUTATION.similarity_threshold,
-        hunger_weight: MUTATION.hunger_weight * 1.1,
-        domain_focus: null,
-        mutation_history: [...MUTATION.mutation_history, 'preserved parent settings']
-    };
-    
-    // Register in lineage table
-    const { error } = await sb.from('lineage').insert({
-        god: 'hermes',
-        parent_version: `${MY_VERSION}`,
-        child_a: `${MY_VERSION}a`,
-        child_b: `${MY_VERSION}b`,
-        mutation_a: mutationA,
-        mutation_b: mutationB,
-        parent_score: score,
-        created_at: new Date().toISOString()
-    });
-    
-    if (!error) {
-        log('🧬 Variants spawned! Child A (experimental) / Child B (conservative)');
-        document.getElementById('childrenCount').textContent = '2';
-        
-        // Display variant cards
-        document.getElementById('variantPanel').innerHTML = `
-            <div class="variant-card child-a">
-                <div class="variant-name" style="color:var(--spawn)">🧬 ${MY_VERSION}a · EXPERIMENTAL</div>
-                <div class="variant-score">Threshold: ${mutationA.similarity_threshold.toFixed(3)}</div>
-                <div class="variant-mutation">Focus: ${mutationA.domain_focus} · Hunger: ${mutationA.hunger_weight.toFixed(1)}x</div>
-            </div>
-            <div class="variant-card child-b">
-                <div class="variant-name" style="color:#c07040">⚒️ ${MY_VERSION}b · CONSERVATIVE</div>
-                <div class="variant-score">Threshold: ${mutationB.similarity_threshold.toFixed(3)}</div>
-                <div class="variant-mutation">Focus: all domains · Hunger: ${mutationB.hunger_weight.toFixed(1)}x</div>
+    grid.innerHTML = data.map(r => {
+        const statusClass = r.status === 'incubating' ? 'incubating' : r.status === 'integrated' ? 'integrated' : 'discovered';
+        const patternClass = r.status === 'incubating' ? 'incubating-tag' : r.status === 'integrated' ? 'integrated-tag' : '';
+        return `
+            <div class="repo-card ${statusClass}" onclick="window.open('${r.url}', '_blank')">
+                <div class="repo-name">📦 ${r.name || 'unknown'}</div>
+                <div class="repo-desc">${r.description || 'No description'}</div>
+                <div class="repo-meta">
+                    <span>⭐ ${r.stars || 0}</span>
+                    <span>🔧 ${r.language || 'html'}</span>
+                    <span>📌 ${r.status || 'discovered'}</span>
+                </div>
+                ${(r.useful_patterns || []).length ? `
+                <div class="repo-patterns">
+                    ${r.useful_patterns.map(p => `<span class="pattern-tag ${patternClass}">${p}</span>`).join('')}
+                </div>` : ''}
             </div>
         `;
-    }
+    }).join('');
 }
 
-// ═══════════════════ TEST MUTATION ═══════════════════
-async function testMutation() {
-    MUTATION.similarity_threshold = MUTATION.similarity_threshold * (Math.random() > 0.5 ? 0.85 : 1.15);
-    MUTATION.mutation_history.push(`tested threshold: ${MUTATION.similarity_threshold.toFixed(3)}`);
-    
-    document.getElementById('mutationDisplay').textContent = 
-        `Threshold: ${MUTATION.similarity_threshold.toFixed(3)} · Hunger: ${MUTATION.hunger_weight.toFixed(1)}x`;
-    
-    log(`🧪 Mutation: threshold now ${MUTATION.similarity_threshold.toFixed(3)}`);
-    
-    // Re-hunt with new settings
-    await hunt();
-}
-
-// ═══════════════════ REFRESH ═══════════════════
-async function refresh() {
-    // Domain counts
-    const domains = ['signal','love','war','wisdom','storm','tide','wild','vine','forge','farm','crown','light'];
-    const grid = document.getElementById('domainGrid');
-    let html = '';
-    
-    for (const domain of domains) {
-        const { count } = await sb.from('tokens')
-            .select('*', { count: 'exact', head: true })
-            .eq('domain', domain);
-        html += `<div class="domain-card ${domain}"><div class="domain-name">${domain}</div><div class="domain-count">${count || 0}</div></div>`;
-    }
-    grid.innerHTML = html;
-    
-    // Total tokens
-    const { count: total } = await sb.from('tokens').select('*', { count: 'exact', head: true });
-    document.getElementById('tokenCount').textContent = total || 0;
-    
-    // My score
-    const score = await calculateScore();
-    document.getElementById('myScore').textContent = score.toFixed(2);
-    
-    // Check if I can spawn
-    const spawnBtn = document.getElementById('spawnBtn');
-    spawnBtn.disabled = score < REPRODUCTION_THRESHOLD;
-    
-    // Recent tokens
-    const { data: recent } = await sb.from('tokens')
-        .select('*').order('created_at', { ascending: false }).limit(15);
-    const feed = document.getElementById('tokenFeed');
-    if (recent?.length) {
-        feed.innerHTML = recent.map(t => `
-            <div class="token-row">
-                <span>${t.body}</span>
-                <span style="font-size:0.4rem;color:var(--mist)">${t.domain || '—'} · ${t.score || '—'}</span>
-            </div>
-        `).join('');
-    }
-    
-    // Check if I should die
-    if (score < DEATH_THRESHOLD) {
-        log(`💀 Score ${score.toFixed(2)} below death threshold. This variant should be archived.`);
-    }
-}
-
-// ═══════════════════ INIT ═══════════════════
 function init() {
-    document.getElementById('huntBtn').onclick = hunt;
-    document.getElementById('seedBtn').onclick = seedDomains;
-    document.getElementById('spawnBtn').onclick = spawnVariants;
-    document.getElementById('testBtn').onclick = testMutation;
-    
-    document.getElementById('versionDisplay').textContent = MY_VERSION;
-    document.getElementById('variantBadge').textContent = MY_VARIANT;
-    document.getElementById('variantBadge').className = 
-        `variant-badge badge-${MY_VARIANT === 'parent' ? 'parent' : MY_VARIANT === 'a' ? 'a' : 'b'}`;
+    document.getElementById('huntBtn').onclick = () => hunt();
+    document.getElementById('extractBtn').onclick = extractAll;
+    document.getElementById('refreshBtn').onclick = refresh;
+    document.getElementById('customHuntBtn').onclick = () => {
+        const query = document.getElementById('customQuery').value.trim();
+        if (query) hunt(query);
+    };
+    document.getElementById('customQuery').onkeydown = (e) => {
+        if (e.key === 'Enter') {
+            const query = e.target.value.trim();
+            if (query) hunt(query);
+        }
+    };
     
     checkEdge();
     refresh();
-    log(`⚡ Hermes ${MY_VERSION}${MY_VARIANT !== 'parent' ? MY_VARIANT : ''} · Threshold: ${MUTATION.similarity_threshold} · Spawn at: ${REPRODUCTION_THRESHOLD}`);
+    log('⚡ Hermes v5 · HTML Hunter. Searches GitHub for HTML repos.');
 }
 init();
 </script>
