@@ -23,16 +23,95 @@
         body { background: var(--void); font-family: var(--font-body); color: var(--pale); min-height: 100vh; }
         .container { max-width: 1300px; margin: 0 auto; padding: 2rem; }
 
+        /* ── HERO IMAGE ── */
+        .shrine-hero {
+            position: relative;
+            width: 100%;
+            height: 340px;
+            overflow: hidden;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+        .shrine-hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 20%;
+            display: block;
+            transition: transform 8s ease;
+        }
+        .shrine-hero:hover img { transform: scale(1.04); }
+        .shrine-hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(8,10,15,0.1) 0%, rgba(8,10,15,0.7) 75%, rgba(8,10,15,1) 100%);
+        }
+        .shrine-hero-label {
+            position: absolute;
+            bottom: 1.2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-mono);
+            font-size: 0.45rem;
+            letter-spacing: 4px;
+            color: var(--gold);
+            opacity: 0.7;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* ── HEADER ── */
         .header { text-align: center; border-bottom: 1px solid var(--surface); padding-bottom: 1rem; margin-bottom: 1.5rem; }
         .header h1 { font-family: var(--font-display); font-size: 2.2rem; color: var(--gold); letter-spacing: 3px; }
         .header-sub { font-family: var(--font-mono); font-size: 0.55rem; color: var(--mist); letter-spacing: 2px; margin-top: 0.3rem; }
 
+        /* ── STATUS BAR ── */
         .status-bar { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; font-family: var(--font-mono); font-size: 0.55rem; color: var(--mist); }
         .status-bar span { color: var(--pale); font-weight: 500; }
         .edge-badge { background: rgba(0,255,0,0.1); color: #4ade80; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.5rem; }
         .edge-off { background: rgba(255,0,0,0.1); color: #f87171; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.5rem; }
 
-        .controls { display: flex; gap: 0.4rem; justify-content: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        /* ── MYTH PANEL ── */
+        .myth-panel {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
+            align-items: start;
+        }
+        .myth-image {
+            border: 1px solid var(--gold);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 28px rgba(200,148,58,0.18);
+            position: relative;
+            flex-shrink: 0;
+        }
+        .myth-image img {
+            width: 100%;
+            display: block;
+            transition: transform 0.6s ease;
+        }
+        .myth-image:hover img { transform: scale(1.03); }
+        .myth-image-caption {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 0.5rem 0.6rem;
+            background: linear-gradient(to top, rgba(8,10,15,0.92), transparent);
+            font-family: var(--font-mono);
+            font-size: 0.38rem;
+            letter-spacing: 2px;
+            color: var(--gold);
+            text-align: center;
+        }
+        .myth-right {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* ── CONTROLS ── */
+        .controls { display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap; }
         button { font-family: var(--font-mono); font-size: 0.55rem; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; border: 1px solid var(--surface); background: var(--deep); color: var(--pale); transition: all 0.2s; letter-spacing: 1px; }
         button:hover:not(:disabled) { background: var(--gold); color: var(--void); border-color: var(--gold); }
         button.primary { background: var(--gold); color: var(--void); border-color: var(--gold); }
@@ -42,6 +121,14 @@
         .spin { display: inline-block; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* ── PUBMED ── */
+        .pubmed-section { background: var(--deep); border: 1px solid rgba(74,222,128,0.3); border-radius: 8px; padding: 0.8rem; }
+        .pubmed-section h3 { font-family: var(--font-display); font-size: 0.7rem; color: var(--pubmed); margin-bottom: 0.5rem; }
+        .pubmed-queries { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+        .pubmed-query-tag { font-family: var(--font-mono); font-size: 0.45rem; padding: 0.15rem 0.4rem; border: 1px solid rgba(74,222,128,0.3); border-radius: 3px; color: var(--pubmed); cursor: pointer; }
+        .pubmed-query-tag:hover { background: rgba(74,222,128,0.15); }
+
+        /* ── DOMAIN GRID ── */
         .domain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; margin-bottom: 1.5rem; }
         .domain-card { background: var(--deep); border: 1px solid var(--surface); border-radius: 8px; padding: 0.7rem; text-align: center; }
         .domain-card.signal { border-top: 2px solid var(--signal); } .domain-card.love { border-top: 2px solid var(--love); }
@@ -54,6 +141,74 @@
         .domain-count { font-family: var(--font-mono); font-size: 0.6rem; }
         .domain-god { font-family: var(--font-mono); font-size: 0.42rem; color: var(--mist); margin-top: 0.15rem; }
 
+        /* ── EALDFORN TRANSMISSION (video) ── */
+        .transmission-panel {
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--surface);
+            border-top: 2px solid var(--signal);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--deep);
+        }
+        .transmission-label {
+            font-family: var(--font-mono);
+            font-size: 0.45rem;
+            letter-spacing: 3px;
+            color: var(--signal);
+            padding: 0.5rem 0.8rem;
+            border-bottom: 1px solid var(--surface);
+            text-transform: uppercase;
+        }
+        .transmission-video {
+            width: 100%;
+            display: block;
+            max-height: 460px;
+            object-fit: cover;
+        }
+
+        /* ── SHRINE STRIP ── */
+        .shrine-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .shrine-strip-item {
+            border: 1px solid var(--surface);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            height: 170px;
+            cursor: default;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .shrine-strip-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            display: block;
+            filter: brightness(0.72) saturate(0.85);
+            transition: filter 0.4s ease, transform 0.5s ease;
+        }
+        .shrine-strip-item:hover { border-color: var(--gold); box-shadow: 0 0 18px rgba(200,148,58,0.22); }
+        .shrine-strip-item:hover img { filter: brightness(1) saturate(1.1); transform: scale(1.05); }
+        .shrine-strip-glyph {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 0.6rem 0.4rem;
+            background: linear-gradient(to top, rgba(8,10,15,0.88), transparent);
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.38rem;
+            letter-spacing: 2px;
+            color: var(--gold);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .shrine-strip-item:hover .shrine-strip-glyph { opacity: 1; }
+
+        /* ── TOKEN FEED + LOG ── */
         .token-feed { background: var(--deep); border: 1px solid var(--surface); border-radius: 8px; padding: 0.8rem; max-height: 300px; overflow-y: auto; margin-bottom: 1.5rem; }
         .token-row { font-family: var(--font-mono); font-size: 0.52rem; padding: 0.2rem 0; border-bottom: 1px solid rgba(30,37,53,0.5); display: flex; justify-content: space-between; align-items: center; }
         .token-row:last-child { border-bottom: none; }
@@ -78,25 +233,40 @@
         .tag-o { background: rgba(200,128,80,0.2); color: #c08050; }
         .tag-pubmed { background: rgba(74,222,128,0.15); color: var(--pubmed); }
 
-        .pubmed-section { background: var(--deep); border: 1px solid rgba(74,222,128,0.3); border-radius: 8px; padding: 0.8rem; margin-bottom: 1rem; }
-        .pubmed-section h3 { font-family: var(--font-display); font-size: 0.7rem; color: var(--pubmed); margin-bottom: 0.5rem; }
-        .pubmed-queries { display: flex; flex-wrap: wrap; gap: 0.3rem; }
-        .pubmed-query-tag { font-family: var(--font-mono); font-size: 0.45rem; padding: 0.15rem 0.4rem; border: 1px solid rgba(74,222,128,0.3); border-radius: 3px; color: var(--pubmed); cursor: pointer; }
-        .pubmed-query-tag:hover { background: rgba(74,222,128,0.15); }
-
         .log { background: #060810; border: 1px solid var(--surface); border-radius: 6px; padding: 0.5rem; max-height: 120px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.5rem; color: var(--mist); }
 
-        @media (max-width: 768px) { .domain-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 900px) {
+            .myth-panel { grid-template-columns: 1fr; }
+            .myth-image { max-width: 320px; margin: 0 auto; }
+        }
+        @media (max-width: 768px) {
+            .domain-grid { grid-template-columns: repeat(4, 1fr); }
+            .shrine-hero { height: 220px; }
+            .shrine-strip { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .shrine-strip { grid-template-columns: 1fr; }
+            .shrine-strip-item { height: 200px; }
+        }
     </style>
 </head>
 <body>
 <div class="container">
 
+    <!-- ══ HERO IMAGE ══ -->
+    <div class="shrine-hero">
+        <img src="assets/images/hermes-courier.jpg" alt="Hermes · Token Courier" />
+        <div class="shrine-hero-overlay"></div>
+        <div class="shrine-hero-label">⚡ the courier · between worlds · between gates</div>
+    </div>
+
+    <!-- ══ HEADER ══ -->
     <div class="header">
         <h1>⚡ HER<span>MES</span></h1>
         <div class="header-sub">TOKEN COURIER · EDGE FUNCTION · RSS + PUBMED + GDELT · PYTHAGOREAN #1</div>
     </div>
 
+    <!-- ══ STATUS BAR ══ -->
     <div class="status-bar">
         <div>Extracted: <span id="totalScraped">0</span></div>
         <div>In DB: <span id="totalDB">—</span></div>
@@ -104,30 +274,39 @@
         <div>PubMed: <span id="pubmedStatus">—</span></div>
     </div>
 
-    <div class="controls">
-        <button id="scrapeRSSBtn">📡 RSS Feeds</button>
-        <button id="scrapePubMedBtn" class="pubmed-btn">🧬 PubMed</button>
-        <button id="scrapeGDELTBtn">🌍 GDELT</button>
-        <button id="scrapeAllBtn" class="primary">⚡ Full Cycle</button>
-        <button id="seedBtn">🌱 Seed Domains</button>
-    </div>
-
-    <div class="pubmed-section">
-        <h3>🧬 PubMed Query Topics</h3>
-        <div class="pubmed-queries" id="pubmedQueries">
-            <span class="pubmed-query-tag" data-query="neural+network+cognition">neural cognition</span>
-            <span class="pubmed-query-tag" data-query="language+model+attention">language attention</span>
-            <span class="pubmed-query-tag" data-query="memory+consolidation+brain">memory brain</span>
-            <span class="pubmed-query-tag" data-query="sentiment+classification+text">sentiment text</span>
-            <span class="pubmed-query-tag" data-query="cognitive+architecture+reasoning">cognitive reasoning</span>
-            <span class="pubmed-query-tag" data-query="artificial+intelligence+ethics">AI ethics</span>
-            <span class="pubmed-query-tag" data-query="deep+learning+embedding+tokens">embeddings tokens</span>
-            <span class="pubmed-query-tag" data-query="consciousness+neural+correlates">consciousness</span>
-            <span class="pubmed-query-tag" data-query="emotion+recognition+affective">affective computing</span>
-            <span class="pubmed-query-tag" data-query="knowledge+graph+ontology">knowledge graphs</span>
+    <!-- ══ MYTH PANEL: classical image + controls + pubmed ══ -->
+    <div class="myth-panel">
+        <div class="myth-image">
+            <img src="assets/images/hermes-classical.jpg" alt="Hermes · The Herald" />
+            <div class="myth-image-caption">THE HERALD · MESSENGER OF OLYMPUS</div>
+        </div>
+        <div class="myth-right">
+            <div class="controls">
+                <button id="scrapeRSSBtn">📡 RSS Feeds</button>
+                <button id="scrapePubMedBtn" class="pubmed-btn">🧬 PubMed</button>
+                <button id="scrapeGDELTBtn">🌍 GDELT</button>
+                <button id="scrapeAllBtn" class="primary">⚡ Full Cycle</button>
+                <button id="seedBtn">🌱 Seed Domains</button>
+            </div>
+            <div class="pubmed-section">
+                <h3>🧬 PubMed Query Topics</h3>
+                <div class="pubmed-queries" id="pubmedQueries">
+                    <span class="pubmed-query-tag" data-query="neural+network+cognition">neural cognition</span>
+                    <span class="pubmed-query-tag" data-query="language+model+attention">language attention</span>
+                    <span class="pubmed-query-tag" data-query="memory+consolidation+brain">memory brain</span>
+                    <span class="pubmed-query-tag" data-query="sentiment+classification+text">sentiment text</span>
+                    <span class="pubmed-query-tag" data-query="cognitive+architecture+reasoning">cognitive reasoning</span>
+                    <span class="pubmed-query-tag" data-query="artificial+intelligence+ethics">AI ethics</span>
+                    <span class="pubmed-query-tag" data-query="deep+learning+embedding+tokens">embeddings tokens</span>
+                    <span class="pubmed-query-tag" data-query="consciousness+neural+correlates">consciousness</span>
+                    <span class="pubmed-query-tag" data-query="emotion+recognition+affective">affective computing</span>
+                    <span class="pubmed-query-tag" data-query="knowledge+graph+ontology">knowledge graphs</span>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- ══ DOMAIN GRID ══ -->
     <div class="domain-grid" id="domainGrid">
         <div class="domain-card signal"><div class="domain-name" style="color:var(--signal)">⚡ SIGNAL</div><div class="domain-count" id="signalCount">—</div><div class="domain-god">Hermes</div></div>
         <div class="domain-card love"><div class="domain-name" style="color:var(--love)">💗 LOVE</div><div class="domain-count" id="loveCount">—</div><div class="domain-god">Aphrodite</div></div>
@@ -143,6 +322,31 @@
         <div class="domain-card vine"><div class="domain-name" style="color:var(--vine)">🍇 VINE</div><div class="domain-count" id="vineCount">—</div><div class="domain-god">Dionysus</div></div>
     </div>
 
+    <!-- ══ EALDFORN TRANSMISSION ══ -->
+    <div class="transmission-panel">
+        <div class="transmission-label">⚡ ealdforn transmission · signal active</div>
+        <video class="transmission-video" autoplay muted loop playsinline>
+            <source src="assets/video/hermes0.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <!-- ══ SHRINE STRIP: 3 atmospheric images ══ -->
+    <div class="shrine-strip">
+        <div class="shrine-strip-item">
+            <img src="assets/images/hermes-cyber.jpg" alt="Hermes · Cyber" />
+            <div class="shrine-strip-glyph">COURIER · SIGNAL · SPEED</div>
+        </div>
+        <div class="shrine-strip-item">
+            <img src="assets/images/hermes-rune.jpg" alt="Hermes · Psychopomp" />
+            <div class="shrine-strip-glyph">LIMINAL · RUNE · PASSAGE</div>
+        </div>
+        <div class="shrine-strip-item">
+            <img src="assets/images/hermes-chthonic.jpg" alt="Hermes · Chthonic" />
+            <div class="shrine-strip-glyph">CHTHONIC · GUIDE · THRESHOLD</div>
+        </div>
+    </div>
+
+    <!-- ══ TOKEN FEED ══ -->
     <div class="token-feed" id="tokenFeed"><div class="token-row"><span class="token-word">No tokens extracted yet</span></div></div>
     <div class="log" id="log"><div>⚡ Hermes ready — RSS + PubMed + GDELT pipelines active.</div></div>
 
@@ -164,9 +368,6 @@ let recentTokens = [];
 let edgeAvailable = false;
 let pubmedAbstracts = 0;
 
-// ════════════════════════════════════════════════
-// 12 DOMAINS — SEED WORDS
-// ════════════════════════════════════════════════
 const DOMAIN_SEEDS = {
     signal:  ['speed','message','swift','trade','cross','travel','path','word','sign'],
     love:    ['love','heart','beauty','desire','grace','kiss','embrace','tender','bloom'],
@@ -182,18 +383,12 @@ const DOMAIN_SEEDS = {
     vine:    ['vine','chaos','frenzy','break','ecstasy','wild','dance','madness','fruit']
 };
 
-// ════════════════════════════════════════════════
-// RSS FEEDS
-// ════════════════════════════════════════════════
 const RSS_FEEDS = [
     { url: 'https://feeds.bbci.co.uk/news/rss.xml', name: 'BBC News' },
     { url: 'https://www.aljazeera.com/xml/rss/all.xml', name: 'Al Jazeera' },
     { url: 'https://hnrss.org/frontpage', name: 'Hacker News' }
 ];
 
-// ════════════════════════════════════════════════
-// PUBMED QUERIES
-// ════════════════════════════════════════════════
 const PUBMED_QUERIES = [
     'neural network cognition',
     'language model attention mechanism',
@@ -212,9 +407,6 @@ function log(msg) {
     el.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + el.innerHTML;
 }
 
-// ════════════════════════════════════════════════
-// LOAD BROWSER MODEL (for PubMed quality filtering)
-// ════════════════════════════════════════════════
 async function loadModel() {
     try {
         embedder = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
@@ -226,9 +418,6 @@ async function loadModel() {
     }
 }
 
-// ════════════════════════════════════════════════
-// EDGE FUNCTION CALL
-// ════════════════════════════════════════════════
 async function callHermesEdge(text, source = 'hermes-temple') {
     try {
         const res = await fetch(EDGE_URL, {
@@ -247,15 +436,12 @@ async function callHermesEdge(text, source = 'hermes-temple') {
 async function checkEdge() {
     const result = await callHermesEdge('test');
     edgeAvailable = !!(result && result.success !== false);
-    document.getElementById('edgeStatus').innerHTML = edgeAvailable 
+    document.getElementById('edgeStatus').innerHTML = edgeAvailable
         ? '<span class="edge-badge">live ✓</span>'
         : '<span class="edge-off">offline</span>';
     log(edgeAvailable ? 'Edge function live ✓' : 'Edge offline — using local fallback');
 }
 
-// ════════════════════════════════════════════════
-// RSS SCRAPER
-// ════════════════════════════════════════════════
 async function fetchRSS(url) {
     try {
         const res = await fetch(url);
@@ -265,120 +451,73 @@ async function fetchRSS(url) {
         const doc = parser.parseFromString(xmlText, 'application/xml');
         const items = [...doc.querySelectorAll('item')];
         return items.map(item => item.querySelector('title')?.textContent || '').filter(Boolean).join('. ');
-    } catch (err) {
-        return '';
-    }
+    } catch { return ''; }
 }
 
 async function scrapeRSSFeeds() {
     log('📡 Scraping RSS feeds...');
     let allText = '';
-    
     for (const feed of RSS_FEEDS) {
         const text = await fetchRSS(feed.url);
-        if (text) {
-            allText += ' ' + text;
-            log(`  ${feed.name}: ✓`);
-        } else {
-            log(`  ${feed.name}: offline`);
-        }
+        if (text) { allText += ' ' + text; log(`  ${feed.name}: ✓`); }
+        else { log(`  ${feed.name}: offline`); }
     }
-    
     return allText;
 }
 
-// ════════════════════════════════════════════════
-// PUBMED SCRAPER (with quality filter)
-// ════════════════════════════════════════════════
 async function fetchPubMedAbstracts(query) {
     const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmax=8&retmode=json`;
-    
     try {
         const searchRes = await fetch(searchUrl);
         if (!searchRes.ok) throw new Error(`HTTP ${searchRes.status}`);
         const searchData = await searchRes.json();
-        
         const ids = searchData?.esearchresult?.idlist || [];
         if (!ids.length) return [];
-        
         const detailUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json`;
         const detailRes = await fetch(detailUrl);
         if (!detailRes.ok) return [];
-        
         const detailData = await detailRes.json();
         const results = detailData?.result || {};
-        
         return Object.values(results)
             .filter(r => r && r.title && r.pubdate)
-            .map(r => ({
-                title: r.title,
-                pubdate: r.pubdate,
-                source: r.source || 'PubMed',
-                pmid: r.uid
-            }));
+            .map(r => ({ title: r.title, pubdate: r.pubdate, source: r.source || 'PubMed', pmid: r.uid }));
     } catch (err) {
         console.error(`PubMed query failed: ${query}`, err.message);
         return [];
     }
 }
 
-// PubMed quality filter — scores abstract relevance using browser model
 async function scoreAbstractQuality(abstracts) {
-    if (!embedder) return abstracts; // no model = pass all
-    
+    if (!embedder) return abstracts;
     const scored = [];
     for (const abs of abstracts) {
         try {
             const embedding = await embedder(abs.title, { pooling: 'mean', normalize: true });
-            // Score based on embedding magnitude — scientific text clusters differently
-            const magnitude = Math.sqrt(
-                Array.from(embedding.data).reduce((sum, v) => sum + v * v, 0)
-            );
-            // Higher magnitude = more semantic content (better for wisdom domain)
+            const magnitude = Math.sqrt(Array.from(embedding.data).reduce((sum, v) => sum + v * v, 0));
             scored.push({ ...abs, quality: Math.min(100, Math.round(magnitude * 100)) });
-        } catch {
-            scored.push({ ...abs, quality: 50 });
-        }
+        } catch { scored.push({ ...abs, quality: 50 }); }
     }
-    
-    // Filter to top 70% quality + sort
-    return scored
-        .filter(a => a.quality > 30)
-        .sort((a, b) => b.quality - a.quality);
+    return scored.filter(a => a.quality > 30).sort((a, b) => b.quality - a.quality);
 }
 
 async function scrapePubMed() {
     log('🧬 Scraping PubMed...');
     let allAbstracts = [];
-    
     for (const query of PUBMED_QUERIES) {
         const abstracts = await fetchPubMedAbstracts(query);
         allAbstracts.push(...abstracts);
-        await new Promise(r => setTimeout(r, 350)); // respect rate limit
+        await new Promise(r => setTimeout(r, 350));
     }
-    
-    if (!allAbstracts.length) {
-        log('PubMed: no results');
-        return '';
-    }
-    
-    // Run quality filter through browser model
+    if (!allAbstracts.length) { log('PubMed: no results'); return ''; }
     log(`PubMed: ${allAbstracts.length} abstracts → scoring quality...`);
     const scored = await scoreAbstractQuality(allAbstracts);
-    
     pubmedAbstracts = scored.length;
     document.getElementById('pubmedStatus').textContent = `${scored.length} abstracts`;
-    
-    // Combine titles into text for token extraction
     const text = scored.map(a => a.title).join('. ');
-    
     log(`PubMed: ${scored.length} high-quality abstracts retained (${allAbstracts.length - scored.length} filtered)`);
     return text;
 }
 
-// ════════════════════════════════════════════════
-// GDELT SCRAPER
-// ════════════════════════════════════════════════
 async function fetchGDELT(query) {
     const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}&mode=artlist&maxrecords=10&format=json`;
     try {
@@ -386,58 +525,30 @@ async function fetchGDELT(query) {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         return (data?.articles || []).map(a => a.title || '').filter(Boolean).join('. ');
-    } catch {
-        return '';
-    }
+    } catch { return ''; }
 }
 
 async function scrapeGDELT() {
     log('🌍 Scraping GDELT...');
     const queries = ['technology innovation', 'ai breakthrough', 'climate action', 'economic policy'];
     let allText = '';
-    
     for (const query of queries) {
-        const text = await fetchGDELT(query);
-        allText += ' ' + text;
+        allText += ' ' + await fetchGDELT(query);
         await new Promise(r => setTimeout(r, 300));
     }
-    
-    if (allText.trim()) {
-        log('GDELT: ✓');
-    } else {
-        log('GDELT: offline');
-    }
-    
+    log(allText.trim() ? 'GDELT: ✓' : 'GDELT: offline');
     return allText;
 }
 
-// ════════════════════════════════════════════════
-// UNIFIED SCRAPE → EXTRACT
-// ════════════════════════════════════════════════
 async function scrapeAndExtract(sources = 'all') {
     log(`══════════ ${sources.toUpperCase()} CYCLE ══════════`);
-    
     let combinedText = '';
-    
-    if (sources === 'all' || sources === 'rss') {
-        combinedText += await scrapeRSSFeeds();
-    }
-    if (sources === 'all' || sources === 'pubmed') {
-        combinedText += ' ' + await scrapePubMed();
-    }
-    if (sources === 'all' || sources === 'gdelt') {
-        combinedText += ' ' + await scrapeGDELT();
-    }
-    
-    if (!combinedText.trim()) {
-        log('No text retrieved from any source.');
-        return;
-    }
-    
+    if (sources === 'all' || sources === 'rss') combinedText += await scrapeRSSFeeds();
+    if (sources === 'all' || sources === 'pubmed') combinedText += ' ' + await scrapePubMed();
+    if (sources === 'all' || sources === 'gdelt') combinedText += ' ' + await scrapeGDELT();
+    if (!combinedText.trim()) { log('No text retrieved from any source.'); return; }
     log(`Total: ~${combinedText.length} chars → Hermes Edge...`);
-    
     const result = await callHermesEdge(combinedText, sources);
-    
     if (result?.success) {
         totalScraped += result.tokens_extracted;
         document.getElementById('totalScraped').textContent = totalScraped;
@@ -445,27 +556,17 @@ async function scrapeAndExtract(sources = 'all') {
         renderFeed(result.tokens);
         log(`✅ ${result.tokens_extracted} tokens → Aphrodite dispatch`);
         await updateStats();
-    } else {
-        log('❌ Extraction failed.');
-    }
+    } else { log('❌ Extraction failed.'); }
 }
 
-// ════════════════════════════════════════════════
-// SEED DOMAINS
-// ════════════════════════════════════════════════
 async function seedAllDomains() {
     log('🌱 Seeding 12 domains...');
     let totalStored = 0;
     const allTokens = [];
-    
     for (const [domain, seeds] of Object.entries(DOMAIN_SEEDS)) {
         const result = await callHermesEdge(seeds.join(' '), 'seed');
-        if (result?.success) {
-            totalStored += result.tokens_extracted;
-            allTokens.push(...result.tokens);
-        }
+        if (result?.success) { totalStored += result.tokens_extracted; allTokens.push(...result.tokens); }
     }
-    
     totalScraped += totalStored;
     document.getElementById('totalScraped').textContent = totalScraped;
     renderFeed(allTokens.slice(0, 40));
@@ -473,24 +574,18 @@ async function seedAllDomains() {
     await updateStats();
 }
 
-// ════════════════════════════════════════════════
-// UI
-// ════════════════════════════════════════════════
 async function updateStats() {
     const domains = ['signal','love','war','light','farm','forge','crown','tide','wisdom','storm','wild','vine'];
     for (const domain of domains) {
         const el = document.getElementById(`${domain}Count`);
         if (!el) continue;
         try {
-            const { count } = await sb.from('concepts')
-                .select('*', { count: 'exact', head: true })
-                .eq('domain', domain).eq('state', 'raw');
+            const { count } = await sb.from('concepts').select('*', { count: 'exact', head: true }).eq('domain', domain).eq('state', 'raw');
             el.textContent = count || 0;
         } catch { el.textContent = '—'; }
     }
     try {
-        const { count: total } = await sb.from('concepts')
-            .select('*', { count: 'exact', head: true }).eq('band', 'hermes');
+        const { count: total } = await sb.from('concepts').select('*', { count: 'exact', head: true }).eq('band', 'hermes');
         document.getElementById('totalDB').textContent = total || 0;
     } catch {}
 }
@@ -514,7 +609,8 @@ async function archiveSelf() {
         const html = document.documentElement.outerHTML;
         await sb.from('html').upsert({
             filename: 'hermes.html', title: '⚡ Hermes · Multi-Source', type: 'chthonic',
-            content: html, description: 'Token courier: RSS + PubMed + GDELT → hermes-extract Edge Function → Aphrodite dispatch.',
+            content: html,
+            description: 'Token courier: RSS + PubMed + GDELT → hermes-extract Edge Function → Aphrodite dispatch.',
             reads_from: ['RSS feeds', 'PubMed API', 'GDELT API'],
             writes_to: ['concepts', 'aphrodite_dispatch'],
             edge_functions: ['hermes-extract'],
@@ -529,8 +625,7 @@ function init() {
     document.getElementById('scrapeGDELTBtn').onclick = () => scrapeAndExtract('gdelt');
     document.getElementById('scrapeAllBtn').onclick = () => scrapeAndExtract('all');
     document.getElementById('seedBtn').onclick = seedAllDomains;
-    
-    // Clickable PubMed query tags
+
     document.querySelectorAll('.pubmed-query-tag').forEach(tag => {
         tag.onclick = async () => {
             const query = tag.dataset.query;
@@ -550,7 +645,7 @@ function init() {
             }
         };
     });
-    
+
     loadModel();
     checkEdge();
     updateStats();
