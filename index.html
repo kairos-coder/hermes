@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚡ Hermes · Token Courier</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="importmap">
-        { "imports": { "@xenova/transformers": "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js" } }
-    </script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=JetBrains+Mono:wght@300;400;500&display=swap');
         :root {
@@ -36,7 +34,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: center 20%;
+            object-position: center 50%;
             display: block;
             transition: transform 8s ease;
         }
@@ -255,7 +253,7 @@
 
     <!-- ══ HERO IMAGE ══ -->
     <div class="shrine-hero">
-        <img src="assets/images/hermes-courier.jpg" alt="Hermes · Token Courier" />
+        <img src="assets/hermes-shrine.jpg" alt="Hermes · Token Courier" />
         <div class="shrine-hero-overlay"></div>
         <div class="shrine-hero-label">⚡ the courier · between worlds · between gates</div>
     </div>
@@ -271,13 +269,12 @@
         <div>Extracted: <span id="totalScraped">0</span></div>
         <div>In DB: <span id="totalDB">—</span></div>
         <div>Edge: <span id="edgeStatus"><span class="edge-badge">checking</span></span></div>
-        <div>PubMed: <span id="pubmedStatus">—</span></div>
     </div>
 
     <!-- ══ MYTH PANEL: classical image + controls + pubmed ══ -->
     <div class="myth-panel">
         <div class="myth-image">
-            <img src="assets/images/hermes-classical.jpg" alt="Hermes · The Herald" />
+            <img src="assets/hermes-classical.jpg" alt="Hermes · The Herald" />
             <div class="myth-image-caption">THE HERALD · MESSENGER OF OLYMPUS</div>
         </div>
         <div class="myth-right">
@@ -326,22 +323,22 @@
     <div class="transmission-panel">
         <div class="transmission-label">⚡ ealdforn transmission · signal active</div>
         <video class="transmission-video" autoplay muted loop playsinline>
-            <source src="assets/video/hermes0.mp4" type="video/mp4">
+            <source src="assets/hermes0.mp4" type="video/mp4">
         </video>
     </div>
 
     <!-- ══ SHRINE STRIP: 3 atmospheric images ══ -->
     <div class="shrine-strip">
         <div class="shrine-strip-item">
-            <img src="assets/images/hermes-cyber.jpg" alt="Hermes · Cyber" />
+            <img src="assets/hermes-cyber.jpg" alt="Hermes · Cyber" />
             <div class="shrine-strip-glyph">COURIER · SIGNAL · SPEED</div>
         </div>
         <div class="shrine-strip-item">
-            <img src="assets/images/hermes-rune.jpg" alt="Hermes · Psychopomp" />
+            <img src="assets/hermes-runic.jpg" alt="Hermes · Psychopomp" />
             <div class="shrine-strip-glyph">LIMINAL · RUNE · PASSAGE</div>
         </div>
         <div class="shrine-strip-item">
-            <img src="assets/images/hermes-chthonic.jpg" alt="Hermes · Chthonic" />
+            <img src="assets/hermes-chthonic.jpg" alt="Hermes · Chthonic" />
             <div class="shrine-strip-glyph">CHTHONIC · GUIDE · THRESHOLD</div>
         </div>
     </div>
@@ -353,42 +350,36 @@
 </div>
 
 <script type="module">
+// ══════════════════════════════════════════════════════
+// HERMES v4 · RUNTIME
+// HTML is purely aesthetic + runtime trigger.
+// All scraping, embedding, routing → Edge Function.
+// All reads → tokens table (not concepts).
+// ══════════════════════════════════════════════════════
 const KAIROS_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
 const KAIROS_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
 const EDGE_URL = `${KAIROS_URL}/functions/v1/hermes-extract`;
 const sb = window.supabase.createClient(KAIROS_URL, KAIROS_KEY);
 
-import { pipeline, env } from '@xenova/transformers';
-env.allowLocalModels = true;
-env.useBrowserCache = true;
+const DOMAINS = ['signal','love','war','light','farm','forge','crown','tide','wisdom','storm','wild','vine'];
 
-let embedder = null;
-let totalScraped = 0;
-let recentTokens = [];
-let edgeAvailable = false;
-let pubmedAbstracts = 0;
-
+// Seed sets — sent to edge function, processed server-side
 const DOMAIN_SEEDS = {
-    signal:  ['speed','message','swift','trade','cross','travel','path','word','sign'],
-    love:    ['love','heart','beauty','desire','grace','kiss','embrace','tender','bloom'],
-    war:     ['war','fight','destroy','shatter','clash','strike','blade','battle','rage'],
-    light:   ['light','truth','harmony','vision','balance','prophecy','heal','clarity','dawn'],
-    farm:    ['grow','earth','harvest','seed','grain','soil','field','fruit','bloom'],
-    forge:   ['forge','build','craft','fire','hammer','anvil','shape','create','tool'],
-    crown:   ['crown','legacy','blood','oath','throne','lineage','memory','stone','law'],
-    tide:    ['tide','wave','deep','flow','current','ocean','sea','storm','flood'],
-    wisdom:  ['wisdom','know','think','pattern','mind','learn','plan','design','truth'],
-    storm:   ['storm','rule','judge','bind','command','thunder','lightning','decree','order'],
-    wild:    ['wild','hunt','track','edge','moon','forest','beast','free','roam'],
-    vine:    ['vine','chaos','frenzy','break','ecstasy','wild','dance','madness','fruit']
+    signal:  ['message','signal','swift','trade','path','word','code','travel','cross','courier','speed','threshold'],
+    love:    ['love','heart','desire','beauty','grace','tenderness','embrace','longing','bloom','devotion','soul','charm'],
+    war:     ['battle','strike','clash','blade','shield','rage','force','conquest','enemy','siege','weapon','army'],
+    wisdom:  ['truth','mind','pattern','knowledge','logic','reason','insight','clarity','thought','learning','vision','design'],
+    storm:   ['thunder','lightning','decree','command','order','rule','wrath','judgment','authority','law','dominion','sky'],
+    tide:    ['ocean','wave','current','depth','flow','sea','flood','salt','surge','abyss','drift','water'],
+    wild:    ['hunt','beast','moon','forest','fang','claw','track','chase','instinct','roam','predator','wilderness'],
+    vine:    ['ecstasy','dance','madness','release','wine','frenzy','ritual','trance','abandon','revelry','intoxication','chaos'],
+    forge:   ['hammer','fire','anvil','craft','iron','shape','creation','tool','metal','build','smelt','temper'],
+    farm:    ['seed','harvest','soil','grain','crop','cycle','growth','field','earth','cultivate','season','root'],
+    crown:   ['legacy','oath','throne','lineage','memory','law','reign','blood','honor','dynasty','covenant','stone'],
+    light:   ['dawn','harmony','prophecy','song','balance','golden','lyre','oracle','radiance','healing','clarity','truth']
 };
 
-const RSS_FEEDS = [
-    { url: 'https://feeds.bbci.co.uk/news/rss.xml', name: 'BBC News' },
-    { url: 'https://www.aljazeera.com/xml/rss/all.xml', name: 'Al Jazeera' },
-    { url: 'https://hnrss.org/frontpage', name: 'Hacker News' }
-];
-
+// PubMed queries — sent to edge function server-side (no CORS issue)
 const PUBMED_QUERIES = [
     'neural network cognition',
     'language model attention mechanism',
@@ -402,30 +393,25 @@ const PUBMED_QUERIES = [
     'knowledge graph ontology semantic web'
 ];
 
+const RSS_FEEDS = ['bbc','aljazeera','hn','hn-algolia'];
+
+let totalScraped = 0;
+let edgeAvailable = false;
+
 function log(msg) {
     const el = document.getElementById('log');
     el.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + el.innerHTML;
 }
 
-async function loadModel() {
-    try {
-        embedder = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
-        log('MiniLM ready — PubMed quality filter active');
-        return true;
-    } catch (err) {
-        log('Model offline — PubMed runs without quality filter');
-        return false;
-    }
-}
-
-async function callHermesEdge(text, source = 'hermes-temple') {
+// ── EDGE CALL ──
+async function callEdge(payload) {
     try {
         const res = await fetch(EDGE_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text, source })
+            body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error(`Edge returned ${res.status}`);
+        if (!res.ok) throw new Error(`Edge ${res.status}`);
         return await res.json();
     } catch (err) {
         log(`Edge offline: ${err.message}`);
@@ -434,168 +420,102 @@ async function callHermesEdge(text, source = 'hermes-temple') {
 }
 
 async function checkEdge() {
-    const result = await callHermesEdge('test');
+    const result = await callEdge({ text: 'test', source: 'ping' });
     edgeAvailable = !!(result && result.success !== false);
     document.getElementById('edgeStatus').innerHTML = edgeAvailable
         ? '<span class="edge-badge">live ✓</span>'
         : '<span class="edge-off">offline</span>';
-    log(edgeAvailable ? 'Edge function live ✓' : 'Edge offline — using local fallback');
+    log(edgeAvailable ? 'Edge live ✓' : 'Edge offline');
 }
 
-async function fetchRSS(url) {
-    try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const xmlText = await res.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(xmlText, 'application/xml');
-        const items = [...doc.querySelectorAll('item')];
-        return items.map(item => item.querySelector('title')?.textContent || '').filter(Boolean).join('. ');
-    } catch { return ''; }
+// ── SCRAPE ACTIONS — all server-side via edge ──
+async function runRSS() {
+    log('📡 RSS → Edge...');
+    const result = await callEdge({ action: 'scrape-all', feeds: RSS_FEEDS, source: 'rss' });
+    handleResult(result, 'RSS');
 }
 
-async function scrapeRSSFeeds() {
-    log('📡 Scraping RSS feeds...');
-    let allText = '';
-    for (const feed of RSS_FEEDS) {
-        const text = await fetchRSS(feed.url);
-        if (text) { allText += ' ' + text; log(`  ${feed.name}: ✓`); }
-        else { log(`  ${feed.name}: offline`); }
-    }
-    return allText;
+async function runPubMed() {
+    log('🧬 PubMed → Edge...');
+    const result = await callEdge({ action: 'scrape-all', pubmed_queries: PUBMED_QUERIES, source: 'pubmed' });
+    handleResult(result, 'PubMed');
 }
 
-async function fetchPubMedAbstracts(query) {
-    const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmax=8&retmode=json`;
-    try {
-        const searchRes = await fetch(searchUrl);
-        if (!searchRes.ok) throw new Error(`HTTP ${searchRes.status}`);
-        const searchData = await searchRes.json();
-        const ids = searchData?.esearchresult?.idlist || [];
-        if (!ids.length) return [];
-        const detailUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json`;
-        const detailRes = await fetch(detailUrl);
-        if (!detailRes.ok) return [];
-        const detailData = await detailRes.json();
-        const results = detailData?.result || {};
-        return Object.values(results)
-            .filter(r => r && r.title && r.pubdate)
-            .map(r => ({ title: r.title, pubdate: r.pubdate, source: r.source || 'PubMed', pmid: r.uid }));
-    } catch (err) {
-        console.error(`PubMed query failed: ${query}`, err.message);
-        return [];
-    }
+async function runAll() {
+    log('⚡ Full cycle → Edge...');
+    const result = await callEdge({
+        action: 'scrape-all',
+        feeds: RSS_FEEDS,
+        pubmed_queries: PUBMED_QUERIES,
+        source: 'full-cycle'
+    });
+    handleResult(result, 'Full cycle');
 }
 
-async function scoreAbstractQuality(abstracts) {
-    if (!embedder) return abstracts;
-    const scored = [];
-    for (const abs of abstracts) {
-        try {
-            const embedding = await embedder(abs.title, { pooling: 'mean', normalize: true });
-            const magnitude = Math.sqrt(Array.from(embedding.data).reduce((sum, v) => sum + v * v, 0));
-            scored.push({ ...abs, quality: Math.min(100, Math.round(magnitude * 100)) });
-        } catch { scored.push({ ...abs, quality: 50 }); }
-    }
-    return scored.filter(a => a.quality > 30).sort((a, b) => b.quality - a.quality);
-}
-
-async function scrapePubMed() {
-    log('🧬 Scraping PubMed...');
-    let allAbstracts = [];
-    for (const query of PUBMED_QUERIES) {
-        const abstracts = await fetchPubMedAbstracts(query);
-        allAbstracts.push(...abstracts);
-        await new Promise(r => setTimeout(r, 350));
-    }
-    if (!allAbstracts.length) { log('PubMed: no results'); return ''; }
-    log(`PubMed: ${allAbstracts.length} abstracts → scoring quality...`);
-    const scored = await scoreAbstractQuality(allAbstracts);
-    pubmedAbstracts = scored.length;
-    document.getElementById('pubmedStatus').textContent = `${scored.length} abstracts`;
-    const text = scored.map(a => a.title).join('. ');
-    log(`PubMed: ${scored.length} high-quality abstracts retained (${allAbstracts.length - scored.length} filtered)`);
-    return text;
-}
-
-async function fetchGDELT(query) {
-    const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}&mode=artlist&maxrecords=10&format=json`;
-    try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        return (data?.articles || []).map(a => a.title || '').filter(Boolean).join('. ');
-    } catch { return ''; }
-}
-
-async function scrapeGDELT() {
-    log('🌍 Scraping GDELT...');
-    const queries = ['technology innovation', 'ai breakthrough', 'climate action', 'economic policy'];
-    let allText = '';
-    for (const query of queries) {
-        allText += ' ' + await fetchGDELT(query);
-        await new Promise(r => setTimeout(r, 300));
-    }
-    log(allText.trim() ? 'GDELT: ✓' : 'GDELT: offline');
-    return allText;
-}
-
-async function scrapeAndExtract(sources = 'all') {
-    log(`══════════ ${sources.toUpperCase()} CYCLE ══════════`);
-    let combinedText = '';
-    if (sources === 'all' || sources === 'rss') combinedText += await scrapeRSSFeeds();
-    if (sources === 'all' || sources === 'pubmed') combinedText += ' ' + await scrapePubMed();
-    if (sources === 'all' || sources === 'gdelt') combinedText += ' ' + await scrapeGDELT();
-    if (!combinedText.trim()) { log('No text retrieved from any source.'); return; }
-    log(`Total: ~${combinedText.length} chars → Hermes Edge...`);
-    const result = await callHermesEdge(combinedText, sources);
-    if (result?.success) {
-        totalScraped += result.tokens_extracted;
-        document.getElementById('totalScraped').textContent = totalScraped;
-        recentTokens = result.tokens;
-        renderFeed(result.tokens);
-        log(`✅ ${result.tokens_extracted} tokens → Aphrodite dispatch`);
-        await updateStats();
-    } else { log('❌ Extraction failed.'); }
-}
-
-async function seedAllDomains() {
+async function seedDomains() {
     log('🌱 Seeding 12 domains...');
-    let totalStored = 0;
-    const allTokens = [];
-    for (const [domain, seeds] of Object.entries(DOMAIN_SEEDS)) {
-        const result = await callHermesEdge(seeds.join(' '), 'seed');
-        if (result?.success) { totalStored += result.tokens_extracted; allTokens.push(...result.tokens); }
-    }
-    totalScraped += totalStored;
-    document.getElementById('totalScraped').textContent = totalScraped;
-    renderFeed(allTokens.slice(0, 40));
-    log(`🌱 Seeded ${totalStored} tokens`);
-    await updateStats();
+    const allSeeds = Object.values(DOMAIN_SEEDS).flat().join(' ');
+    const result = await callEdge({ text: allSeeds, source: 'seed' });
+    handleResult(result, 'Seed');
 }
 
+function handleResult(result, label) {
+    if (!result) { log(`❌ ${label} failed`); return; }
+    if (result.stored) {
+        totalScraped += result.stored;
+        document.getElementById('totalScraped').textContent = totalScraped;
+        log(`✅ ${label}: ${result.stored} stored, ${result.dropped || 0} dropped`);
+        if (result.domains) {
+            const summary = Object.entries(result.domains).map(([d,n]) => `${d}:${n}`).join(' · ');
+            log(`   domains → ${summary}`);
+        }
+        updateStats();
+        loadRecentTokens();
+    } else {
+        log(`⚠️ ${label}: 0 stored (${result.error || 'no novel tokens'})`);
+    }
+}
+
+// ── STATS — reads from tokens table ──
 async function updateStats() {
-    const domains = ['signal','love','war','light','farm','forge','crown','tide','wisdom','storm','wild','vine'];
-    for (const domain of domains) {
+    let total = 0;
+    for (const domain of DOMAINS) {
         const el = document.getElementById(`${domain}Count`);
         if (!el) continue;
         try {
-            const { count } = await sb.from('concepts').select('*', { count: 'exact', head: true }).eq('domain', domain).eq('state', 'raw');
-            el.textContent = count || 0;
+            const { count } = await sb.from('tokens')
+                .select('*', { count: 'exact', head: true })
+                .eq('domain', domain);
+            const n = count || 0;
+            el.textContent = n;
+            total += n;
         } catch { el.textContent = '—'; }
     }
+    document.getElementById('totalDB').textContent = total;
+}
+
+// ── TOKEN FEED — reads recent tokens from DB ──
+async function loadRecentTokens() {
     try {
-        const { count: total } = await sb.from('concepts').select('*', { count: 'exact', head: true }).eq('band', 'hermes');
-        document.getElementById('totalDB').textContent = total || 0;
-    } catch {}
+        const { data } = await sb.from('tokens')
+            .select('body, domain, word_type, source, score')
+            .order('created_at', { ascending: false })
+            .limit(40);
+        renderFeed(data || []);
+    } catch { }
 }
 
 function renderFeed(tokens) {
     const feed = document.getElementById('tokenFeed');
-    if (!tokens.length) { feed.innerHTML = '<div class="token-row"><span class="token-word">No tokens yet</span></div>'; return; }
+    if (!tokens.length) {
+        feed.innerHTML = '<div class="token-row"><span class="token-word">No tokens yet</span></div>';
+        return;
+    }
     feed.innerHTML = tokens.map(t => `
         <div class="token-row">
-            <span class="token-word">${t.body}<span class="token-source">${t.source ? '·'+t.source : ''}</span></span>
+            <span class="token-word">${t.body}
+                <span class="token-source">${t.source ? '· ' + t.source : ''}</span>
+            </span>
             <span class="token-tags">
                 <span class="token-tag tag-${t.domain || 'signal'}">${t.domain || 'signal'}</span>
                 <span class="token-tag tag-${(t.word_type || 'S').toLowerCase()}">${t.word_type || 'S'}</span>
@@ -604,53 +524,33 @@ function renderFeed(tokens) {
     `).join('');
 }
 
-async function archiveSelf() {
-    try {
-        const html = document.documentElement.outerHTML;
-        await sb.from('html').upsert({
-            filename: 'hermes.html', title: '⚡ Hermes · Multi-Source', type: 'chthonic',
-            content: html,
-            description: 'Token courier: RSS + PubMed + GDELT → hermes-extract Edge Function → Aphrodite dispatch.',
-            reads_from: ['RSS feeds', 'PubMed API', 'GDELT API'],
-            writes_to: ['concepts', 'aphrodite_dispatch'],
-            edge_functions: ['hermes-extract'],
-            url: window.location.href, updated_at: new Date().toISOString()
-        }, { onConflict: 'filename' });
-    } catch {}
+// ── PubMed single query tag ──
+async function runSinglePubMed(query) {
+    log(`🧬 PubMed: "${query}"...`);
+    const result = await callEdge({ action: 'scrape-pubmed', query, source: 'pubmed-single' });
+    handleResult(result, `PubMed·${query}`);
 }
 
+// ── INIT ──
 function init() {
-    document.getElementById('scrapeRSSBtn').onclick = () => scrapeAndExtract('rss');
-    document.getElementById('scrapePubMedBtn').onclick = () => scrapeAndExtract('pubmed');
-    document.getElementById('scrapeGDELTBtn').onclick = () => scrapeAndExtract('gdelt');
-    document.getElementById('scrapeAllBtn').onclick = () => scrapeAndExtract('all');
-    document.getElementById('seedBtn').onclick = seedAllDomains;
+    document.getElementById('scrapeRSSBtn').onclick = runRSS;
+    document.getElementById('scrapePubMedBtn').onclick = runPubMed;
+    document.getElementById('scrapeGDELTBtn').onclick = () => {
+        log('GDELT → routing through edge...');
+        callEdge({ text: 'technology innovation ai breakthrough climate economic policy', source: 'gdelt' })
+            .then(r => handleResult(r, 'GDELT'));
+    };
+    document.getElementById('scrapeAllBtn').onclick = runAll;
+    document.getElementById('seedBtn').onclick = seedDomains;
 
     document.querySelectorAll('.pubmed-query-tag').forEach(tag => {
-        tag.onclick = async () => {
-            const query = tag.dataset.query;
-            log(`🧬 PubMed query: "${query.replace(/\+/g, ' ')}"`);
-            const abstracts = await fetchPubMedAbstracts(query);
-            const scored = await scoreAbstractQuality(abstracts);
-            const text = scored.map(a => a.title).join('. ');
-            if (text) {
-                const result = await callHermesEdge(text, 'pubmed-single');
-                if (result?.success) {
-                    totalScraped += result.tokens_extracted;
-                    document.getElementById('totalScraped').textContent = totalScraped;
-                    renderFeed(result.tokens);
-                    log(`🧬 ${result.tokens_extracted} tokens from "${query.replace(/\+/g, ' ')}"`);
-                    await updateStats();
-                }
-            }
-        };
+        tag.onclick = () => runSinglePubMed(tag.dataset.query.replace(/\+/g, ' '));
     });
 
-    loadModel();
     checkEdge();
     updateStats();
-    setTimeout(archiveSelf, 3000);
-    log('⚡ Hermes ready. RSS + PubMed + GDELT active. MiniLM for quality filtering.');
+    loadRecentTokens();
+    log('⚡ Hermes v4 ready. All scraping routes through Edge Function.');
 }
 init();
 </script>
