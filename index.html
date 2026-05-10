@@ -318,21 +318,51 @@ async function huntUrl() {
   const url = document.getElementById('urlInput').value.trim();
   if (!url) { log('⚠️ Enter a URL.'); return; }
 
+  // Auto-add https:// if missing
+  const fullUrl = url.startsWith('http') ? url : 'https://' + url;
+
   const btn = document.getElementById('huntBtn');
   btn.disabled = true; btn.textContent = 'Hunting...';
-  log(`⚡ Hunting: ${url}`);
+  log(`⚡ Hunting: ${fullUrl}`);
 
-  try {
-    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-    const res = await fetch(proxyUrl);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const html = await res.text();
-    const text = stripHtml(html);
-    log(`📋 Text extracted — ${text.length} chars.`);
-    await processText(text);
-  } catch (e) {
-    log(`❌ Hunt failed: ${e.message}`);
+  // Try multiple CORS proxies in order
+  const proxies = [
+    `https://corsproxy.io/?${encodeURIComponent(fullUrl)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(fullUrl)}`,
+  ];
+
+  let text = null;
+  for (const proxyUrl of proxies) {
+    try {
+      log(`   Trying proxy: ${proxyUrl.split('/')[2]}...`);
+      const res = await fetch(proxyUrl);
+      if (res.ok) {
+        text = await res.text();
+        log(`   ✅ Proxy worked.`);
+        break;
+      }
+    } catch (e) {
+      log(`   ❌ Proxy failed, trying next...`);
+    }
   }
+
+  if (!text) {
+    log('❌ All proxies failed. The page may be blocking access.');
+    btn.disabled = false; btn.textContent = '⚡ Hunt & Queue';
+    return;
+  }
+
+  // Strip HTML tags
+  const cleanText = text
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&[a-z]+;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  log(`📋 Text extracted — ${cleanText.length} chars.`);
+  await processText(cleanText);
 
   btn.disabled = false; btn.textContent = '⚡ Hunt & Queue';
   document.getElementById('urlInput').value = '';
