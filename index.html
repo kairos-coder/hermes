@@ -17,6 +17,7 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--void); font-family: var(--font-body); color: var(--pale); min-height: 100vh; }
+        
         .topbar {
             display: flex; align-items: center; gap: 1rem;
             padding: 0.5rem 1.5rem; background: var(--deep);
@@ -25,17 +26,26 @@
         .topbar .logo { font-family: var(--font-display); color: var(--hermes); font-size: 1rem; }
         .topbar .telos { flex: 1; font-style: italic; font-size: 0.8rem; border-left: 1px solid var(--surface); padding-left: 1rem; }
         .topbar .telos.empty { color: var(--mist); }
+        .topbar .model-badge {
+            font-family: var(--font-mono); font-size: 0.4rem;
+            padding: 0.15rem 0.5rem; border-radius: 3px;
+            background: rgba(74,222,128,0.1); color: #4ade80;
+        }
+        .topbar .model-badge.loading { background: rgba(255,200,0,0.1); color: #ffc800; animation: pulse 1.2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
         .main { display: flex; height: calc(100vh - 42px); }
 
         /* ── LEFT PANEL ── */
-        .left { width: 380px; flex-shrink: 0; border-right: 1px solid var(--surface); padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+        .left {
+            width: 380px; flex-shrink: 0; border-right: 1px solid var(--surface);
+            padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem;
+        }
         .left h2 { font-family: var(--font-display); font-size: 0.8rem; color: var(--hermes); letter-spacing: 2px; }
         .left input {
             width: 100%; background: #060810; color: var(--pale);
             border: 1px solid var(--surface); padding: 0.5rem 0.7rem;
-            font-family: var(--font-mono); font-size: 0.55rem; border-radius: 4px;
-            outline: none;
+            font-family: var(--font-mono); font-size: 0.55rem; border-radius: 4px; outline: none;
         }
         .left input:focus { border-color: var(--hermes); }
         .left button {
@@ -47,6 +57,7 @@
         .left button.secondary { background: var(--deep); color: var(--pale); border: 1px solid var(--surface); }
         .domain-stats { font-family: var(--font-mono); font-size: 0.45rem; color: var(--mist); }
         .domain-stats .row { display: flex; justify-content: space-between; padding: 0.15rem 0; }
+        .log { font-family: var(--font-mono); font-size: 0.4rem; color: var(--mist); margin-top: auto; max-height: 120px; overflow-y: auto; }
 
         /* ── RIGHT PANEL: QUEUE ── */
         .right { flex: 1; padding: 1.5rem; overflow-y: auto; }
@@ -59,8 +70,7 @@
             display: flex; align-items: center; gap: 0.6rem;
         }
         .queue-item .word {
-            font-family: var(--font-mono); font-size: 0.6rem; color: var(--pale);
-            min-width: 120px;
+            font-family: var(--font-mono); font-size: 0.6rem; color: var(--pale); min-width: 120px;
         }
         .queue-item .suggested {
             font-family: var(--font-mono); font-size: 0.38rem;
@@ -71,8 +81,11 @@
         .queue-item select {
             background: #060810; color: var(--pale);
             border: 1px solid var(--surface); padding: 0.25rem 0.4rem;
-            font-family: var(--font-mono); font-size: 0.45rem; border-radius: 3px;
-            cursor: pointer;
+            font-family: var(--font-mono); font-size: 0.45rem; border-radius: 3px; cursor: pointer;
+        }
+        .queue-item .confidence {
+            font-family: var(--font-mono); font-size: 0.38rem; color: var(--mist);
+            min-width: 35px; text-align: right;
         }
         .queue-item button {
             padding: 0.25rem 0.5rem; border: 1px solid var(--surface);
@@ -83,12 +96,6 @@
         .queue-item button.confirm:hover { background: #4ade80; color: #000; }
         .queue-item button.skip { border-color: var(--mist); color: var(--mist); }
         .queue-item button.skip:hover { background: var(--mist); color: #000; }
-        .queue-item .confidence {
-            font-family: var(--font-mono); font-size: 0.38rem; color: var(--mist);
-            min-width: 35px; text-align: right;
-        }
-
-        .log { font-family: var(--font-mono); font-size: 0.4rem; color: var(--mist); margin-top: 1rem; max-height: 100px; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -96,11 +103,12 @@
 <div class="topbar">
     <span class="logo">⚡ HERMES</span>
     <span class="telos empty" id="telosText">Loading...</span>
+    <span class="model-badge loading" id="modelBadge">model loading</span>
 </div>
 
 <div class="main">
 
-    <!-- LEFT: Hunt controls + stats -->
+    <!-- LEFT -->
     <div class="left">
         <h2>⚡ HUNT URL</h2>
         <input type="url" id="urlInput" placeholder="https://example.com" autocomplete="off" />
@@ -109,14 +117,14 @@
 
         <h2>📊 DOMAIN COUNTS</h2>
         <div class="domain-stats" id="domainStats">Loading...</div>
-
         <div class="log" id="log"></div>
     </div>
 
-    <!-- RIGHT: Classification queue -->
+    <!-- RIGHT: QUEUE -->
     <div class="right">
         <h2>📋 CLASSIFICATION QUEUE</h2>
-        <div class="hint">Words from URL hunts. Confirm or reclassify each one.</div>
+        <div class="hint">Words from URL hunts. AI suggests a domain — confirm or change it.</div>
+        <button class="secondary" id="confirmAllBtn" onclick="confirmAll()" style="margin-bottom:0.8rem;display:none;">✅ Confirm All Suggestions</button>
         <div id="queueContainer">
             <div class="queue-empty">Hunt a URL to populate the queue.</div>
         </div>
@@ -124,14 +132,24 @@
 
 </div>
 
-<script>
+<script type="module">
+import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+
+// ═══════════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════════
+
 const sb = window.supabase.createClient(
   'https://kzcucjcyxybypncbdbws.supabase.co',
   'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw'
 );
 const HUNT_FN = 'https://kzcucjcyxybypncbdbws.supabase.co/functions/v1/hermes-hunt';
 
-const DOMAINS = ['signal','love','war','light','farm','forge','crown','tide','wisdom','storm','wild','vox'];
+// ═══════════════════════════════════════
+// DOMAINS
+// ═══════════════════════════════════════
+
+const DOMAIN_LIST = ['signal','love','war','light','farm','forge','crown','tide','wisdom','storm','wild','vox'];
 const DOMAIN_SEEDS = {
   signal: ['message','signal','swift','path','word','code','cross','courier','speed','threshold'],
   love:   ['love','heart','desire','beauty','grace','embrace','bloom','devotion','soul','charm'],
@@ -147,31 +165,127 @@ const DOMAIN_SEEDS = {
   vox:    ['voice','utterance','echo','chant','breath','silence','scream','whisper','song','resonance']
 };
 
-let queue = []; // { word, suggested_domain, confidence }
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+
+let queue = [];
+let extractor = null;
+let centroids = null;
+
+// ═══════════════════════════════════════
+// TRANSFORMERS.JS CLASSIFIER
+// ═══════════════════════════════════════
+
+async function getExtractor() {
+  if (extractor) return extractor;
+  log('🧠 Loading MiniLM model (~80MB, one-time)...');
+  extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+  document.getElementById('modelBadge').textContent = 'model ready';
+  document.getElementById('modelBadge').classList.remove('loading');
+  log('🧠 Model ready.');
+  return extractor;
+}
+
+async function getCentroids() {
+  if (centroids) return centroids;
+  const model = await getExtractor();
+  centroids = {};
+  for (const [domain, seeds] of Object.entries(DOMAIN_SEEDS)) {
+    const result = await model(seeds.join(' '), { pooling: 'mean', normalize: true });
+    centroids[domain] = Array.from(result.data);
+  }
+  return centroids;
+}
+
+function cosineSimilarity(a, b) {
+  let dot = 0, magA = 0, magB = 0;
+  for (let i = 0; i < a.length; i++) { dot += a[i] * b[i]; magA += a[i] * a[i]; magB += b[i] * b[i]; }
+  return magA && magB ? dot / (Math.sqrt(magA) * Math.sqrt(magB)) : 0;
+}
+
+async function classifyWord(word) {
+  const lower = word.toLowerCase();
+  for (const [domain, seeds] of Object.entries(DOMAIN_SEEDS)) {
+    if (seeds.includes(lower)) return { domain, confidence: 1.0 };
+  }
+  const model = await getExtractor();
+  const domainCentroids = await getCentroids();
+  const result = await model(word, { pooling: 'mean', normalize: true });
+  const embedding = Array.from(result.data);
+  let bestDomain = 'signal', bestScore = -1;
+  for (const [domain, centroid] of Object.entries(domainCentroids)) {
+    const sim = cosineSimilarity(embedding, centroid);
+    if (sim > bestScore) { bestScore = sim; bestDomain = domain; }
+  }
+  return { domain: bestDomain, confidence: Math.round(bestScore * 100) / 100 };
+}
+
+async function classifyBatch(words) {
+  const results = [];
+  const unknown = [];
+  for (const word of words) {
+    let fast = null;
+    for (const [domain, seeds] of Object.entries(DOMAIN_SEEDS)) {
+      if (seeds.includes(word.toLowerCase())) { fast = { word, domain, confidence: 1.0 }; break; }
+    }
+    if (fast) results.push(fast);
+    else unknown.push(word);
+  }
+  if (unknown.length) {
+    const model = await getExtractor();
+    const domainCentroids = await getCentroids();
+    for (const word of unknown) {
+      const result = await model(word, { pooling: 'mean', normalize: true });
+      const embedding = Array.from(result.data);
+      let bestDomain = 'signal', bestScore = -1;
+      for (const [domain, centroid] of Object.entries(domainCentroids)) {
+        const sim = cosineSimilarity(embedding, centroid);
+        if (sim > bestScore) { bestScore = sim; bestDomain = domain; }
+      }
+      results.push({ word, domain: bestDomain, confidence: Math.round(bestScore * 100) / 100 });
+    }
+  }
+  return results;
+}
+
+// ═══════════════════════════════════════
+// LOGGING
+// ═══════════════════════════════════════
 
 function log(msg) {
   const el = document.getElementById('log');
   el.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + el.innerHTML;
 }
 
-// ── Telos ──
+// ═══════════════════════════════════════
+// TELOS
+// ═══════════════════════════════════════
+
 async function loadTelos() {
   const { data } = await sb.from('telos').select('statement').eq('is_active', true).maybeSingle();
   const el = document.getElementById('telosText');
-  el.textContent = data?.statement ? '🎯 ' + data.statement : 'No active telos';
+  el.textContent = data?.statement ? '🎯 ' + data.statement : 'No active telos — set one in Apollo';
   el.classList.toggle('empty', !data?.statement);
 }
 
-// ── Domain stats ──
+// ═══════════════════════════════════════
+// DOMAIN STATS
+// ═══════════════════════════════════════
+
 async function loadStats() {
   const stats = document.getElementById('domainStats');
   let html = '';
-  for (const d of DOMAINS) {
+  for (const d of DOMAIN_LIST) {
     const { count } = await sb.from('tokens').select('*', { count: 'exact', head: true }).eq('domain', d);
     html += `<div class="row"><span>${d}</span><span>${count || 0}</span></div>`;
   }
   stats.innerHTML = html;
 }
+
+// ═══════════════════════════════════════
+// HUNT URL
+// ═══════════════════════════════════════
 
 async function huntUrl() {
   const url = document.getElementById('urlInput').value.trim();
@@ -182,39 +296,27 @@ async function huntUrl() {
   log(`⚡ Hunting: ${url}`);
 
   try {
-    const res = await fetch(HUNT_FN, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
-    });
+    const res = await fetch(HUNT_FN, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
     const result = await res.json();
 
-    if (!result.success) {
-      log(`❌ ${result.error}`);
-      btn.disabled = false; btn.textContent = '⚡ Hunt & Queue';
-      return;
-    }
+    if (!result.success) { log(`❌ ${result.error}`); btn.disabled = false; btn.textContent = '⚡ Hunt & Queue'; return; }
 
-    log(`📋 ${result.word_count} words extracted — checking against tokens...`);
+    log(`📋 ${result.word_count} words extracted — filtering novel...`);
 
-    // Filter out words already in the tokens table
-    const { data: existing } = await sb.from('tokens')
-      .select('body')
-      .in('body', result.words);
+    const { data: existing } = await sb.from('tokens').select('body').in('body', result.words);
     const existingSet = new Set((existing || []).map(r => r.body));
-    const novel = result.words.filter(w => !existingSet.has(w));
+    const novel = result.words.filter(w => !existingSet.has(w)).slice(0, 40);
 
-    // Add to queue with heuristic suggestions
-    for (const word of novel) {
-      const suggested = classifyLocal(word);
-      queue.push({
-        word,
-        suggested_domain: suggested.domain,
-        confidence: suggested.confidence
-      });
+    if (!novel.length) { log('⚠️ No novel words found.'); btn.disabled = false; btn.textContent = '⚡ Hunt & Queue'; return; }
+
+    log(`🧠 Classifying ${novel.length} words with AI...`);
+    const classified = await classifyBatch(novel);
+
+    for (const item of classified) {
+      queue.push({ word: item.word, suggested_domain: item.domain, confidence: item.confidence });
     }
 
-    log(`✅ ${queue.length} novel words queued.`);
+    log(`✅ ${classified.length} words queued.`);
     renderQueue();
   } catch (e) {
     log(`❌ Hunt failed: ${e.message}`);
@@ -224,143 +326,81 @@ async function huntUrl() {
   document.getElementById('urlInput').value = '';
 }
 
-// ── Build queue from URL words ──
-async function buildQueueFromUrl(url) {
-  try {
-    // Fetch text client-side via proxy
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-    const res = await fetch(proxyUrl);
-    const text = await res.text();
-    const clean = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-    const words = [...new Set(
-      clean.toLowerCase().match(/\b[a-z]{4,16}\b/g) || []
-    )];
+// ═══════════════════════════════════════
+// QUEUE OPERATIONS
+// ═══════════════════════════════════════
 
-    // Get existing tokens to filter out already-classified words
-    const { data: existing } = await sb.from('tokens').select('body').in('body', words.slice(0, 200));
-    const existingSet = new Set((existing || []).map(r => r.body));
-    const novel = words.filter(w => !existingSet.has(w)).slice(0, 30);
-
-    // Add to queue with suggested domain
-    for (const word of novel) {
-      const suggested = classifyLocal(word);
-      queue.push({
-        word,
-        suggested_domain: suggested.domain,
-        confidence: suggested.confidence
-      });
-    }
-  } catch (e) {
-    log(`⚠️ Could not build queue: ${e.message}`);
-  }
-}
-
-// ── Local heuristic classification (fast, for queue suggestions) ──
-function classifyLocal(word) {
-  // Check seed words
-  for (const [domain, seeds] of Object.entries(DOMAIN_SEEDS)) {
-    if (seeds.includes(word)) return { domain, confidence: 1.0 };
-  }
-
-  // Simple heuristics
-  if (/^(code|data|web|net|api|dev|app|tech|cyber|server|client|protocol|function|module|object|array)$/.test(word)) return { domain: 'signal', confidence: 0.7 };
-  if (/^(gentle|soft|warm|kind|caring|tender|dear|precious|beloved)$/.test(word)) return { domain: 'love', confidence: 0.7 };
-  if (/^(attack|defend|assault|invade|dominate|overthrow|rebel|resist)$/.test(word)) return { domain: 'war', confidence: 0.7 };
-  if (/^(river|lake|pond|stream|rain|flood|wave|shore|coast|reef)$/.test(word)) return { domain: 'tide', confidence: 0.7 };
-  if (/^(animal|bird|wolf|bear|eagle|snake|deer|raven|crow|owl)$/.test(word)) return { domain: 'wild', confidence: 0.7 };
-  if (/^(tree|plant|leaf|grass|vine|herb|spice|fruit|berry|nut)$/.test(word)) return { domain: 'farm', confidence: 0.7 };
-  if (/^(speak|talk|say|tell|shout|yell|cry|laugh|sing|hum)$/.test(word)) return { domain: 'vox', confidence: 0.7 };
-  if (/^(bright|dark|shadow|glow|shine|spark|flare|flash|beam)$/.test(word)) return { domain: 'light', confidence: 0.7 };
-  if (/^(study|learn|teach|school|book|read|write|think)$/.test(word)) return { domain: 'wisdom', confidence: 0.7 };
-  if (/^(make|craft|create|shape|form|mold|cast|weld)$/.test(word)) return { domain: 'forge', confidence: 0.7 };
-  if (/^(govern|rule|reign|sovereign|emperor|kingdom|empire)$/.test(word)) return { domain: 'storm', confidence: 0.7 };
-  if (/^(remember|forget|past|history|ancient|elder|ancestor)$/.test(word)) return { domain: 'crown', confidence: 0.7 };
-
-  return { domain: 'signal', confidence: 0.3 };
-}
-
-// ── Confirm a word → store to tokens ──
 async function confirmWord(index) {
   const item = queue[index];
   if (!item) return;
-
   const domain = document.getElementById(`domain-select-${index}`).value;
-
   const { error } = await sb.from('tokens').upsert({
-    body: item.word,
-    domain,
-    word_type: 'S',
+    body: item.word, domain, word_type: 'S',
     score: Math.round(30 + item.confidence * 60),
-    source: 'url-queue',
-    created_at: new Date().toISOString()
+    source: 'url-queue', created_at: new Date().toISOString()
   }, { onConflict: 'body' });
 
-  if (error) {
-    log(`❌ ${error.message}`);
-  } else {
-    log(`✅ ${item.word} → ${domain}`);
-    queue.splice(index, 1);
-    loadStats();
-    renderQueue();
-  }
-}
-
-// ── Skip a word ──
-function skipWord(index) {
+  if (error) { log(`❌ ${error.message}`); return; }
+  log(`✅ ${item.word} → ${domain}`);
   queue.splice(index, 1);
+  loadStats();
   renderQueue();
 }
 
-// ── Confirm all ──
+function skipWord(index) { queue.splice(index, 1); renderQueue(); }
+
 async function confirmAll() {
   for (let i = queue.length - 1; i >= 0; i--) {
     const item = queue[i];
     const { error } = await sb.from('tokens').upsert({
-      body: item.word,
-      domain: item.suggested_domain,
-      word_type: 'S',
+      body: item.word, domain: item.suggested_domain, word_type: 'S',
       score: Math.round(30 + item.confidence * 60),
-      source: 'url-queue',
-      created_at: new Date().toISOString()
+      source: 'url-queue', created_at: new Date().toISOString()
     }, { onConflict: 'body' });
-
-    if (!error) {
-      log(`✅ ${item.word} → ${item.suggested_domain}`);
-      queue.splice(i, 1);
-    }
+    if (!error) { log(`✅ ${item.word} → ${item.suggested_domain}`); queue.splice(i, 1); }
   }
   loadStats();
   renderQueue();
 }
 
-// ── Render queue ──
 function renderQueue() {
   const container = document.getElementById('queueContainer');
+  const confirmAllBtn = document.getElementById('confirmAllBtn');
+
   if (!queue.length) {
     container.innerHTML = '<div class="queue-empty">Queue empty. Hunt a URL to populate.</div>';
+    confirmAllBtn.style.display = 'none';
     return;
   }
 
-  container.innerHTML = `
-    <button class="secondary" onclick="confirmAll()" style="margin-bottom:0.8rem;">✅ Confirm All Suggestions</button>
-    ${queue.map((item, i) => `
-      <div class="queue-item">
-        <span class="word">${item.word}</span>
-        <span class="suggested">sugg: <strong>${item.suggested_domain}</strong></span>
-        <span class="confidence">${Math.round(item.confidence * 100)}%</span>
-        <select id="domain-select-${i}">
-          ${DOMAINS.map(d => `<option value="${d}" ${d === item.suggested_domain ? 'selected' : ''}>${d}</option>`).join('')}
-        </select>
-        <button class="confirm" onclick="confirmWord(${i})">✓</button>
-        <button class="skip" onclick="skipWord(${i})">✕</button>
-      </div>
-    `).join('')}
-  `;
+  confirmAllBtn.style.display = 'inline-block';
+
+  container.innerHTML = queue.map((item, i) => `
+    <div class="queue-item">
+      <span class="word">${item.word}</span>
+      <span class="suggested">AI: <strong>${item.suggested_domain}</strong></span>
+      <span class="confidence">${Math.round(item.confidence * 100)}%</span>
+      <select id="domain-select-${i}">
+        ${DOMAIN_LIST.map(d => `<option value="${d}" ${d === item.suggested_domain ? 'selected' : ''}>${d}</option>`).join('')}
+      </select>
+      <button class="confirm" id="confirmBtn-${i}">✓</button>
+      <button class="skip" id="skipBtn-${i}">✕</button>
+    </div>
+  `).join('');
+
+  // Attach event listeners after rendering
+  for (let i = 0; i < queue.length; i++) {
+    document.getElementById(`confirmBtn-${i}`).onclick = () => confirmWord(i);
+    document.getElementById(`skipBtn-${i}`).onclick = () => skipWord(i);
+  }
 }
 
-// ── Seed ──
+// ═══════════════════════════════════════
+// SEED
+// ═══════════════════════════════════════
+
 async function seedDomains() {
-  log('🌱 Seeding...');
+  log('🌱 Seeding 12 domains...');
   const batch = [];
   for (const [domain, words] of Object.entries(DOMAIN_SEEDS)) {
     for (const w of words) {
@@ -373,12 +413,34 @@ async function seedDomains() {
   loadStats();
 }
 
-// ── Init ──
+// ═══════════════════════════════════════
+// PRELOAD MODEL
+// ═══════════════════════════════════════
+
+async function preloadModel() {
+  try {
+    await getExtractor();
+    await getCentroids();
+  } catch (e) {
+    log(`⚠️ Model preload failed: ${e.message}`);
+    document.getElementById('modelBadge').textContent = 'model offline';
+    document.getElementById('modelBadge').classList.remove('loading');
+  }
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+
 loadTelos();
 loadStats();
+preloadModel();
+
 document.getElementById('huntBtn').onclick = huntUrl;
 document.getElementById('seedBtn').onclick = seedDomains;
 document.getElementById('urlInput').addEventListener('keydown', e => { if (e.key === 'Enter') huntUrl(); });
+
+log('⚡ Hermes v10 ready. Transformers.js AI classifier active.');
 </script>
 </body>
 </html>
