@@ -129,7 +129,7 @@ const sb = window.supabase.createClient(
   'https://kzcucjcyxybypncbdbws.supabase.co',
   'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw'
 );
-const EXTRACT_FN = 'https://kzcucjcyxybypncbdbws.supabase.co/functions/v1/hermes-extract';
+const EXTRACT_FN = 'https://kzcucjcyxybypncbdbws.supabase.co/functions/v1/hermes-hunt';
 
 const DOMAINS = ['signal','love','war','light','farm','forge','crown','tide','wisdom','storm','wild','vox'];
 const DOMAIN_SEEDS = {
@@ -173,7 +173,6 @@ async function loadStats() {
   stats.innerHTML = html;
 }
 
-// ── Hunt URL → populate queue ──
 async function huntUrl() {
   const url = document.getElementById('urlInput').value.trim();
   if (!url) { log('⚠️ Enter a URL.'); return; }
@@ -183,36 +182,46 @@ async function huntUrl() {
   log(`⚡ Hunting: ${url}`);
 
   try {
-    const res = await fetch(EXTRACT_FN, {
+    const res = await fetch(HUNT_FN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url, source: 'url' })
+      body: JSON.stringify({ url })
     });
     const result = await res.json();
 
     if (!result.success) {
       log(`❌ ${result.error}`);
-    } else if (result.stored > 0) {
-      // Tokens were auto-classified and stored
-      log(`✅ ${result.stored} tokens stored directly (${result.novel} novel)`);
-      if (result.sample) log(`   Sample: ${result.sample.join(', ')}`);
-      loadStats();
-    } else if (result.novel > 0) {
-      // Novel words found but not stored — add to queue
-      // The edge function returns sample classifications
-      log(`📋 ${result.novel} novel words queued for classification`);
-      // Fetch the raw words from the URL text and build queue
-      await buildQueueFromUrl(url);
-    } else {
-      log('⚠️ No new words found.');
+      btn.disabled = false; btn.textContent = '⚡ Hunt & Queue';
+      return;
     }
+
+    log(`📋 ${result.word_count} words extracted — checking against tokens...`);
+
+    // Filter out words already in the tokens table
+    const { data: existing } = await sb.from('tokens')
+      .select('body')
+      .in('body', result.words);
+    const existingSet = new Set((existing || []).map(r => r.body));
+    const novel = result.words.filter(w => !existingSet.has(w));
+
+    // Add to queue with heuristic suggestions
+    for (const word of novel) {
+      const suggested = classifyLocal(word);
+      queue.push({
+        word,
+        suggested_domain: suggested.domain,
+        confidence: suggested.confidence
+      });
+    }
+
+    log(`✅ ${queue.length} novel words queued.`);
+    renderQueue();
   } catch (e) {
     log(`❌ Hunt failed: ${e.message}`);
   }
 
   btn.disabled = false; btn.textContent = '⚡ Hunt & Queue';
   document.getElementById('urlInput').value = '';
-  renderQueue();
 }
 
 // ── Build queue from URL words ──
