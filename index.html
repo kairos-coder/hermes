@@ -14,7 +14,6 @@
             --signal: #d4b84a; --love: #b05870; --war: #c0382a; --light: #d4a850;
             --farm: #7a6a40; --forge: #c07040; --crown: #5a7aaa; --tide: #3a7090;
             --wisdom: #6a8898; --storm: #9a8ac0; --wild: #5a8050; --vine: #8a4080;
-            --pubmed: #4ade80;
             --font-display: 'Cinzel', serif; --font-body: 'Crimson Pro', serif; --font-mono: 'JetBrains Mono', monospace;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,39 +22,22 @@
 
         /* ── HERO IMAGE ── */
         .shrine-hero {
-            position: relative;
-            width: 100%;
-            height: 340px;
-            overflow: hidden;
-            border-radius: 10px;
-            margin-bottom: 1.5rem;
+            position: relative; width: 100%; height: 340px; overflow: hidden;
+            border-radius: 10px; margin-bottom: 1.5rem;
         }
         .shrine-hero img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center 50%;
-            display: block;
-            transition: transform 8s ease;
+            width: 100%; height: 100%; object-fit: cover; object-position: center 50%;
+            display: block; transition: transform 8s ease;
         }
         .shrine-hero:hover img { transform: scale(1.04); }
         .shrine-hero-overlay {
-            position: absolute;
-            inset: 0;
+            position: absolute; inset: 0;
             background: linear-gradient(to bottom, rgba(8,10,15,0.1) 0%, rgba(8,10,15,0.7) 75%, rgba(8,10,15,1) 100%);
         }
         .shrine-hero-label {
-            position: absolute;
-            bottom: 1.2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            font-family: var(--font-mono);
-            font-size: 0.45rem;
-            letter-spacing: 4px;
-            color: var(--gold);
-            opacity: 0.7;
-            text-transform: uppercase;
-            white-space: nowrap;
+            position: absolute; bottom: 1.2rem; left: 50%; transform: translateX(-50%);
+            font-family: var(--font-mono); font-size: 0.45rem; letter-spacing: 4px;
+            color: var(--gold); opacity: 0.7; text-transform: uppercase; white-space: nowrap;
         }
 
         /* ── HEADER ── */
@@ -63,68 +45,75 @@
         .header h1 { font-family: var(--font-display); font-size: 2.2rem; color: var(--gold); letter-spacing: 3px; }
         .header-sub { font-family: var(--font-mono); font-size: 0.55rem; color: var(--mist); letter-spacing: 2px; margin-top: 0.3rem; }
 
+        /* ── TELOS BAR ── */
+        .telos-bar {
+            background: rgba(212,184,74,0.06); border: 1px solid rgba(200,148,58,0.3);
+            border-left: 3px solid var(--hermes); border-radius: 6px;
+            padding: 0.6rem 1.2rem; margin-bottom: 1.5rem;
+            display: flex; align-items: center; gap: 0.8rem;
+        }
+        .telos-bar .telos-label {
+            font-family: var(--font-mono); font-size: 0.45rem; letter-spacing: 3px;
+            color: var(--hermes); text-transform: uppercase; white-space: nowrap;
+        }
+        .telos-bar .telos-text {
+            font-family: var(--font-body); font-size: 0.85rem; color: var(--pale);
+            font-style: italic; flex: 1;
+        }
+        .telos-bar .telos-text.empty { color: var(--mist); }
+
         /* ── STATUS BAR ── */
         .status-bar { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; font-family: var(--font-mono); font-size: 0.55rem; color: var(--mist); }
         .status-bar span { color: var(--pale); font-weight: 500; }
-        .edge-badge { background: rgba(0,255,0,0.1); color: #4ade80; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.5rem; }
-        .edge-off { background: rgba(255,0,0,0.1); color: #f87171; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.5rem; }
 
         /* ── MYTH PANEL ── */
-        .myth-panel {
-            display: grid;
-            grid-template-columns: 260px 1fr;
-            gap: 1.2rem;
-            margin-bottom: 1.5rem;
-            align-items: start;
-        }
+        .myth-panel { display: grid; grid-template-columns: 260px 1fr; gap: 1.2rem; margin-bottom: 1.5rem; align-items: start; }
         .myth-image {
-            border: 1px solid var(--gold);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 0 28px rgba(200,148,58,0.18);
-            position: relative;
-            flex-shrink: 0;
+            border: 1px solid var(--gold); border-radius: 8px; overflow: hidden;
+            box-shadow: 0 0 28px rgba(200,148,58,0.18); position: relative;
         }
-        .myth-image img {
-            width: 100%;
-            display: block;
-            transition: transform 0.6s ease;
-        }
+        .myth-image img { width: 100%; display: block; transition: transform 0.6s ease; }
         .myth-image:hover img { transform: scale(1.03); }
         .myth-image-caption {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            padding: 0.5rem 0.6rem;
-            background: linear-gradient(to top, rgba(8,10,15,0.92), transparent);
-            font-family: var(--font-mono);
-            font-size: 0.38rem;
-            letter-spacing: 2px;
-            color: var(--gold);
-            text-align: center;
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 0.5rem 0.6rem; background: linear-gradient(to top, rgba(8,10,15,0.92), transparent);
+            font-family: var(--font-mono); font-size: 0.38rem; letter-spacing: 2px;
+            color: var(--gold); text-align: center;
         }
-        .myth-right {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
+        .myth-right { display: flex; flex-direction: column; gap: 1rem; }
 
         /* ── CONTROLS ── */
-        .controls { display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap; }
-        button { font-family: var(--font-mono); font-size: 0.55rem; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; border: 1px solid var(--surface); background: var(--deep); color: var(--pale); transition: all 0.2s; letter-spacing: 1px; }
+        .hunt-box {
+            background: var(--deep); border: 1px solid var(--surface);
+            border-left: 2px solid var(--hermes); border-radius: 6px;
+            padding: 1rem;
+        }
+        .hunt-box h3 {
+            font-family: var(--font-mono); font-size: 0.5rem;
+            color: var(--hermes); text-transform: uppercase;
+            letter-spacing: 2px; margin-bottom: 0.6rem;
+        }
+        .hunt-box input {
+            width: 100%; background: #060810; color: var(--pale);
+            border: 1px solid var(--surface); padding: 0.5rem 0.7rem;
+            font-family: var(--font-mono); font-size: 0.55rem; border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        .hunt-box input:focus { border-color: var(--hermes); outline: none; }
+        .hunt-box input::placeholder { color: var(--mist); }
+        .hunt-box .hint {
+            font-family: var(--font-mono); font-size: 0.4rem; color: var(--mist);
+            margin-bottom: 0.5rem;
+        }
+        button {
+            font-family: var(--font-mono); font-size: 0.55rem; padding: 0.4rem 0.8rem;
+            border-radius: 4px; cursor: pointer; border: 1px solid var(--surface);
+            background: var(--deep); color: var(--pale); transition: all 0.2s;
+            letter-spacing: 1px;
+        }
         button:hover:not(:disabled) { background: var(--gold); color: var(--void); border-color: var(--gold); }
-        button.primary { background: var(--gold); color: var(--void); border-color: var(--gold); }
-        button.pubmed-btn { border-color: var(--pubmed); color: var(--pubmed); }
-        button.pubmed-btn:hover:not(:disabled) { background: var(--pubmed); color: var(--void); }
+        button.primary { background: var(--hermes); color: var(--void); border-color: var(--hermes); font-weight: bold; }
         button:disabled { opacity: 0.4; cursor: not-allowed; }
-        .spin { display: inline-block; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* ── PUBMED ── */
-        .pubmed-section { background: var(--deep); border: 1px solid rgba(74,222,128,0.3); border-radius: 8px; padding: 0.8rem; }
-        .pubmed-section h3 { font-family: var(--font-display); font-size: 0.7rem; color: var(--pubmed); margin-bottom: 0.5rem; }
-        .pubmed-queries { display: flex; flex-wrap: wrap; gap: 0.3rem; }
-        .pubmed-query-tag { font-family: var(--font-mono); font-size: 0.45rem; padding: 0.15rem 0.4rem; border: 1px solid rgba(74,222,128,0.3); border-radius: 3px; color: var(--pubmed); cursor: pointer; }
-        .pubmed-query-tag:hover { background: rgba(74,222,128,0.15); }
 
         /* ── DOMAIN GRID ── */
         .domain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; margin-bottom: 1.5rem; }
@@ -139,70 +128,36 @@
         .domain-count { font-family: var(--font-mono); font-size: 0.6rem; }
         .domain-god { font-family: var(--font-mono); font-size: 0.42rem; color: var(--mist); margin-top: 0.15rem; }
 
-        /* ── EALDFORN TRANSMISSION (video) ── */
+        /* ── TRANSMISSION ── */
         .transmission-panel {
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--surface);
-            border-top: 2px solid var(--signal);
-            border-radius: 8px;
-            overflow: hidden;
-            background: var(--deep);
+            margin-bottom: 1.5rem; border: 1px solid var(--surface);
+            border-top: 2px solid var(--signal); border-radius: 8px;
+            overflow: hidden; background: var(--deep);
         }
         .transmission-label {
-            font-family: var(--font-mono);
-            font-size: 0.45rem;
-            letter-spacing: 3px;
-            color: var(--signal);
-            padding: 0.5rem 0.8rem;
-            border-bottom: 1px solid var(--surface);
-            text-transform: uppercase;
+            font-family: var(--font-mono); font-size: 0.45rem; letter-spacing: 3px;
+            color: var(--signal); padding: 0.5rem 0.8rem;
+            border-bottom: 1px solid var(--surface); text-transform: uppercase;
         }
-        .transmission-video {
-            width: 100%;
-            display: block;
-            max-height: 460px;
-            object-fit: cover;
-        }
+        .transmission-video { width: 100%; display: block; max-height: 460px; object-fit: cover; }
 
         /* ── SHRINE STRIP ── */
-        .shrine-strip {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
+        .shrine-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1.5rem; }
         .shrine-strip-item {
-            border: 1px solid var(--surface);
-            border-radius: 6px;
-            overflow: hidden;
-            position: relative;
-            height: 170px;
-            cursor: default;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--surface); border-radius: 6px; overflow: hidden;
+            position: relative; height: 170px; transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
         .shrine-strip-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center top;
-            display: block;
-            filter: brightness(0.72) saturate(0.85);
-            transition: filter 0.4s ease, transform 0.5s ease;
+            width: 100%; height: 100%; object-fit: cover; object-position: center top;
+            filter: brightness(0.72) saturate(0.85); transition: filter 0.4s ease, transform 0.5s ease;
         }
         .shrine-strip-item:hover { border-color: var(--gold); box-shadow: 0 0 18px rgba(200,148,58,0.22); }
         .shrine-strip-item:hover img { filter: brightness(1) saturate(1.1); transform: scale(1.05); }
         .shrine-strip-glyph {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            padding: 0.6rem 0.4rem;
-            background: linear-gradient(to top, rgba(8,10,15,0.88), transparent);
-            text-align: center;
-            font-family: var(--font-mono);
-            font-size: 0.38rem;
-            letter-spacing: 2px;
-            color: var(--gold);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 0.6rem 0.4rem; background: linear-gradient(to top, rgba(8,10,15,0.88), transparent);
+            text-align: center; font-family: var(--font-mono); font-size: 0.38rem;
+            letter-spacing: 2px; color: var(--gold); opacity: 0; transition: opacity 0.3s ease;
         }
         .shrine-strip-item:hover .shrine-strip-glyph { opacity: 1; }
 
@@ -211,7 +166,6 @@
         .token-row { font-family: var(--font-mono); font-size: 0.52rem; padding: 0.2rem 0; border-bottom: 1px solid rgba(30,37,53,0.5); display: flex; justify-content: space-between; align-items: center; }
         .token-row:last-child { border-bottom: none; }
         .token-word { color: var(--pale); }
-        .token-source { font-size: 0.38rem; color: var(--mist); margin-left: 0.3rem; }
         .token-tags { display: flex; gap: 0.15rem; }
         .token-tag { font-size: 0.4rem; padding: 0.06rem 0.25rem; border-radius: 2px; }
         .tag-signal { background: rgba(212,184,74,0.2); color: var(--signal); }
@@ -229,7 +183,6 @@
         .tag-s { background: rgba(100,160,200,0.2); color: #7eb8da; }
         .tag-v { background: rgba(200,180,60,0.2); color: #c8a83c; }
         .tag-o { background: rgba(200,128,80,0.2); color: #c08050; }
-        .tag-pubmed { background: rgba(74,222,128,0.15); color: var(--pubmed); }
 
         .log { background: #060810; border: 1px solid var(--surface); border-radius: 6px; padding: 0.5rem; max-height: 120px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.5rem; color: var(--mist); }
 
@@ -261,45 +214,41 @@
     <!-- ══ HEADER ══ -->
     <div class="header">
         <h1>⚡ HER<span>MES</span></h1>
-        <div class="header-sub">TOKEN COURIER · EDGE FUNCTION · RSS + PUBMED + GDELT · PYTHAGOREAN #1</div>
+        <div class="header-sub">TOKEN COURIER · SIGNAL EXTRACTION · PYTHAGOREAN #1</div>
+    </div>
+
+    <!-- ══ ACTIVE TELOS ══ -->
+    <div class="telos-bar" id="telosBar">
+        <span class="telos-label">🎯 ACTIVE TELOS</span>
+        <span class="telos-text empty" id="telosText">Loading...</span>
     </div>
 
     <!-- ══ STATUS BAR ══ -->
     <div class="status-bar">
-        <div>Extracted: <span id="totalScraped">0</span></div>
-        <div>In DB: <span id="totalDB">—</span></div>
-        <div>Edge: <span id="edgeStatus"><span class="edge-badge">checking</span></span></div>
+        <div>Tokens in DB: <span id="totalDB">—</span></div>
+        <div>Last extraction: <span id="lastExtraction">—</span></div>
     </div>
 
-    <!-- ══ MYTH PANEL: classical image + controls + pubmed ══ -->
+    <!-- ══ MYTH PANEL ══ -->
     <div class="myth-panel">
         <div class="myth-image">
             <img src="assets/hermes-classical.jpg" alt="Hermes · The Herald" />
             <div class="myth-image-caption">THE HERALD · MESSENGER OF OLYMPUS</div>
         </div>
         <div class="myth-right">
-            <div class="controls">
-                <button id="scrapeRSSBtn">📡 RSS Feeds</button>
-                <button id="scrapePubMedBtn" class="pubmed-btn">🧬 PubMed</button>
-                <button id="scrapeGDELTBtn">🌍 GDELT</button>
-                <button id="scrapeAllBtn" class="primary">⚡ Full Cycle</button>
-                <button id="seedBtn">🌱 Seed Domains</button>
+            <div class="hunt-box">
+                <h3>⚡ HUNT TOKENS FROM URL</h3>
+                <input type="url" id="urlInput" placeholder="https://example.com" />
+                <div class="hint">Enter a URL to scrape text and extract pantheon tokens.</div>
+                <button id="huntUrlBtn" class="primary">⚡ Hunt URL</button>
             </div>
-            <div class="pubmed-section">
-                <h3>🧬 PubMed Query Topics</h3>
-                <div class="pubmed-queries" id="pubmedQueries">
-                    <span class="pubmed-query-tag" data-query="neural+network+cognition">neural cognition</span>
-                    <span class="pubmed-query-tag" data-query="language+model+attention">language attention</span>
-                    <span class="pubmed-query-tag" data-query="memory+consolidation+brain">memory brain</span>
-                    <span class="pubmed-query-tag" data-query="sentiment+classification+text">sentiment text</span>
-                    <span class="pubmed-query-tag" data-query="cognitive+architecture+reasoning">cognitive reasoning</span>
-                    <span class="pubmed-query-tag" data-query="artificial+intelligence+ethics">AI ethics</span>
-                    <span class="pubmed-query-tag" data-query="deep+learning+embedding+tokens">embeddings tokens</span>
-                    <span class="pubmed-query-tag" data-query="consciousness+neural+correlates">consciousness</span>
-                    <span class="pubmed-query-tag" data-query="emotion+recognition+affective">affective computing</span>
-                    <span class="pubmed-query-tag" data-query="knowledge+graph+ontology">knowledge graphs</span>
-                </div>
+            <div class="hunt-box">
+                <h3>📝 EXTRACT FROM TEXT</h3>
+                <input type="text" id="textInput" placeholder="Enter text to extract tokens from..." />
+                <div class="hint">Or paste raw text directly.</div>
+                <button id="extractTextBtn">⚡ Extract Tokens</button>
             </div>
+            <button id="seedBtn">🌱 Seed All 12 Domains</button>
         </div>
     </div>
 
@@ -316,10 +265,10 @@
         <div class="domain-card wisdom"><div class="domain-name" style="color:var(--wisdom)">🦉 WISDOM</div><div class="domain-count" id="wisdomCount">—</div><div class="domain-god">Athena</div></div>
         <div class="domain-card storm"><div class="domain-name" style="color:var(--storm)">🌩️ STORM</div><div class="domain-count" id="stormCount">—</div><div class="domain-god">Zeus</div></div>
         <div class="domain-card wild"><div class="domain-name" style="color:var(--wild)">🏹 WILD</div><div class="domain-count" id="wildCount">—</div><div class="domain-god">Artemis</div></div>
-        <div class="domain-card vine"><div class="domain-name" style="color:var(--vine)">🍇 VINE</div><div class="domain-count" id="vineCount">—</div><div class="domain-god">Dionysus</div></div>
+        <div class="domain-card vine"><div class="domain-name" style="color:var(--vine)">🍇 VOX</div><div class="domain-count" id="vineCount">—</div><div class="domain-god">Dionysus</div></div>
     </div>
 
-    <!-- ══ EALDFORN TRANSMISSION ══ -->
+    <!-- ══ TRANSMISSION ══ -->
     <div class="transmission-panel">
         <div class="transmission-label">⚡ ealdforn transmission · signal active</div>
         <video class="transmission-video" autoplay muted loop playsinline>
@@ -327,7 +276,7 @@
         </video>
     </div>
 
-    <!-- ══ SHRINE STRIP: 3 atmospheric images ══ -->
+    <!-- ══ SHRINE STRIP ══ -->
     <div class="shrine-strip">
         <div class="shrine-strip-item">
             <img src="assets/hermes-cyber.jpg" alt="Hermes · Cyber" />
@@ -345,214 +294,199 @@
 
     <!-- ══ TOKEN FEED ══ -->
     <div class="token-feed" id="tokenFeed"><div class="token-row"><span class="token-word">No tokens extracted yet</span></div></div>
-    <div class="log" id="log"><div>⚡ Hermes ready — RSS + PubMed + GDELT pipelines active.</div></div>
+    <div class="log" id="log"><div>⚡ Hermes ready.</div></div>
 
 </div>
 
-<script type="module">
+<script>
 // ══════════════════════════════════════════════════════
-// HERMES v4 · RUNTIME
-// HTML is purely aesthetic + runtime trigger.
-// All scraping, embedding, routing → Edge Function.
-// All reads → tokens table (not concepts).
+// HERMES v5 · Signal Courier
+// Direct Supabase. No edge functions.
+// 120-word pantheon dictionary.
+// Active telos from KairosDB.
+// URL hunt + text extraction + seed.
 // ══════════════════════════════════════════════════════
-const KAIROS_URL = 'https://kzcucjcyxybypncbdbws.supabase.co';
-const KAIROS_KEY = 'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw';
-const EDGE_URL = `${KAIROS_URL}/functions/v1/hermes-extract`;
-const sb = window.supabase.createClient(KAIROS_URL, KAIROS_KEY);
 
-const DOMAINS = ['signal','love','war','light','farm','forge','crown','tide','wisdom','storm','wild','vine'];
+const sb = window.supabase.createClient(
+  'https://kzcucjcyxybypncbdbws.supabase.co',
+  'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw'
+);
 
-// Seed sets — sent to edge function, processed server-side
-const DOMAIN_SEEDS = {
-    signal:  ['message','signal','swift','trade','path','word','code','travel','cross','courier','speed','threshold'],
-    love:    ['love','heart','desire','beauty','grace','tenderness','embrace','longing','bloom','devotion','soul','charm'],
-    war:     ['battle','strike','clash','blade','shield','rage','force','conquest','enemy','siege','weapon','army'],
-    wisdom:  ['truth','mind','pattern','knowledge','logic','reason','insight','clarity','thought','learning','vision','design'],
-    storm:   ['thunder','lightning','decree','command','order','rule','wrath','judgment','authority','law','dominion','sky'],
-    tide:    ['ocean','wave','current','depth','flow','sea','flood','salt','surge','abyss','drift','water'],
-    wild:    ['hunt','beast','moon','forest','fang','claw','track','chase','instinct','roam','predator','wilderness'],
-    vine:    ['ecstasy','dance','madness','release','wine','frenzy','ritual','trance','abandon','revelry','intoxication','chaos'],
-    forge:   ['hammer','fire','anvil','craft','iron','shape','creation','tool','metal','build','smelt','temper'],
-    farm:    ['seed','harvest','soil','grain','crop','cycle','growth','field','earth','cultivate','season','root'],
-    crown:   ['legacy','oath','throne','lineage','memory','law','reign','blood','honor','dynasty','covenant','stone'],
-    light:   ['dawn','harmony','prophecy','song','balance','golden','lyre','oracle','radiance','healing','clarity','truth']
+// ── 12 Domain Dictionaries ──
+const DOMAINS = {
+  signal:  new Set(["message","signal","swift","path","word","code","cross","courier","speed","threshold"]),
+  love:    new Set(["love","heart","desire","beauty","grace","embrace","bloom","devotion","soul","charm"]),
+  war:     new Set(["battle","strike","blade","shield","rage","force","enemy","weapon","armor","clash"]),
+  light:   new Set(["light","harmony","truth","vision","song","oracle","golden","radiant","clarity","beacon"]),
+  farm:    new Set(["seed","harvest","soil","growth","field","earth","cultivate","root","bloom","cycle"]),
+  forge:   new Set(["forge","hammer","fire","craft","tool","metal","build","shape","anvil","steel"]),
+  crown:   new Set(["crown","throne","oath","legacy","memory","law","honor","blood","reign","covenant"]),
+  tide:    new Set(["ocean","wave","tide","flow","depth","current","surge","abyss","water","storm"]),
+  wisdom:  new Set(["wisdom","knowledge","logic","reason","pattern","design","truth","mind","insight","strategy"]),
+  storm:   new Set(["thunder","lightning","decree","order","power","authority","judgment","dominion","sky","command"]),
+  wild:    new Set(["hunt","wild","moon","beast","forest","fang","claw","track","instinct","predator"]),
+  vox:     new Set(["voice","utterance","echo","chant","breath","silence","scream","whisper","song","resonance"])
 };
 
-// PubMed queries — sent to edge function server-side (no CORS issue)
-const PUBMED_QUERIES = [
-    'neural network cognition',
-    'language model attention mechanism',
-    'memory consolidation brain hippocampus',
-    'sentiment classification natural language',
-    'cognitive architecture reasoning system',
-    'artificial intelligence ethics safety',
-    'deep learning embedding token representation',
-    'consciousness neural correlates brain',
-    'emotion recognition affective computing',
-    'knowledge graph ontology semantic web'
-];
+const ALL_WORDS = new Set(Object.values(DOMAINS).flatMap(s => [...s]));
+const DOMAIN_LIST = ["signal","love","war","light","farm","forge","crown","tide","wisdom","storm","wild","vox"];
+const DOMAIN_LABELS = { signal: "signal", love: "love", war: "war", light: "light", farm: "farm", forge: "forge", crown: "crown", tide: "tide", wisdom: "wisdom", storm: "storm", wild: "wild", vox: "vine" };
 
-const RSS_FEEDS = ['bbc','aljazeera','hn','hn-algolia'];
-
-let totalScraped = 0;
-let edgeAvailable = false;
+const VERB_HINTS = new Set(["strike","build","forge","flow","surge","hunt","track","cross","bloom","cultivate","command","transform","dance","release","embrace"]);
+const OBJECT_HINTS = new Set(["blade","shield","weapon","armor","tool","hammer","anvil","crown","throne","ocean","field","earth","moon","beast","fang","claw","threshold","beacon"]);
 
 function log(msg) {
-    const el = document.getElementById('log');
-    el.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + el.innerHTML;
+  const el = document.getElementById('log');
+  el.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + el.innerHTML;
 }
 
-// ── EDGE CALL ──
-async function callEdge(payload) {
-    try {
-        const res = await fetch(EDGE_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        if (!res.ok) throw new Error(`Edge ${res.status}`);
-        return await res.json();
-    } catch (err) {
-        log(`Edge offline: ${err.message}`);
-        return null;
-    }
+// ── TELOS ──
+async function loadTelos() {
+  const { data } = await sb.from("telos").select("statement").eq("is_active", true).maybeSingle();
+  const el = document.getElementById("telosText");
+  if (data?.statement) {
+    el.textContent = data.statement;
+    el.classList.remove("empty");
+  } else {
+    el.textContent = "No active telos";
+    el.classList.add("empty");
+  }
 }
 
-async function checkEdge() {
-    const result = await callEdge({ text: 'test', source: 'ping' });
-    edgeAvailable = !!(result && result.success !== false);
-    document.getElementById('edgeStatus').innerHTML = edgeAvailable
-        ? '<span class="edge-badge">live ✓</span>'
-        : '<span class="edge-off">offline</span>';
-    log(edgeAvailable ? 'Edge live ✓' : 'Edge offline');
+// ── CLASSIFICATION ──
+function classifyDomain(word) {
+  for (const [domain, words] of Object.entries(DOMAINS)) {
+    if (words.has(word.toLowerCase())) return domain;
+  }
+  return "signal";
 }
 
-// ── SCRAPE ACTIONS — all server-side via edge ──
-async function runRSS() {
-    log('📡 RSS → Edge...');
-    const result = await callEdge({ action: 'scrape-all', feeds: RSS_FEEDS, source: 'rss' });
-    handleResult(result, 'RSS');
+function classifyWordType(word) {
+  const lower = word.toLowerCase();
+  if (VERB_HINTS.has(lower)) return "V";
+  if (OBJECT_HINTS.has(lower)) return "O";
+  return "S";
 }
 
-async function runPubMed() {
-    log('🧬 PubMed → Edge...');
-    const result = await callEdge({ action: 'scrape-all', pubmed_queries: PUBMED_QUERIES, source: 'pubmed' });
-    handleResult(result, 'PubMed');
-}
-
-async function runAll() {
-    log('⚡ Full cycle → Edge...');
-    const result = await callEdge({
-        action: 'scrape-all',
-        feeds: RSS_FEEDS,
-        pubmed_queries: PUBMED_QUERIES,
-        source: 'full-cycle'
+// ── EXTRACTION ──
+function extract(words) {
+  const seen = new Set();
+  const tokens = [];
+  for (const w of words) {
+    const word = w.toLowerCase();
+    if (seen.has(word) || !ALL_WORDS.has(word)) continue;
+    seen.add(word);
+    tokens.push({
+      body: word,
+      domain: classifyDomain(word),
+      word_type: classifyWordType(word),
+      score: 90,
+      extracted_at: new Date().toISOString()
     });
-    handleResult(result, 'Full cycle');
+  }
+  return tokens;
 }
 
+// ── STORE ──
+async function storeTokens(tokens) {
+  if (!tokens.length) return 0;
+  const { error } = await sb.from("tokens").upsert(tokens, { onConflict: "body" });
+  if (error) { log(`❌ Store error: ${error.message}`); return 0; }
+  return tokens.length;
+}
+
+// ── REFRESH UI ──
+async function refreshUI() {
+  for (const domain of DOMAIN_LIST) {
+    const el = document.getElementById(`${domain}Count`);
+    if (!el) continue;
+    const { count } = await sb.from("tokens").select("*", { count: "exact", head: true }).eq("domain", domain);
+    el.textContent = count || "—";
+  }
+
+  const { count: total } = await sb.from("tokens").select("*", { count: "exact", head: true });
+  document.getElementById("totalDB").textContent = total || "—";
+
+  const { data } = await sb.from("tokens").select("body, domain, word_type").order("extracted_at", { ascending: false }).limit(40);
+  const feed = document.getElementById("tokenFeed");
+  if (!data || !data.length) {
+    feed.innerHTML = '<div class="token-row"><span class="token-word">No tokens yet</span></div>';
+    return;
+  }
+  feed.innerHTML = data.map(t => `
+    <div class="token-row">
+      <span class="token-word">${t.body}</span>
+      <span class="token-tags">
+        <span class="token-tag tag-${t.domain || 'signal'}">${t.domain || 'signal'}</span>
+        <span class="token-tag tag-${(t.word_type || 'S').toLowerCase()}">${t.word_type || 'S'}</span>
+      </span>
+    </div>
+  `).join("");
+}
+
+// ── HUNT URL ──
+async function huntUrl() {
+  const url = document.getElementById("urlInput").value.trim();
+  if (!url) { log("⚠️ Enter a URL."); return; }
+
+  log(`⚡ Hunting: ${url}`);
+  document.getElementById("huntUrlBtn").disabled = true;
+
+  try {
+    const res = await fetch(url);
+    const html = await res.text();
+    const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+    const words = text.match(/\b\w+\b/g) || [];
+    const tokens = extract(words);
+    const stored = await storeTokens(tokens);
+
+    log(`✅ Hunted ${stored} tokens from URL`);
+    document.getElementById("lastExtraction").textContent = `${stored} tokens`;
+    document.getElementById("urlInput").value = "";
+  } catch (e) {
+    log(`❌ Hunt failed: ${e.message}`);
+  }
+
+  document.getElementById("huntUrlBtn").disabled = false;
+  refreshUI();
+}
+
+// ── EXTRACT TEXT ──
+async function extractText() {
+  const text = document.getElementById("textInput").value.trim();
+  if (!text) { log("⚠️ Enter text."); return; }
+
+  const words = text.match(/\b\w+\b/g) || [];
+  const tokens = extract(words);
+  const stored = await storeTokens(tokens);
+
+  log(`✅ Extracted ${stored} tokens from text`);
+  document.getElementById("lastExtraction").textContent = `${stored} tokens`;
+  document.getElementById("textInput").value = "";
+  refreshUI();
+}
+
+// ── SEED ──
 async function seedDomains() {
-    log('🌱 Seeding 12 domains...');
-    const allSeeds = Object.values(DOMAIN_SEEDS).flat().join(' ');
-    const result = await callEdge({ text: allSeeds, source: 'seed' });
-    handleResult(result, 'Seed');
-}
-
-function handleResult(result, label) {
-    if (!result) { log(`❌ ${label} failed`); return; }
-    if (result.stored) {
-        totalScraped += result.stored;
-        document.getElementById('totalScraped').textContent = totalScraped;
-        log(`✅ ${label}: ${result.stored} stored, ${result.dropped || 0} dropped`);
-        if (result.domains) {
-            const summary = Object.entries(result.domains).map(([d,n]) => `${d}:${n}`).join(' · ');
-            log(`   domains → ${summary}`);
-        }
-        updateStats();
-        loadRecentTokens();
-    } else {
-        log(`⚠️ ${label}: 0 stored (${result.error || 'no novel tokens'})`);
-    }
-}
-
-// ── STATS — reads from tokens table ──
-async function updateStats() {
-    let total = 0;
-    for (const domain of DOMAINS) {
-        const el = document.getElementById(`${domain}Count`);
-        if (!el) continue;
-        try {
-            const { count } = await sb.from('tokens')
-                .select('*', { count: 'exact', head: true })
-                .eq('domain', domain);
-            const n = count || 0;
-            el.textContent = n;
-            total += n;
-        } catch { el.textContent = '—'; }
-    }
-    document.getElementById('totalDB').textContent = total;
-}
-
-// ── TOKEN FEED — reads recent tokens from DB ──
-async function loadRecentTokens() {
-    try {
-        const { data } = await sb.from('tokens')
-            .select('body, domain, word_type, source, score')
-            .order('created_at', { ascending: false })
-            .limit(40);
-        renderFeed(data || []);
-    } catch { }
-}
-
-function renderFeed(tokens) {
-    const feed = document.getElementById('tokenFeed');
-    if (!tokens.length) {
-        feed.innerHTML = '<div class="token-row"><span class="token-word">No tokens yet</span></div>';
-        return;
-    }
-    feed.innerHTML = tokens.map(t => `
-        <div class="token-row">
-            <span class="token-word">${t.body}
-                <span class="token-source">${t.source ? '· ' + t.source : ''}</span>
-            </span>
-            <span class="token-tags">
-                <span class="token-tag tag-${t.domain || 'signal'}">${t.domain || 'signal'}</span>
-                <span class="token-tag tag-${(t.word_type || 'S').toLowerCase()}">${t.word_type || 'S'}</span>
-            </span>
-        </div>
-    `).join('');
-}
-
-// ── PubMed single query tag ──
-async function runSinglePubMed(query) {
-    log(`🧬 PubMed: "${query}"...`);
-    const result = await callEdge({ action: 'scrape-pubmed', query, source: 'pubmed-single' });
-    handleResult(result, `PubMed·${query}`);
+  log("🌱 Seeding 12 domains...");
+  const allWords = Object.values(DOMAINS).flatMap(s => [...s]);
+  const tokens = extract(allWords);
+  const stored = await storeTokens(tokens);
+  log(`✅ Seeded ${stored} tokens`);
+  document.getElementById("lastExtraction").textContent = `${stored} tokens`;
+  refreshUI();
 }
 
 // ── INIT ──
-function init() {
-    document.getElementById('scrapeRSSBtn').onclick = runRSS;
-    document.getElementById('scrapePubMedBtn').onclick = runPubMed;
-    document.getElementById('scrapeGDELTBtn').onclick = () => {
-        log('GDELT → routing through edge...');
-        callEdge({ text: 'technology innovation ai breakthrough climate economic policy', source: 'gdelt' })
-            .then(r => handleResult(r, 'GDELT'));
-    };
-    document.getElementById('scrapeAllBtn').onclick = runAll;
-    document.getElementById('seedBtn').onclick = seedDomains;
+loadTelos();
+refreshUI();
+log("⚡ Hermes v5 ready. No edge functions. Direct KairosDB.");
 
-    document.querySelectorAll('.pubmed-query-tag').forEach(tag => {
-        tag.onclick = () => runSinglePubMed(tag.dataset.query.replace(/\+/g, ' '));
-    });
-
-    checkEdge();
-    updateStats();
-    loadRecentTokens();
-    log('⚡ Hermes v4 ready. All scraping routes through Edge Function.');
-}
-init();
+document.getElementById("huntUrlBtn").onclick = huntUrl;
+document.getElementById("extractTextBtn").onclick = extractText;
+document.getElementById("seedBtn").onclick = seedDomains;
+document.getElementById("urlInput").addEventListener("keydown", e => { if (e.key === "Enter") huntUrl(); });
+document.getElementById("textInput").addEventListener("keydown", e => { if (e.key === "Enter") extractText(); });
 </script>
 </body>
 </html>
