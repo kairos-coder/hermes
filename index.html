@@ -12,471 +12,364 @@
             --gold: #c8943a; --hermes: #FFD700; --mist: #6a7a8a; --pale: #d4e0ed;
             --signal: #d4b84a; --love: #b05870; --war: #c0382a; --light: #d4a850;
             --farm: #7a6a40; --forge: #c07040; --crown: #5a7aaa; --tide: #3a7090;
-            --wisdom: #6a8898; --storm: #9a8ac0; --wild: #5a8050; --vine: #8a4080;
+            --wisdom: #6a8898; --storm: #9a8ac0; --wild: #5a8050; --vox: #8a4080;
             --font-display: 'Cinzel', serif; --font-body: 'Crimson Pro', serif; --font-mono: 'JetBrains Mono', monospace;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--void); font-family: var(--font-body); color: var(--pale); min-height: 100vh; }
-        .container { max-width: 1300px; margin: 0 auto; padding: 2rem; }
-
-        .shrine-hero {
-            position: relative; width: 100%; height: 340px; overflow: hidden;
-            border-radius: 10px; margin-bottom: 1.5rem;
+        .topbar {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 0.5rem 1.5rem; background: var(--deep);
+            border-bottom: 1px solid var(--surface);
         }
-        .shrine-hero img {
-            width: 100%; height: 100%; object-fit: cover; object-position: center 50%;
-            display: block; transition: transform 8s ease;
-        }
-        .shrine-hero:hover img { transform: scale(1.04); }
-        .shrine-hero-overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(to bottom, rgba(8,10,15,0.1) 0%, rgba(8,10,15,0.7) 75%, rgba(8,10,15,1) 100%);
-        }
-        .shrine-hero-label {
-            position: absolute; bottom: 1.2rem; left: 50%; transform: translateX(-50%);
-            font-family: var(--font-mono); font-size: 0.45rem; letter-spacing: 4px;
-            color: var(--gold); opacity: 0.7; text-transform: uppercase; white-space: nowrap;
-        }
+        .topbar .logo { font-family: var(--font-display); color: var(--hermes); font-size: 1rem; }
+        .topbar .telos { flex: 1; font-style: italic; font-size: 0.8rem; border-left: 1px solid var(--surface); padding-left: 1rem; }
+        .topbar .telos.empty { color: var(--mist); }
 
-        .header { text-align: center; border-bottom: 1px solid var(--surface); padding-bottom: 1rem; margin-bottom: 1.5rem; }
-        .header h1 { font-family: var(--font-display); font-size: 2.2rem; color: var(--gold); letter-spacing: 3px; }
-        .header-sub { font-family: var(--font-mono); font-size: 0.55rem; color: var(--mist); letter-spacing: 2px; margin-top: 0.3rem; }
+        .main { display: flex; height: calc(100vh - 42px); }
 
-        .telos-bar {
-            background: rgba(212,184,74,0.06); border: 1px solid rgba(200,148,58,0.3);
-            border-left: 3px solid var(--hermes); border-radius: 6px;
-            padding: 0.6rem 1.2rem; margin-bottom: 1.5rem;
-            display: flex; align-items: center; gap: 0.8rem;
-        }
-        .telos-bar .telos-label { font-family: var(--font-mono); font-size: 0.45rem; letter-spacing: 3px; color: var(--hermes); text-transform: uppercase; white-space: nowrap; }
-        .telos-bar .telos-text  { font-family: var(--font-body); font-size: 0.85rem; color: var(--pale); font-style: italic; flex: 1; }
-        .telos-bar .telos-text.empty { color: var(--mist); }
-
-        .status-bar { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; font-family: var(--font-mono); font-size: 0.55rem; color: var(--mist); }
-        .status-bar span { color: var(--pale); font-weight: 500; }
-
-        .myth-panel { display: grid; grid-template-columns: 260px 1fr; gap: 1.2rem; margin-bottom: 1.5rem; align-items: start; }
-        .myth-image { border: 1px solid var(--gold); border-radius: 8px; overflow: hidden; box-shadow: 0 0 28px rgba(200,148,58,0.18); position: relative; }
-        .myth-image img { width: 100%; display: block; transition: transform 0.6s ease; }
-        .myth-image:hover img { transform: scale(1.03); }
-        .myth-image-caption {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            padding: 0.5rem 0.6rem; background: linear-gradient(to top, rgba(8,10,15,0.92), transparent);
-            font-family: var(--font-mono); font-size: 0.38rem; letter-spacing: 2px; color: var(--gold); text-align: center;
-        }
-        .myth-right { display: flex; flex-direction: column; gap: 1rem; }
-
-        .hunt-box { background: var(--deep); border: 1px solid var(--surface); border-left: 2px solid var(--hermes); border-radius: 6px; padding: 1rem; }
-        .hunt-box h3 { font-family: var(--font-mono); font-size: 0.5rem; color: var(--hermes); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.6rem; }
-        .hunt-box input {
+        /* ── LEFT PANEL ── */
+        .left { width: 380px; flex-shrink: 0; border-right: 1px solid var(--surface); padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+        .left h2 { font-family: var(--font-display); font-size: 0.8rem; color: var(--hermes); letter-spacing: 2px; }
+        .left input {
             width: 100%; background: #060810; color: var(--pale);
             border: 1px solid var(--surface); padding: 0.5rem 0.7rem;
             font-family: var(--font-mono); font-size: 0.55rem; border-radius: 4px;
-            margin-bottom: 0.5rem; outline: none; transition: border-color 0.2s;
+            outline: none;
         }
-        .hunt-box input:focus { border-color: var(--hermes); }
-        .hunt-box input::placeholder { color: var(--mist); }
-        .hunt-box .hint { font-family: var(--font-mono); font-size: 0.4rem; color: var(--mist); margin-bottom: 0.5rem; line-height: 1.5; }
-
-        /* Domain breakdown chips — shown after extraction */
-        .domain-breakdown { margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.3rem; min-height: 0; }
-        .domain-breakdown .db-chip {
-            font-family: var(--font-mono); font-size: 0.4rem; color: var(--mist);
-            background: rgba(255,255,255,0.04); border: 1px solid var(--surface);
-            border-radius: 3px; padding: 0.12rem 0.4rem;
+        .left input:focus { border-color: var(--hermes); }
+        .left button {
+            padding: 0.5rem; background: var(--hermes); color: var(--void);
+            border: none; border-radius: 4px; cursor: pointer;
+            font-family: var(--font-mono); font-size: 0.55rem; font-weight: bold;
         }
-        .domain-breakdown .db-chip strong { color: var(--pale); }
+        .left button:disabled { opacity: 0.4; cursor: not-allowed; }
+        .left button.secondary { background: var(--deep); color: var(--pale); border: 1px solid var(--surface); }
+        .domain-stats { font-family: var(--font-mono); font-size: 0.45rem; color: var(--mist); }
+        .domain-stats .row { display: flex; justify-content: space-between; padding: 0.15rem 0; }
 
-        button {
-            font-family: var(--font-mono); font-size: 0.55rem; padding: 0.4rem 0.8rem;
-            border-radius: 4px; cursor: pointer; border: 1px solid var(--surface);
-            background: var(--deep); color: var(--pale); transition: all 0.2s; letter-spacing: 1px;
+        /* ── RIGHT PANEL: QUEUE ── */
+        .right { flex: 1; padding: 1.5rem; overflow-y: auto; }
+        .right h2 { font-family: var(--font-display); font-size: 0.8rem; color: var(--hermes); letter-spacing: 2px; margin-bottom: 0.3rem; }
+        .right .hint { font-family: var(--font-mono); font-size: 0.4rem; color: var(--mist); margin-bottom: 1rem; }
+        .queue-empty { color: var(--mist); font-style: italic; font-size: 0.55rem; text-align: center; padding: 3rem; }
+        .queue-item {
+            background: var(--deep); border: 1px solid var(--surface);
+            border-radius: 6px; padding: 0.6rem 0.8rem; margin-bottom: 0.4rem;
+            display: flex; align-items: center; gap: 0.6rem;
         }
-        button:hover:not(:disabled) { background: var(--gold); color: var(--void); border-color: var(--gold); }
-        button.primary { background: var(--hermes); color: var(--void); border-color: var(--hermes); font-weight: bold; }
-        button:disabled { opacity: 0.4; cursor: not-allowed; }
+        .queue-item .word {
+            font-family: var(--font-mono); font-size: 0.6rem; color: var(--pale);
+            min-width: 120px;
+        }
+        .queue-item .suggested {
+            font-family: var(--font-mono); font-size: 0.38rem;
+            padding: 0.1rem 0.4rem; border-radius: 3px;
+            background: rgba(255,255,255,0.04); color: var(--mist);
+        }
+        .queue-item .suggested strong { color: var(--pale); }
+        .queue-item select {
+            background: #060810; color: var(--pale);
+            border: 1px solid var(--surface); padding: 0.25rem 0.4rem;
+            font-family: var(--font-mono); font-size: 0.45rem; border-radius: 3px;
+            cursor: pointer;
+        }
+        .queue-item button {
+            padding: 0.25rem 0.5rem; border: 1px solid var(--surface);
+            background: transparent; color: var(--mist); border-radius: 3px;
+            cursor: pointer; font-family: var(--font-mono); font-size: 0.4rem;
+        }
+        .queue-item button.confirm { border-color: #4ade80; color: #4ade80; }
+        .queue-item button.confirm:hover { background: #4ade80; color: #000; }
+        .queue-item button.skip { border-color: var(--mist); color: var(--mist); }
+        .queue-item button.skip:hover { background: var(--mist); color: #000; }
+        .queue-item .confidence {
+            font-family: var(--font-mono); font-size: 0.38rem; color: var(--mist);
+            min-width: 35px; text-align: right;
+        }
 
-        .domain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; margin-bottom: 1.5rem; }
-        .domain-card { background: var(--deep); border: 1px solid var(--surface); border-radius: 8px; padding: 0.7rem; text-align: center; }
-        .domain-card.signal  { border-top: 2px solid var(--signal); }
-        .domain-card.love    { border-top: 2px solid var(--love); }
-        .domain-card.war     { border-top: 2px solid var(--war); }
-        .domain-card.light   { border-top: 2px solid var(--light); }
-        .domain-card.farm    { border-top: 2px solid var(--farm); }
-        .domain-card.forge   { border-top: 2px solid var(--forge); }
-        .domain-card.crown   { border-top: 2px solid var(--crown); }
-        .domain-card.tide    { border-top: 2px solid var(--tide); }
-        .domain-card.wisdom  { border-top: 2px solid var(--wisdom); }
-        .domain-card.storm   { border-top: 2px solid var(--storm); }
-        .domain-card.wild    { border-top: 2px solid var(--wild); }
-        .domain-card.vine    { border-top: 2px solid var(--vine); }
-        .domain-name  { font-family: var(--font-display); font-size: 0.65rem; margin-bottom: 0.2rem; }
-        .domain-count { font-family: var(--font-mono); font-size: 0.6rem; }
-        .domain-god   { font-family: var(--font-mono); font-size: 0.42rem; color: var(--mist); margin-top: 0.15rem; }
-
-        .transmission-panel { margin-bottom: 1.5rem; border: 1px solid var(--surface); border-top: 2px solid var(--signal); border-radius: 8px; overflow: hidden; background: var(--deep); }
-        .transmission-label { font-family: var(--font-mono); font-size: 0.45rem; letter-spacing: 3px; color: var(--signal); padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--surface); text-transform: uppercase; }
-        .transmission-video { width: 100%; display: block; max-height: 460px; object-fit: cover; }
-
-        .shrine-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1.5rem; }
-        .shrine-strip-item { border: 1px solid var(--surface); border-radius: 6px; overflow: hidden; position: relative; height: 170px; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
-        .shrine-strip-item img { width: 100%; height: 100%; object-fit: cover; object-position: center top; filter: brightness(0.72) saturate(0.85); transition: filter 0.4s ease, transform 0.5s ease; }
-        .shrine-strip-item:hover { border-color: var(--gold); box-shadow: 0 0 18px rgba(200,148,58,0.22); }
-        .shrine-strip-item:hover img { filter: brightness(1) saturate(1.1); transform: scale(1.05); }
-        .shrine-strip-glyph { position: absolute; bottom: 0; left: 0; right: 0; padding: 0.6rem 0.4rem; background: linear-gradient(to top, rgba(8,10,15,0.88), transparent); text-align: center; font-family: var(--font-mono); font-size: 0.38rem; letter-spacing: 2px; color: var(--gold); opacity: 0; transition: opacity 0.3s ease; }
-        .shrine-strip-item:hover .shrine-strip-glyph { opacity: 1; }
-
-        .token-feed { background: var(--deep); border: 1px solid var(--surface); border-radius: 8px; padding: 0.8rem; max-height: 300px; overflow-y: auto; margin-bottom: 1.5rem; }
-        .token-row { font-family: var(--font-mono); font-size: 0.52rem; padding: 0.2rem 0; border-bottom: 1px solid rgba(30,37,53,0.5); display: flex; justify-content: space-between; align-items: center; }
-        .token-row:last-child { border-bottom: none; }
-        .token-word { color: var(--pale); }
-        .token-tags { display: flex; gap: 0.15rem; }
-        .token-tag  { font-size: 0.4rem; padding: 0.06rem 0.25rem; border-radius: 2px; }
-        .tag-signal  { background: rgba(212,184,74,0.2);  color: var(--signal); }
-        .tag-love    { background: rgba(176,88,112,0.2);  color: var(--love); }
-        .tag-war     { background: rgba(192,56,42,0.2);   color: var(--war); }
-        .tag-light   { background: rgba(212,168,80,0.2);  color: var(--light); }
-        .tag-farm    { background: rgba(122,106,64,0.2);  color: var(--farm); }
-        .tag-forge   { background: rgba(192,112,64,0.2);  color: var(--forge); }
-        .tag-crown   { background: rgba(90,122,170,0.2);  color: var(--crown); }
-        .tag-tide    { background: rgba(58,112,144,0.2);  color: var(--tide); }
-        .tag-wisdom  { background: rgba(106,136,152,0.2); color: var(--wisdom); }
-        .tag-storm   { background: rgba(154,138,192,0.2); color: var(--storm); }
-        .tag-wild    { background: rgba(90,128,80,0.2);   color: var(--wild); }
-        .tag-vine    { background: rgba(138,64,128,0.2);  color: var(--vine); }
-        .tag-s { background: rgba(100,160,200,0.2); color: #7eb8da; }
-        .tag-v { background: rgba(200,180,60,0.2);  color: #c8a83c; }
-        .tag-o { background: rgba(200,128,80,0.2);  color: #c08050; }
-
-        .log { background: #060810; border: 1px solid var(--surface); border-radius: 6px; padding: 0.5rem; max-height: 120px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.5rem; color: var(--mist); }
-
-        @media (max-width: 900px) { .myth-panel { grid-template-columns: 1fr; } .myth-image { max-width: 320px; margin: 0 auto; } }
-        @media (max-width: 768px) { .domain-grid { grid-template-columns: repeat(4, 1fr); } .shrine-hero { height: 220px; } .shrine-strip { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 480px) { .shrine-strip { grid-template-columns: 1fr; } .shrine-strip-item { height: 200px; } }
+        .log { font-family: var(--font-mono); font-size: 0.4rem; color: var(--mist); margin-top: 1rem; max-height: 100px; overflow-y: auto; }
     </style>
 </head>
 <body>
-<div class="container">
 
-    <div class="shrine-hero">
-        <img src="assets/hermes-shrine.jpg" alt="Hermes · Token Courier" />
-        <div class="shrine-hero-overlay"></div>
-        <div class="shrine-hero-label">⚡ the courier · between worlds · between gates</div>
+<div class="topbar">
+    <span class="logo">⚡ HERMES</span>
+    <span class="telos empty" id="telosText">Loading...</span>
+</div>
+
+<div class="main">
+
+    <!-- LEFT: Hunt controls + stats -->
+    <div class="left">
+        <h2>⚡ HUNT URL</h2>
+        <input type="url" id="urlInput" placeholder="https://example.com" autocomplete="off" />
+        <button id="huntBtn">⚡ Hunt & Queue</button>
+        <button class="secondary" id="seedBtn">🌱 Seed 12 Domains</button>
+
+        <h2>📊 DOMAIN COUNTS</h2>
+        <div class="domain-stats" id="domainStats">Loading...</div>
+
+        <div class="log" id="log"></div>
     </div>
 
-    <div class="header">
-        <h1>⚡ HERMES</h1>
-        <div class="header-sub">TOKEN COURIER · SIGNAL EXTRACTION · PYTHAGOREAN #1</div>
-    </div>
-
-    <div class="telos-bar" id="telosBar">
-        <span class="telos-label">🎯 ACTIVE TELOS</span>
-        <span class="telos-text empty" id="telosText">Loading...</span>
-    </div>
-
-    <div class="status-bar">
-        <div>Tokens in DB: <span id="totalDB">—</span></div>
-        <div>Last extraction: <span id="lastExtraction">—</span></div>
-    </div>
-
-    <div class="myth-panel">
-        <div class="myth-image">
-            <img src="assets/hermes-classical.jpg" alt="Hermes · The Herald" />
-            <div class="myth-image-caption">THE HERALD · MESSENGER OF OLYMPUS</div>
-        </div>
-        <div class="myth-right">
-
-            <div class="hunt-box">
-                <h3>⚡ HUNT TOKENS FROM URL</h3>
-                <input type="url" id="urlInput" placeholder="https://example.com" autocomplete="off" />
-                <div class="hint">
-                    Fetched server-side via hermes-extract — no CORS restrictions.
-                    Semantic embedding routes each token to its domain.
-                </div>
-                <button id="huntUrlBtn" class="primary">⚡ Hunt URL</button>
-                <div class="domain-breakdown" id="urlBreakdown"></div>
-            </div>
-
-            <div class="hunt-box">
-                <h3>📝 EXTRACT FROM TEXT</h3>
-                <input type="text" id="textInput" placeholder="Enter text to extract tokens from..." autocomplete="off" />
-                <div class="hint">Paste raw text. Semantic embedding classifies each word into a domain.</div>
-                <button id="extractTextBtn">⚡ Extract Tokens</button>
-                <div class="domain-breakdown" id="textBreakdown"></div>
-            </div>
-
-            <button id="seedBtn">🌱 Seed All 12 Domains</button>
+    <!-- RIGHT: Classification queue -->
+    <div class="right">
+        <h2>📋 CLASSIFICATION QUEUE</h2>
+        <div class="hint">Words from URL hunts. Confirm or reclassify each one.</div>
+        <div id="queueContainer">
+            <div class="queue-empty">Hunt a URL to populate the queue.</div>
         </div>
     </div>
-
-    <div class="domain-grid">
-        <div class="domain-card signal"><div class="domain-name" style="color:var(--signal)">⚡ SIGNAL</div><div class="domain-count" id="signalCount">—</div><div class="domain-god">Hermes</div></div>
-        <div class="domain-card love"><div class="domain-name" style="color:var(--love)">💗 LOVE</div><div class="domain-count" id="loveCount">—</div><div class="domain-god">Aphrodite</div></div>
-        <div class="domain-card war"><div class="domain-name" style="color:var(--war)">⚔️ WAR</div><div class="domain-count" id="warCount">—</div><div class="domain-god">Ares</div></div>
-        <div class="domain-card light"><div class="domain-name" style="color:var(--light)">☀️ LIGHT</div><div class="domain-count" id="lightCount">—</div><div class="domain-god">Apollo</div></div>
-        <div class="domain-card farm"><div class="domain-name" style="color:var(--farm)">🌾 FARM</div><div class="domain-count" id="farmCount">—</div><div class="domain-god">Demeter</div></div>
-        <div class="domain-card forge"><div class="domain-name" style="color:var(--forge)">🔨 FORGE</div><div class="domain-count" id="forgeCount">—</div><div class="domain-god">Hephaestus</div></div>
-        <div class="domain-card crown"><div class="domain-name" style="color:var(--crown)">👑 CROWN</div><div class="domain-count" id="crownCount">—</div><div class="domain-god">Hera</div></div>
-        <div class="domain-card tide"><div class="domain-name" style="color:var(--tide)">🌊 TIDE</div><div class="domain-count" id="tideCount">—</div><div class="domain-god">Poseidon</div></div>
-        <div class="domain-card wisdom"><div class="domain-name" style="color:var(--wisdom)">🦉 WISDOM</div><div class="domain-count" id="wisdomCount">—</div><div class="domain-god">Athena</div></div>
-        <div class="domain-card storm"><div class="domain-name" style="color:var(--storm)">🌩️ STORM</div><div class="domain-count" id="stormCount">—</div><div class="domain-god">Zeus</div></div>
-        <div class="domain-card wild"><div class="domain-name" style="color:var(--wild)">🏹 WILD</div><div class="domain-count" id="wildCount">—</div><div class="domain-god">Artemis</div></div>
-        <div class="domain-card vine"><div class="domain-name" style="color:var(--vine)">🍇 VOX</div><div class="domain-count" id="vineCount">—</div><div class="domain-god">Dionysus</div></div>
-    </div>
-
-    <div class="transmission-panel">
-        <div class="transmission-label">⚡ ealdforn transmission · signal active</div>
-        <video class="transmission-video" autoplay muted loop playsinline>
-            <source src="assets/hermes0.mp4" type="video/mp4">
-        </video>
-    </div>
-
-    <div class="shrine-strip">
-        <div class="shrine-strip-item"><img src="assets/hermes-cyber.jpg" alt="Hermes · Cyber" /><div class="shrine-strip-glyph">COURIER · SIGNAL · SPEED</div></div>
-        <div class="shrine-strip-item"><img src="assets/hermes-runic.jpg" alt="Hermes · Psychopomp" /><div class="shrine-strip-glyph">LIMINAL · RUNE · PASSAGE</div></div>
-        <div class="shrine-strip-item"><img src="assets/hermes-chthonic.jpg" alt="Hermes · Chthonic" /><div class="shrine-strip-glyph">CHTHONIC · GUIDE · THRESHOLD</div></div>
-    </div>
-
-    <div class="token-feed" id="tokenFeed">
-        <div class="token-row"><span class="token-word">No tokens extracted yet</span></div>
-    </div>
-    <div class="log" id="log"><div>⚡ Hermes ready.</div></div>
 
 </div>
-<script>
-// ══════════════════════════════════════════════════════
-// HERMES v6 · Signal Courier
-//
-// Fixed from v5:
-//   [1] refreshUI token feed: order("created_at") not extracted_at → fixes 400
-//   [2] huntUrl: calls hermes-extract { url } → server-side fetch, no CORS
-//   [3] extractText: calls hermes-extract { text } → semantic pipeline
-//   [4] seedDomains: direct upsert uses created_at, not extracted_at
-//   [5] storeTokens removed — Edge Function handles all DB writes
-// ══════════════════════════════════════════════════════
 
+<script>
+const sb = window.supabase.createClient(
+  'https://kzcucjcyxybypncbdbws.supabase.co',
+  'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw'
+);
 const EXTRACT_FN = 'https://kzcucjcyxybypncbdbws.supabase.co/functions/v1/hermes-extract';
 
-const sb = window.supabase.createClient(
-    'https://kzcucjcyxybypncbdbws.supabase.co',
-    'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw'
-);
-
-// Dictionary used only by the local Seed button
-const DOMAINS = {
-    signal: new Set(["message","signal","swift","path","word","code","cross","courier","speed","threshold"]),
-    love:   new Set(["love","heart","desire","beauty","grace","embrace","bloom","devotion","soul","charm"]),
-    war:    new Set(["battle","strike","blade","shield","rage","force","enemy","weapon","armor","clash"]),
-    light:  new Set(["light","harmony","truth","vision","song","oracle","golden","radiant","clarity","beacon"]),
-    farm:   new Set(["seed","harvest","soil","growth","field","earth","cultivate","root","bloom","cycle"]),
-    forge:  new Set(["forge","hammer","fire","craft","tool","metal","build","shape","anvil","steel"]),
-    crown:  new Set(["crown","throne","oath","legacy","memory","law","honor","blood","reign","covenant"]),
-    tide:   new Set(["ocean","wave","tide","flow","depth","current","surge","abyss","water","storm"]),
-    wisdom: new Set(["wisdom","knowledge","logic","reason","pattern","design","truth","mind","insight","strategy"]),
-    storm:  new Set(["thunder","lightning","decree","order","power","authority","judgment","dominion","sky","command"]),
-    wild:   new Set(["hunt","wild","moon","beast","forest","fang","claw","track","instinct","predator"]),
-    vox:    new Set(["voice","utterance","echo","chant","breath","silence","scream","whisper","song","resonance"])
+const DOMAINS = ['signal','love','war','light','farm','forge','crown','tide','wisdom','storm','wild','vox'];
+const DOMAIN_SEEDS = {
+  signal: ['message','signal','swift','path','word','code','cross','courier','speed','threshold'],
+  love:   ['love','heart','desire','beauty','grace','embrace','bloom','devotion','soul','charm'],
+  war:    ['battle','strike','blade','shield','rage','force','enemy','weapon','armor','clash'],
+  light:  ['light','harmony','truth','vision','song','oracle','golden','radiant','clarity','beacon'],
+  farm:   ['seed','harvest','soil','growth','field','earth','cultivate','root','bloom','cycle'],
+  forge:  ['forge','hammer','fire','craft','tool','metal','build','shape','anvil','steel'],
+  crown:  ['crown','throne','oath','legacy','memory','law','honor','blood','reign','covenant'],
+  tide:   ['ocean','wave','tide','flow','depth','current','surge','abyss','water','storm'],
+  wisdom: ['wisdom','knowledge','logic','reason','pattern','design','truth','mind','insight','strategy'],
+  storm:  ['thunder','lightning','decree','order','power','authority','judgment','dominion','sky','command'],
+  wild:   ['hunt','wild','moon','beast','forest','fang','claw','track','instinct','predator'],
+  vox:    ['voice','utterance','echo','chant','breath','silence','scream','whisper','song','resonance']
 };
-const DOMAIN_LIST   = ["signal","love","war","light","farm","forge","crown","tide","wisdom","storm","wild","vox"];
-const VERB_HINTS    = new Set(["strike","build","forge","flow","surge","hunt","track","cross","bloom","cultivate","command","transform","dance","release","embrace"]);
-const OBJECT_HINTS  = new Set(["blade","shield","weapon","armor","tool","hammer","anvil","crown","throne","ocean","field","earth","moon","beast","fang","claw","threshold","beacon"]);
+
+let queue = []; // { word, suggested_domain, confidence }
 
 function log(msg) {
-    const el = document.getElementById('log');
-    el.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + el.innerHTML;
+  const el = document.getElementById('log');
+  el.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + el.innerHTML;
 }
 
-// ── Telos ─────────────────────────────────────────────
-
+// ── Telos ──
 async function loadTelos() {
-    const { data } = await sb.from("telos").select("statement").eq("is_active", true).maybeSingle();
-    const el = document.getElementById("telosText");
-    if (data?.statement) {
-        el.textContent = data.statement;
-        el.classList.remove("empty");
-    } else {
-        el.textContent = "No active telos — set one in Apollo";
-        el.classList.add("empty");
-    }
+  const { data } = await sb.from('telos').select('statement').eq('is_active', true).maybeSingle();
+  const el = document.getElementById('telosText');
+  el.textContent = data?.statement ? '🎯 ' + data.statement : 'No active telos';
+  el.classList.toggle('empty', !data?.statement);
 }
 
-// ── Edge Function call ────────────────────────────────
-
-async function callExtract(payload) {
-    const res = await fetch(EXTRACT_FN, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    });
-    return await res.json();
+// ── Domain stats ──
+async function loadStats() {
+  const stats = document.getElementById('domainStats');
+  let html = '';
+  for (const d of DOMAINS) {
+    const { count } = await sb.from('tokens').select('*', { count: 'exact', head: true }).eq('domain', d);
+    html += `<div class="row"><span>${d}</span><span>${count || 0}</span></div>`;
+  }
+  stats.innerHTML = html;
 }
 
-// ── Domain breakdown chips ────────────────────────────
-
-function renderBreakdown(elementId, domains) {
-    const el = document.getElementById(elementId);
-    if (!domains || !Object.keys(domains).length) { el.innerHTML = ''; return; }
-    el.innerHTML = Object.entries(domains)
-        .sort((a, b) => b[1] - a[1])
-        .map(([d, n]) => `<span class="db-chip">${d} <strong>${n}</strong></span>`)
-        .join('');
-}
-
-// ── Hunt URL ──────────────────────────────────────────
-
+// ── Hunt URL → populate queue ──
 async function huntUrl() {
-    const url = document.getElementById("urlInput").value.trim();
-    if (!url) { log("⚠️ Enter a URL."); return; }
+  const url = document.getElementById('urlInput').value.trim();
+  if (!url) { log('⚠️ Enter a URL.'); return; }
 
-    const btn = document.getElementById("huntUrlBtn");
-    btn.disabled = true;
-    btn.textContent = '⏳ Hunting...';
-    document.getElementById("urlBreakdown").innerHTML = '';
-    log(`⚡ Hunting: ${url}`);
+  const btn = document.getElementById('huntBtn');
+  btn.disabled = true; btn.textContent = 'Hunting...';
+  log(`⚡ Hunting: ${url}`);
 
-    const result = await callExtract({ url, source: 'url' });
-
-    if (!result.success) {
-        log(`❌ Hunt failed: ${result.error}`);
-    } else {
-        log(`✅ URL hunt — ${result.stored} stored · ${result.novel} novel · ${result.dropped} dropped`);
-        document.getElementById("lastExtraction").textContent = `${result.stored} tokens from URL`;
-        document.getElementById("urlInput").value = "";
-        renderBreakdown('urlBreakdown', result.domains);
-        refreshUI();
-    }
-
-    btn.disabled = false;
-    btn.textContent = '⚡ Hunt URL';
-}
-
-// ── Extract Text ──────────────────────────────────────
-
-async function extractText() {
-    const text = document.getElementById("textInput").value.trim();
-    if (!text) { log("⚠️ Enter text."); return; }
-
-    const btn = document.getElementById("extractTextBtn");
-    btn.disabled = true;
-    btn.textContent = '⏳ Extracting...';
-    document.getElementById("textBreakdown").innerHTML = '';
-    log(`⚡ Extracting from text...`);
-
-    const result = await callExtract({ text, source: 'direct' });
+  try {
+    const res = await fetch(EXTRACT_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, source: 'url' })
+    });
+    const result = await res.json();
 
     if (!result.success) {
-        log(`❌ Extract failed: ${result.error}`);
+      log(`❌ ${result.error}`);
+    } else if (result.stored > 0) {
+      // Tokens were auto-classified and stored
+      log(`✅ ${result.stored} tokens stored directly (${result.novel} novel)`);
+      if (result.sample) log(`   Sample: ${result.sample.join(', ')}`);
+      loadStats();
+    } else if (result.novel > 0) {
+      // Novel words found but not stored — add to queue
+      // The edge function returns sample classifications
+      log(`📋 ${result.novel} novel words queued for classification`);
+      // Fetch the raw words from the URL text and build queue
+      await buildQueueFromUrl(url);
     } else {
-        log(`✅ Text extract — ${result.stored} stored · ${result.novel} novel · ${result.dropped} dropped`);
-        document.getElementById("lastExtraction").textContent = `${result.stored} tokens from text`;
-        document.getElementById("textInput").value = "";
-        renderBreakdown('textBreakdown', result.domains);
-        refreshUI();
+      log('⚠️ No new words found.');
     }
+  } catch (e) {
+    log(`❌ Hunt failed: ${e.message}`);
+  }
 
-    btn.disabled = false;
-    btn.textContent = '⚡ Extract Tokens';
+  btn.disabled = false; btn.textContent = '⚡ Hunt & Queue';
+  document.getElementById('urlInput').value = '';
+  renderQueue();
 }
 
-// ── Seed (dictionary, direct upsert) ─────────────────
+// ── Build queue from URL words ──
+async function buildQueueFromUrl(url) {
+  try {
+    // Fetch text client-side via proxy
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    const res = await fetch(proxyUrl);
+    const text = await res.text();
+    const clean = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    const words = [...new Set(
+      clean.toLowerCase().match(/\b[a-z]{4,16}\b/g) || []
+    )];
 
-function classifyDomain(word) {
-    for (const [d, words] of Object.entries(DOMAINS)) { if (words.has(word)) return d; }
-    return "signal";
-}
-function classifyWordType(word) {
-    if (VERB_HINTS.has(word))   return "V";
-    if (OBJECT_HINTS.has(word)) return "O";
-    return "S";
+    // Get existing tokens to filter out already-classified words
+    const { data: existing } = await sb.from('tokens').select('body').in('body', words.slice(0, 200));
+    const existingSet = new Set((existing || []).map(r => r.body));
+    const novel = words.filter(w => !existingSet.has(w)).slice(0, 30);
+
+    // Add to queue with suggested domain
+    for (const word of novel) {
+      const suggested = classifyLocal(word);
+      queue.push({
+        word,
+        suggested_domain: suggested.domain,
+        confidence: suggested.confidence
+      });
+    }
+  } catch (e) {
+    log(`⚠️ Could not build queue: ${e.message}`);
+  }
 }
 
+// ── Local heuristic classification (fast, for queue suggestions) ──
+function classifyLocal(word) {
+  // Check seed words
+  for (const [domain, seeds] of Object.entries(DOMAIN_SEEDS)) {
+    if (seeds.includes(word)) return { domain, confidence: 1.0 };
+  }
+
+  // Simple heuristics
+  if (/^(code|data|web|net|api|dev|app|tech|cyber|server|client|protocol|function|module|object|array)$/.test(word)) return { domain: 'signal', confidence: 0.7 };
+  if (/^(gentle|soft|warm|kind|caring|tender|dear|precious|beloved)$/.test(word)) return { domain: 'love', confidence: 0.7 };
+  if (/^(attack|defend|assault|invade|dominate|overthrow|rebel|resist)$/.test(word)) return { domain: 'war', confidence: 0.7 };
+  if (/^(river|lake|pond|stream|rain|flood|wave|shore|coast|reef)$/.test(word)) return { domain: 'tide', confidence: 0.7 };
+  if (/^(animal|bird|wolf|bear|eagle|snake|deer|raven|crow|owl)$/.test(word)) return { domain: 'wild', confidence: 0.7 };
+  if (/^(tree|plant|leaf|grass|vine|herb|spice|fruit|berry|nut)$/.test(word)) return { domain: 'farm', confidence: 0.7 };
+  if (/^(speak|talk|say|tell|shout|yell|cry|laugh|sing|hum)$/.test(word)) return { domain: 'vox', confidence: 0.7 };
+  if (/^(bright|dark|shadow|glow|shine|spark|flare|flash|beam)$/.test(word)) return { domain: 'light', confidence: 0.7 };
+  if (/^(study|learn|teach|school|book|read|write|think)$/.test(word)) return { domain: 'wisdom', confidence: 0.7 };
+  if (/^(make|craft|create|shape|form|mold|cast|weld)$/.test(word)) return { domain: 'forge', confidence: 0.7 };
+  if (/^(govern|rule|reign|sovereign|emperor|kingdom|empire)$/.test(word)) return { domain: 'storm', confidence: 0.7 };
+  if (/^(remember|forget|past|history|ancient|elder|ancestor)$/.test(word)) return { domain: 'crown', confidence: 0.7 };
+
+  return { domain: 'signal', confidence: 0.3 };
+}
+
+// ── Confirm a word → store to tokens ──
+async function confirmWord(index) {
+  const item = queue[index];
+  if (!item) return;
+
+  const domain = document.getElementById(`domain-select-${index}`).value;
+
+  const { error } = await sb.from('tokens').upsert({
+    body: item.word,
+    domain,
+    word_type: 'S',
+    score: Math.round(30 + item.confidence * 60),
+    source: 'url-queue',
+    created_at: new Date().toISOString()
+  }, { onConflict: 'body' });
+
+  if (error) {
+    log(`❌ ${error.message}`);
+  } else {
+    log(`✅ ${item.word} → ${domain}`);
+    queue.splice(index, 1);
+    loadStats();
+    renderQueue();
+  }
+}
+
+// ── Skip a word ──
+function skipWord(index) {
+  queue.splice(index, 1);
+  renderQueue();
+}
+
+// ── Confirm all ──
+async function confirmAll() {
+  for (let i = queue.length - 1; i >= 0; i--) {
+    const item = queue[i];
+    const { error } = await sb.from('tokens').upsert({
+      body: item.word,
+      domain: item.suggested_domain,
+      word_type: 'S',
+      score: Math.round(30 + item.confidence * 60),
+      source: 'url-queue',
+      created_at: new Date().toISOString()
+    }, { onConflict: 'body' });
+
+    if (!error) {
+      log(`✅ ${item.word} → ${item.suggested_domain}`);
+      queue.splice(i, 1);
+    }
+  }
+  loadStats();
+  renderQueue();
+}
+
+// ── Render queue ──
+function renderQueue() {
+  const container = document.getElementById('queueContainer');
+  if (!queue.length) {
+    container.innerHTML = '<div class="queue-empty">Queue empty. Hunt a URL to populate.</div>';
+    return;
+  }
+
+  container.innerHTML = `
+    <button class="secondary" onclick="confirmAll()" style="margin-bottom:0.8rem;">✅ Confirm All Suggestions</button>
+    ${queue.map((item, i) => `
+      <div class="queue-item">
+        <span class="word">${item.word}</span>
+        <span class="suggested">sugg: <strong>${item.suggested_domain}</strong></span>
+        <span class="confidence">${Math.round(item.confidence * 100)}%</span>
+        <select id="domain-select-${i}">
+          ${DOMAINS.map(d => `<option value="${d}" ${d === item.suggested_domain ? 'selected' : ''}>${d}</option>`).join('')}
+        </select>
+        <button class="confirm" onclick="confirmWord(${i})">✓</button>
+        <button class="skip" onclick="skipWord(${i})">✕</button>
+      </div>
+    `).join('')}
+  `;
+}
+
+// ── Seed ──
 async function seedDomains() {
-    log("🌱 Seeding 12 domains...");
-    const btn = document.getElementById("seedBtn");
-    btn.disabled = true;
-
-    const seen = new Set();
-    const batch = [];
-    for (const words of Object.values(DOMAINS)) {
-        for (const w of words) {
-            if (seen.has(w)) continue;
-            seen.add(w);
-            batch.push({
-                body:       w,
-                domain:     classifyDomain(w),
-                word_type:  classifyWordType(w),
-                score:      85,
-                source:     'seed',
-                created_at: new Date().toISOString()
-                // No extracted_at — column does not exist
-            });
-        }
+  log('🌱 Seeding...');
+  const batch = [];
+  for (const [domain, words] of Object.entries(DOMAIN_SEEDS)) {
+    for (const w of words) {
+      batch.push({ body: w, domain, word_type: 'S', score: 85, source: 'seed', created_at: new Date().toISOString() });
     }
-
-    const { error } = await sb.from("tokens").upsert(batch, { onConflict: "body" });
-    if (error) {
-        log(`❌ Seed error: ${error.message}`);
-    } else {
-        log(`✅ Seeded ${batch.length} tokens`);
-        document.getElementById("lastExtraction").textContent = `${batch.length} tokens seeded`;
-        refreshUI();
-    }
-    btn.disabled = false;
+  }
+  const { error } = await sb.from('tokens').upsert(batch, { onConflict: 'body' });
+  if (error) { log(`❌ ${error.message}`); return; }
+  log(`✅ Seeded ${batch.length} tokens`);
+  loadStats();
 }
 
-// ── Refresh UI ────────────────────────────────────────
-// KEY FIX: order("created_at") not order("extracted_at") → no more 400
-
-async function refreshUI() {
-    for (const domain of DOMAIN_LIST) {
-        const el = document.getElementById(`${domain}Count`);
-        if (!el) continue;
-        const { count } = await sb.from("tokens")
-            .select("*", { count: "exact", head: true })
-            .eq("domain", domain);
-        el.textContent = count ?? "—";
-    }
-
-    const { count: total } = await sb.from("tokens").select("*", { count: "exact", head: true });
-    document.getElementById("totalDB").textContent = total ?? "—";
-
-    const { data, error } = await sb.from("tokens")
-        .select("body, domain, word_type")
-        .order("created_at", { ascending: false })  // ← was extracted_at, caused 400
-        .limit(40);
-
-    const feed = document.getElementById("tokenFeed");
-    if (error) {
-        log(`⚠️ Token feed error: ${error.message}`);
-        feed.innerHTML = '<div class="token-row"><span class="token-word">Feed error — check log</span></div>';
-        return;
-    }
-    if (!data || !data.length) {
-        feed.innerHTML = '<div class="token-row"><span class="token-word">No tokens yet — seed or hunt to begin</span></div>';
-        return;
-    }
-    feed.innerHTML = data.map(t => `
-        <div class="token-row">
-            <span class="token-word">${t.body}</span>
-            <span class="token-tags">
-                <span class="token-tag tag-${t.domain || 'signal'}">${t.domain || 'signal'}</span>
-                <span class="token-tag tag-${(t.word_type || 'S').toLowerCase()}">${t.word_type || 'S'}</span>
-            </span>
-        </div>
-    `).join("");
-}
-
-// ── Init ──────────────────────────────────────────────
-
+// ── Init ──
 loadTelos();
-refreshUI();
-log("⚡ Hermes v6 ready. URL hunt via Edge Function. No CORS.");
-
-document.getElementById("huntUrlBtn").onclick     = huntUrl;
-document.getElementById("extractTextBtn").onclick = extractText;
-document.getElementById("seedBtn").onclick        = seedDomains;
-document.getElementById("urlInput").addEventListener("keydown",  e => { if (e.key === "Enter") huntUrl(); });
-document.getElementById("textInput").addEventListener("keydown", e => { if (e.key === "Enter") extractText(); });
+loadStats();
+document.getElementById('huntBtn').onclick = huntUrl;
+document.getElementById('seedBtn').onclick = seedDomains;
+document.getElementById('urlInput').addEventListener('keydown', e => { if (e.key === 'Enter') huntUrl(); });
 </script>
 </body>
 </html>
