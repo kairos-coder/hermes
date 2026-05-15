@@ -1,237 +1,194 @@
-// config.js - Cards, missions, and constants
+// config.js - Hermes card definitions
 
 export const CONFIG = {
-  HAND_SIZE: 5,
-  MAX_DECK_SIZE: 30,
-  EVOLUTION_THRESHOLD: 3, // Plays before evolution triggers
-  CONFIDENCE_DECAY: 0.95, // Confidence multiplier per failed play
-  CONFIDENCE_GROWTH: 1.1, // Confidence multiplier per successful play
+  HAND_SIZE: 4,
+  MAX_DECK_SIZE: 24,
+  EVOLUTION_THRESHOLD: 3,
 };
 
-// ── The Deck: Browser Action Cards ──
+// ── CARD DECK ──
+// Each card wraps an existing Hermes capability
 export const BASE_DECK = [
+  // ⚡ SOURCE CARDS — wrap source-registry.js
   {
-    id: 'navigate',
-    name: 'NAVIGATE',
-    icon: '🧭',
-    type: 'movement',
-    description: 'Travel to a URL',
-    confidence: 0.5,
+    id: 'fetch_fast',
+    name: 'FETCH FAST',
+    icon: '⚡',
+    type: 'source',
+    description: 'Hunt tokens from fast sources (HN, Mythic, Dev.to)',
+    confidence: 0.7,
     playCount: 0,
     successCount: 0,
-    action: 'navigateTo',
-    params: { url: '' }
-  },
-  {
-    id: 'extract_text',
-    name: 'EXTRACT TEXT',
-    icon: '📄',
-    type: 'extraction',
-    description: 'Pull text from the page',
-    confidence: 0.5,
-    playCount: 0,
-    successCount: 0,
-    action: 'extractText',
-    params: { selector: 'body' }
-  },
-  {
-    id: 'extract_links',
-    name: 'EXTRACT LINKS',
-    icon: '🔗',
-    type: 'extraction',
-    description: 'Find all links on the page',
-    confidence: 0.5,
-    playCount: 0,
-    successCount: 0,
-    action: 'extractLinks',
+    action: 'fetchFastSources',
     params: {}
   },
   {
-    id: 'search_dom',
-    name: 'SEARCH DOM',
-    icon: '🔍',
-    type: 'search',
-    description: 'Search page for specific text',
+    id: 'fetch_slow',
+    name: 'FETCH DEEP',
+    icon: '🕸️',
+    type: 'source',
+    description: 'Deep extraction from slow news sources',
     confidence: 0.5,
     playCount: 0,
     successCount: 0,
-    action: 'searchDOM',
-    params: { query: '' }
+    action: 'fetchSlowSources',
+    params: {}
   },
   {
-    id: 'click_element',
-    name: 'CLICK ELEMENT',
-    icon: '👆',
-    type: 'interaction',
-    description: 'Click on a page element',
-    confidence: 0.4,
+    id: 'fetch_mythic',
+    name: 'MYTHIC HARVEST',
+    icon: '🏛️',
+    type: 'source',
+    description: 'Draw from the mythic archetype archive',
+    confidence: 0.8,
     playCount: 0,
     successCount: 0,
-    action: 'clickElement',
-    params: { selector: '' }
+    action: 'fetchMythicOnly',
+    params: {}
   },
+
+  // 🔮 SEMANTIC CARDS — wrap semantic-core.js
   {
-    id: 'wait_for',
-    name: 'WAIT FOR',
-    icon: '⏳',
-    type: 'control',
-    description: 'Wait for element or time',
+    id: 'semantic_filter',
+    name: 'SEMANTIC FILTER',
+    icon: '🔮',
+    type: 'semantic',
+    description: 'Filter tokens by semantic similarity to mission',
     confidence: 0.6,
     playCount: 0,
     successCount: 0,
-    action: 'waitFor',
-    params: { ms: 1000 }
+    action: 'semanticFilter',
+    params: { threshold: 0.7 }
   },
   {
-    id: 'scroll_into',
-    name: 'SCROLL INTO VIEW',
-    icon: '📜',
-    type: 'movement',
-    description: 'Scroll element into view',
+    id: 'cluster_meaning',
+    name: 'CLUSTER MEANING',
+    icon: '🗂️',
+    type: 'semantic',
+    description: 'Group tokens by meaning using embeddings',
     confidence: 0.5,
     playCount: 0,
     successCount: 0,
-    action: 'scrollIntoView',
-    params: { selector: '' }
+    action: 'clusterTokens',
+    params: {}
   },
   {
-    id: 'filter_results',
-    name: 'FILTER RESULTS',
-    icon: '🪮',
-    type: 'processing',
-    description: 'Filter extracted data by pattern',
+    id: 'score_novelty',
+    name: 'SCORE NOVELTY',
+    icon: '✨',
+    type: 'semantic',
+    description: 'Boost score for semantically novel tokens',
     confidence: 0.5,
     playCount: 0,
     successCount: 0,
-    action: 'filterResults',
-    params: { pattern: '' }
+    action: 'scoreNovelty',
+    params: {}
   },
+
+  // 🚪 GATE CARDS — wrap hermes-gate.js
+  {
+    id: 'gate_check',
+    name: 'GATE CHECK',
+    icon: '🚪',
+    type: 'gate',
+    description: 'Quality filter: priority words, archetypes, weight',
+    confidence: 0.9,
+    playCount: 0,
+    successCount: 0,
+    action: 'runGateCheck',
+    params: {}
+  },
+  {
+    id: 'deduplicate',
+    name: 'DEDUPLICATE',
+    icon: '🔍',
+    type: 'gate',
+    description: 'Remove duplicate tokens from batch',
+    confidence: 0.8,
+    playCount: 0,
+    successCount: 0,
+    action: 'deduplicateTokens',
+    params: { hours: 24 }
+  },
+  {
+    id: 'batch_process',
+    name: 'BATCH PROCESS',
+    icon: '📦',
+    type: 'gate',
+    description: 'Process entire batch through the quality gate',
+    confidence: 0.7,
+    playCount: 0,
+    successCount: 0,
+    action: 'batchThroughGate',
+    params: {}
+  },
+
+  // 💾 STORAGE CARDS — wrap Supabase
   {
     id: 'store_token',
     name: 'STORE TOKEN',
     icon: '💾',
     type: 'storage',
-    description: 'Save found token to collection',
-    confidence: 0.5,
+    description: 'Persist worthy tokens to Supabase concepts',
+    confidence: 0.9,
     playCount: 0,
     successCount: 0,
     action: 'storeToken',
     params: {}
   },
   {
-    id: 'evaluate_js',
-    name: 'EVALUATE JS',
-    icon: '⚡',
-    type: 'execution',
-    description: 'Run JavaScript on the page',
-    confidence: 0.3,
+    id: 'query_memory',
+    name: 'QUERY MEMORY',
+    icon: '🔎',
+    type: 'storage',
+    description: 'Search existing concepts for related tokens',
+    confidence: 0.6,
     playCount: 0,
     successCount: 0,
-    action: 'evaluateJS',
-    params: { code: '' }
+    action: 'queryMemory',
+    params: { limit: 10 }
   },
+
+  // 🎯 MISSION CARDS
   {
-    id: 'screenshot',
-    name: 'SCREENSHOT',
-    icon: '📸',
-    type: 'observation',
-    description: 'Capture the current page view',
-    confidence: 0.5,
+    id: 'manual_signal',
+    name: 'MANUAL SIGNAL',
+    icon: '✍️',
+    type: 'mission',
+    description: 'Process a manual 1-3 word signal through gate',
+    confidence: 0.7,
     playCount: 0,
     successCount: 0,
-    action: 'takeScreenshot',
-    params: {}
-  },
-  {
-    id: 'parse_json',
-    name: 'PARSE JSON',
-    icon: '📊',
-    type: 'processing',
-    description: 'Parse JSON from extracted text',
-    confidence: 0.5,
-    playCount: 0,
-    successCount: 0,
-    action: 'parseJSON',
+    action: 'processManualSignal',
     params: {}
   },
 ];
 
-// ── Missions ──
-export const MISSIONS = [
-  {
-    id: 'find_tokens',
-    name: 'Find Hidden Tokens',
-    description: 'Search the page for hidden token patterns',
-    objective: 'find_tokens',
-    target: 3,
-    reward: 'New card added to deck'
-  },
-  {
-    id: 'extract_emails',
-    name: 'Harvest Email Addresses',
-    description: 'Find all email addresses on the page',
-    objective: 'extract_pattern',
-    pattern: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
-    target: 5,
-    reward: 'EXTRACT card gains +0.2 confidence'
-  },
-  {
-    id: 'map_links',
-    name: 'Map the Link Structure',
-    description: 'Extract and categorize all links',
-    objective: 'extract_links',
-    target: 10,
-    reward: 'NAVIGATE card gains +0.2 confidence'
-  },
-];
-
-// ── Token Patterns (what Hermes hunts) ──
-export const TOKEN_PATTERNS = {
-  email: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
-  phone: /(\+?\d{1,3}[-.]?)?\(?\d{3}\)?[-.]?\d{3}[-.]?\d{4}/g,
-  url: /https?:\/\/[^\s"'<>]+/g,
-  hashtag: /#[a-zA-Z0-9_]+/g,
-  mention: /@[a-zA-Z0-9_]+/g,
-  currency: /\$\d{1,3}(,\d{3})*(\.\d{2})?/g,
-  date: /\d{1,2}\/\d{1,2}\/\d{2,4}/g,
-};
-
-// ── Hermes Voice Lines ──
+// ── HERMES VOICE LINES ──
 export const HERMES_LINES = {
   draw: [
-    "The cards whisper to me...",
-    "Let's see what fate deals us.",
-    "Drawing from the aether...",
-    "These will do nicely.",
+    "The cards whisper from the aether...",
+    "Drawing from the spiral...",
+    "Fate deals me these...",
   ],
   play: [
-    "Watch this...",
-    "Executing with precision.",
-    "Like a messenger through the digital realm.",
-    "Swift as winged sandals.",
+    "Executing with winged precision.",
+    "Swift as thought between realms.",
+    "The card activates...",
   ],
   success: [
-    "Found something! The trail is warm.",
-    "A token reveals itself!",
-    "I knew that card would work.",
-    "The path becomes clearer.",
+    "Tokens found! The trail warms.",
+    "Quality tokens pass the gate.",
+    "Worthy concepts added to memory.",
   ],
   failure: [
-    "Hmm, nothing here. The card needs refinement.",
-    "This sequence failed. I'll remember this.",
-    "Not all paths lead to tokens. Learning...",
-    "The page guards its secrets well.",
+    "This card yields nothing. I note this.",
+    "The gate rejected all. The card weakens.",
+    "Empty harvest. Learning...",
   ],
   evolve: [
-    "I feel... different. The deck is changing.",
-    "Evolution! New patterns emerging.",
-    "The cards are learning. So am I.",
-    "Mutation complete. I am more than I was.",
-  ],
-  idle: [
-    "Waiting for a mission...",
-    "The digital winds are calm.",
-    "Ready when you are.",
-    "Tokens won't find themselves.",
+    "I feel a mutation... the deck changes.",
+    "Evolution! New patterns in the cards.",
+    "The deck remembers. It adapts.",
   ],
 };
