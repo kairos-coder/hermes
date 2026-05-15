@@ -1,543 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Hermes · Token Courier</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=JetBrains+Mono:wght@300;400;500&display=swap');
-        :root {
-            --void: #080a0f; --deep: #0b0e16; --surface: #1e2535;
-            --gold: #c8943a; --hermes: #FFD700; --mist: #6a7a8a; --pale: #d4e0ed;
-            --signal: #d4b84a; --love: #b05870; --war: #c0382a; --light: #d4a850;
-            --farm: #7a6a40; --forge: #c07040; --crown: #5a7aaa; --tide: #3a7090;
-            --wisdom: #6a8898; --storm: #9a8ac0; --wild: #5a8050; --vox: #8a4080;
-            --font-display: 'Cinzel', serif; --font-body: 'Crimson Pro', serif; --font-mono: 'JetBrains Mono', monospace;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--void); font-family: var(--font-body); color: var(--pale); min-height: 100vh; }
-        
-        .topbar {
-            display: flex; align-items: center; gap: 1rem;
-            padding: 0.5rem 1.5rem; background: var(--deep);
-            border-bottom: 1px solid var(--surface);
-        }
-        .topbar .logo { font-family: var(--font-display); color: var(--hermes); font-size: 1rem; }
-        .topbar .telos { flex: 1; font-style: italic; font-size: 0.8rem; border-left: 1px solid var(--surface); padding-left: 1rem; }
-        .topbar .telos.empty { color: var(--mist); }
-        .topbar .model-badge {
-            font-family: var(--font-mono); font-size: 0.4rem;
-            padding: 0.15rem 0.5rem; border-radius: 3px;
-            background: rgba(74,222,128,0.1); color: #4ade80;
-        }
-        .topbar .model-badge.loading { background: rgba(255,200,0,0.1); color: #ffc800; animation: pulse 1.2s infinite; }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-        .main { display: flex; height: calc(100vh - 42px); }
-
-        /* ── LEFT PANEL ── */
-        .left {
-            width: 400px; flex-shrink: 0; border-right: 1px solid var(--surface);
-            padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem;
-        }
-        .left h2 { font-family: var(--font-display); font-size: 0.8rem; color: var(--hermes); letter-spacing: 2px; }
-        .left .section { background: var(--deep); border: 1px solid var(--surface); border-radius: 6px; padding: 0.8rem; }
-        .left .section h3 { font-family: var(--font-mono); font-size: 0.5rem; color: var(--hermes); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
-        .left input {
-            width: 100%; background: #060810; color: var(--pale);
-            border: 1px solid var(--surface); padding: 0.5rem 0.7rem;
-            font-family: var(--font-mono); font-size: 0.55rem; border-radius: 4px; outline: none;
-        }
-        .left input:focus { border-color: var(--hermes); }
-        .left button {
-            padding: 0.4rem 0.7rem; background: var(--hermes); color: var(--void);
-            border: none; border-radius: 4px; cursor: pointer;
-            font-family: var(--font-mono); font-size: 0.5rem; font-weight: bold;
-            margin-top: 0.4rem;
-        }
-        .left button:disabled { opacity: 0.4; cursor: not-allowed; }
-        .left button.secondary { background: var(--deep); color: var(--pale); border: 1px solid var(--surface); }
-        .domain-stats { font-family: var(--font-mono); font-size: 0.45rem; color: var(--mist); }
-        .domain-stats .row { display: flex; justify-content: space-between; padding: 0.12rem 0; }
-        .log { font-family: var(--font-mono); font-size: 0.4rem; color: var(--mist); margin-top: auto; max-height: 100px; overflow-y: auto; }
-
-        /* ── RIGHT PANEL: QUEUE ── */
-        .right { flex: 1; padding: 1.5rem; overflow-y: auto; }
-        .right h2 { font-family: var(--font-display); font-size: 0.8rem; color: var(--hermes); letter-spacing: 2px; margin-bottom: 0.3rem; }
-        .right .hint { font-family: var(--font-mono); font-size: 0.4rem; color: var(--mist); margin-bottom: 1rem; }
-        .queue-empty { color: var(--mist); font-style: italic; font-size: 0.55rem; text-align: center; padding: 3rem; }
-        .queue-item {
-            background: var(--deep); border: 1px solid var(--surface);
-            border-radius: 6px; padding: 0.6rem 0.8rem; margin-bottom: 0.4rem;
-            display: flex; align-items: center; gap: 0.6rem;
-        }
-        .queue-item .word { font-family: var(--font-mono); font-size: 0.6rem; color: var(--pale); min-width: 110px; }
-        .queue-item .suggested { font-family: var(--font-mono); font-size: 0.38rem; padding: 0.1rem 0.4rem; border-radius: 3px; background: rgba(255,255,255,0.04); color: var(--mist); }
-        .queue-item .suggested strong { color: var(--pale); }
-        .queue-item select { background: #060810; color: var(--pale); border: 1px solid var(--surface); padding: 0.25rem 0.4rem; font-family: var(--font-mono); font-size: 0.45rem; border-radius: 3px; cursor: pointer; }
-        .queue-item .confidence { font-family: var(--font-mono); font-size: 0.38rem; color: var(--mist); min-width: 35px; text-align: right; }
-        .queue-item button { padding: 0.25rem 0.5rem; border: 1px solid var(--surface); background: transparent; color: var(--mist); border-radius: 3px; cursor: pointer; font-family: var(--font-mono); font-size: 0.4rem; }
-        .queue-item button.confirm { border-color: #4ade80; color: #4ade80; }
-        .queue-item button.confirm:hover { background: #4ade80; color: #000; }
-        .queue-item button.skip { border-color: var(--mist); color: var(--mist); }
-        .queue-item button.skip:hover { background: var(--mist); color: #000; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🪶 Hermes v3 · Card-Playing Browser Agent</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<div class="topbar">
-    <span class="logo">⚡ HERMES</span>
-    <span class="telos empty" id="telosText">Loading...</span>
-    <span class="model-badge loading" id="modelBadge">model loading</span>
-</div>
-
-<div class="main">
-
-    <!-- LEFT -->
-    <div class="left">
-        <!-- URL Hunt -->
-        <div class="section">
-            <h3>🌐 Hunt URL</h3>
-            <input type="url" id="urlInput" placeholder="https://example.com" autocomplete="off" />
-            <button id="huntBtn">⚡ Hunt & Queue</button>
-        </div>
-
-        <!-- Edge Functions: Quick API calls -->
-        <div class="section">
-            <h3>⚡ Edge Functions</h3>
-            <input type="url" id="edgeUrlInput" placeholder="https://api.github.com/repos/..." autocomplete="off" />
-            <button id="edgeFetchBtn">📡 Fetch API</button>
-            <button class="secondary" id="edgeFetchRepoBtn">📦 Fetch Repo Index</button>
-        </div>
-
-        <!-- Seed -->
-        <div class="section">
-            <h3>🌱 Seed Domains</h3>
-            <button id="seedBtn">🌱 Seed All 12 Domains</button>
-        </div>
-
-        <!-- Stats -->
-        <div class="section">
-            <h3>📊 Domain Counts</h3>
-            <div class="domain-stats" id="domainStats">Loading...</div>
-        </div>
-
-        <div class="log" id="log"></div>
-    </div>
-
-    <!-- RIGHT: QUEUE -->
-    <div class="right">
-        <h2>📋 Classification Queue</h2>
-        <div class="hint">Words from hunts. AI suggests a domain — confirm or change it.</div>
-        <button class="secondary" id="confirmAllBtn" style="margin-bottom:0.8rem;display:none;">✅ Confirm All Suggestions</button>
-        <div id="queueContainer">
-            <div class="queue-empty">Hunt a URL or fetch an API to populate the queue.</div>
-        </div>
-    </div>
-
-</div>
-
-<script type="module">
-import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
-
-// ═══════════════════════════════════════
-// SUPABASE
-// ═══════════════════════════════════════
-const sb = window.supabase.createClient(
-  'https://kzcucjcyxybypncbdbws.supabase.co',
-  'sb_publishable_saeUHGocDah-T2_709M6Fg_g26JtLXw'
-);
-
-// ═══════════════════════════════════════
-// DOMAINS
-// ═══════════════════════════════════════
-const DOMAIN_LIST = ['signal','love','war','light','farm','forge','crown','tide','wisdom','storm','wild','vox'];
-const DOMAIN_SEEDS = {
-  signal: ['message','signal','swift','path','word','code','cross','courier','speed','threshold'],
-  love:   ['love','heart','desire','beauty','grace','embrace','bloom','devotion','soul','charm'],
-  war:    ['battle','strike','blade','shield','rage','force','enemy','weapon','armor','clash'],
-  light:  ['light','harmony','truth','vision','song','oracle','golden','radiant','clarity','beacon'],
-  farm:   ['seed','harvest','soil','growth','field','earth','cultivate','root','bloom','cycle'],
-  forge:  ['forge','hammer','fire','craft','tool','metal','build','shape','anvil','steel'],
-  crown:  ['crown','throne','oath','legacy','memory','law','honor','blood','reign','covenant'],
-  tide:   ['ocean','wave','tide','flow','depth','current','surge','abyss','water','storm'],
-  wisdom: ['wisdom','knowledge','logic','reason','pattern','design','truth','mind','insight','strategy'],
-  storm:  ['thunder','lightning','decree','order','power','authority','judgment','dominion','sky','command'],
-  wild:   ['hunt','wild','moon','beast','forest','fang','claw','track','instinct','predator'],
-  vox:    ['voice','utterance','echo','chant','breath','silence','scream','whisper','song','resonance']
-};
-
-const STOPWORDS = new Set([
-  'the','a','an','and','or','but','in','on','at','to','for','of','with','by','from',
-  'is','are','was','were','be','been','being','have','has','had','do','does','did',
-  'will','would','could','should','may','might','it','its','this','that','these',
-  'those','he','she','they','we','you','i','me','him','her','them','us','my','your',
-  'his','our','their','what','which','who','when','where','how','why','not','no',
-  'so','as','if','then','than','more','most','also','about','into','over','after',
-  'new','said','can','up','out','just','time','one','two','three','first','last',
-  'each','other','some','all','any','both','only','same','such','now','here','there'
-]);
-
-let queue = [];
-let extractor = null;
-let centroids = null;
-
-// ═══════════════════════════════════════
-// LOGGING
-// ═══════════════════════════════════════
-function log(msg) {
-  const el = document.getElementById('log');
-  el.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + el.innerHTML;
-}
-
-// ═══════════════════════════════════════
-// TELOS
-// ═══════════════════════════════════════
-async function loadTelos() {
-  const { data } = await sb.from('telos').select('statement').eq('is_active', true).maybeSingle();
-  const el = document.getElementById('telosText');
-  el.textContent = data?.statement ? '🎯 ' + data.statement : 'No active telos';
-  el.classList.toggle('empty', !data?.statement);
-}
-
-// ═══════════════════════════════════════
-// STATS
-// ═══════════════════════════════════════
-async function loadStats() {
-  const stats = document.getElementById('domainStats');
-  let html = '';
-  for (const d of DOMAIN_LIST) {
-    const { count } = await sb.from('tokens').select('*', { count: 'exact', head: true }).eq('domain', d);
-    html += `<div class="row"><span>${d}</span><span>${count || 0}</span></div>`;
-  }
-  stats.innerHTML = html;
-}
-
-// ═══════════════════════════════════════
-// TRANSFORMERS.JS CLASSIFIER
-// ═══════════════════════════════════════
-async function getExtractor() {
-  if (extractor) return extractor;
-  log('🧠 Loading MiniLM model (~80MB, one-time)...');
-  extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
-  document.getElementById('modelBadge').textContent = 'model ready';
-  document.getElementById('modelBadge').classList.remove('loading');
-  log('🧠 Model ready.');
-  return extractor;
-}
-
-async function getCentroids() {
-  if (centroids) return centroids;
-  const model = await getExtractor();
-  centroids = {};
-  for (const [domain, seeds] of Object.entries(DOMAIN_SEEDS)) {
-    const result = await model(seeds.join(' '), { pooling: 'mean', normalize: true });
-    centroids[domain] = Array.from(result.data);
-  }
-  return centroids;
-}
-
-function cosineSimilarity(a, b) {
-  let dot = 0, magA = 0, magB = 0;
-  for (let i = 0; i < a.length; i++) { dot += a[i] * b[i]; magA += a[i] * a[i]; magB += b[i] * b[i]; }
-  return magA && magB ? dot / (Math.sqrt(magA) * Math.sqrt(magB)) : 0;
-}
-
-async function classifyBatch(words) {
-  const results = [];
-  const unknown = [];
-  for (const word of words) {
-    let found = false;
-    for (const [domain, seeds] of Object.entries(DOMAIN_SEEDS)) {
-      if (seeds.includes(word.toLowerCase())) { results.push({ word, domain, confidence: 1.0 }); found = true; break; }
-    }
-    if (!found) unknown.push(word);
-  }
-  if (unknown.length) {
-    const model = await getExtractor();
-    const domainCentroids = await getCentroids();
-    for (const word of unknown) {
-      const result = await model(word, { pooling: 'mean', normalize: true });
-      const embedding = Array.from(result.data);
-      let bestDomain = 'signal', bestScore = -1;
-      for (const [domain, centroid] of Object.entries(domainCentroids)) {
-        const sim = cosineSimilarity(embedding, centroid);
-        if (sim > bestScore) { bestScore = sim; bestDomain = domain; }
-      }
-      results.push({ word, domain: bestDomain, confidence: Math.round(bestScore * 100) / 100 });
-    }
-  }
-  return results;
-}
-
-// ═══════════════════════════════════════
-// TEXT PROCESSING
-// ═══════════════════════════════════════
-function extractWords(text) {
-  return [...new Set(
-    text.toLowerCase().replace(/[^a-z\s]/g, ' ').split(/\s+/)
-      .filter(w => w.length >= 4 && w.length <= 18)
-      .filter(w => !STOPWORDS.has(w))
-      .filter(w => !/^\d+$/.test(w))
-  )].sort((a, b) => b.length - a.length).slice(0, 80);
-}
-
-function stripHtml(html) {
-  return html
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&[a-z]+;/gi, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-async function processText(text) {
-  const words = extractWords(text);
-  if (!words.length) return log('⚠️ No words extracted.');
+<div id="hermesApp">
   
-  const { data: existing } = await sb.from('tokens').select('body').in('body', words);
-  const existingSet = new Set((existing || []).map(r => r.body));
-  const novel = words.filter(w => !existingSet.has(w)).slice(0, 40);
-  if (!novel.length) return log('⚠️ No novel words found.');
-
-  log(`🧠 Classifying ${novel.length} words...`);
-  const classified = await classifyBatch(novel);
-  for (const item of classified) {
-    queue.push({ word: item.word, suggested_domain: item.domain, confidence: item.confidence });
-  }
-  log(`✅ ${classified.length} words queued.`);
-  renderQueue();
-}
-
-// ═══════════════════════════════════════
-// HUNT URL (browser-side via CORS proxy)
-// ═══════════════════════════════════════
-async function huntUrl() {
-  const url = document.getElementById('urlInput').value.trim();
-  if (!url) { log('⚠️ Enter a URL.'); return; }
-
-  // Auto-add https:// if missing
-  const fullUrl = url.startsWith('http') ? url : 'https://' + url;
-
-  const btn = document.getElementById('huntBtn');
-  btn.disabled = true; btn.textContent = 'Hunting...';
-  log(`⚡ Hunting: ${fullUrl}`);
-
-  // Try multiple CORS proxies in order
-  const proxies = [
-    `https://corsproxy.io/?${encodeURIComponent(fullUrl)}`,
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(fullUrl)}`,
-  ];
-
-  let text = null;
-  for (const proxyUrl of proxies) {
-    try {
-      log(`   Trying proxy: ${proxyUrl.split('/')[2]}...`);
-      const res = await fetch(proxyUrl);
-      if (res.ok) {
-        text = await res.text();
-        log(`   ✅ Proxy worked.`);
-        break;
-      }
-    } catch (e) {
-      log(`   ❌ Proxy failed, trying next...`);
-    }
-  }
-
-  if (!text) {
-    log('❌ All proxies failed. The page may be blocking access.');
-    btn.disabled = false; btn.textContent = '⚡ Hunt & Queue';
-    return;
-  }
-
-  // Strip HTML tags
-  const cleanText = text
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&[a-z]+;/gi, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  log(`📋 Text extracted — ${cleanText.length} chars.`);
-  await processText(cleanText);
-
-  btn.disabled = false; btn.textContent = '⚡ Hunt & Queue';
-  document.getElementById('urlInput').value = '';
-}
-
-// ═══════════════════════════════════════
-// EDGE FUNCTION: Fetch API (fast, server-side)
-// ═══════════════════════════════════════
-async function edgeFetchApi() {
-  const url = document.getElementById('edgeUrlInput').value.trim();
-  if (!url) { log('⚠️ Enter an API URL.'); return; }
-
-  const btn = document.getElementById('edgeFetchBtn');
-  btn.disabled = true; btn.textContent = 'Fetching...';
-  log(`📡 Edge fetch: ${url}`);
-
-  try {
-    // Use Supabase Edge Function for API calls (no CORS, fast)
-    const { data, error } = await sb.functions.invoke('hermes-hunt', {
-      body: { url, mode: 'api' }
-    });
-    if (error) throw new Error(error.message);
-    if (!data?.success) throw new Error(data?.error || 'Unknown error');
-    
-    log(`📋 API returned ${data.word_count || data.words?.length || 0} words.`);
-    await processText(data.text || JSON.stringify(data));
-  } catch (e) {
-    // Fallback: try direct fetch with CORS proxy
-    log(`⚠️ Edge failed, trying proxy...`);
-    try {
-      const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-      const res = await fetch(proxyUrl);
-      const text = await res.text();
-      await processText(text);
-    } catch (e2) {
-      log(`❌ Both methods failed: ${e2.message}`);
-    }
-  }
-
-  btn.disabled = false; btn.textContent = '📡 Fetch API';
-  document.getElementById('edgeUrlInput').value = '';
-}
-
-// ═══════════════════════════════════════
-// EDGE FUNCTION: Fetch Repo Index
-// ═══════════════════════════════════════
-async function edgeFetchRepo() {
-  const url = document.getElementById('edgeUrlInput').value.trim();
-  if (!url) { log('⚠️ Enter a repo URL.'); return; }
-
-  const btn = document.getElementById('edgeFetchRepoBtn');
-  btn.disabled = true; btn.textContent = 'Fetching...';
-  log(`📦 Fetching repo: ${url}`);
-
-  try {
-    const { data, error } = await sb.functions.invoke('hermes-hunt', {
-      body: { url, mode: 'repo' }
-    });
-    if (error) throw new Error(error.message);
-    if (!data?.success) throw new Error(data?.error || 'Unknown error');
-    
-    log(`📋 Repo returned ${data.word_count || data.words?.length || 0} words.`);
-    await processText(data.text || JSON.stringify(data.files || data));
-  } catch (e) {
-    log(`❌ Repo fetch failed: ${e.message}`);
-  }
-
-  btn.disabled = false; btn.textContent = '📦 Fetch Repo Index';
-  document.getElementById('edgeUrlInput').value = '';
-}
-
-// ═══════════════════════════════════════
-// QUEUE OPERATIONS
-// ═══════════════════════════════════════
-async function confirmWord(index) {
-  const item = queue[index];
-  if (!item) return;
-  const domain = document.getElementById(`domain-select-${index}`).value;
-  const { error } = await sb.from('tokens').upsert({
-    body: item.word, domain, word_type: 'S',
-    score: Math.round(30 + item.confidence * 60),
-    source: 'hermes-queue', created_at: new Date().toISOString()
-  }, { onConflict: 'body' });
-  if (error) { log(`❌ ${error.message}`); return; }
-  log(`✅ ${item.word} → ${domain}`);
-  queue.splice(index, 1);
-  loadStats();
-  renderQueue();
-}
-
-function skipWord(index) { queue.splice(index, 1); renderQueue(); }
-
-async function confirmAll() {
-  for (let i = queue.length - 1; i >= 0; i--) {
-    const item = queue[i];
-    const { error } = await sb.from('tokens').upsert({
-      body: item.word, domain: item.suggested_domain, word_type: 'S',
-      score: Math.round(30 + item.confidence * 60),
-      source: 'hermes-queue', created_at: new Date().toISOString()
-    }, { onConflict: 'body' });
-    if (!error) { log(`✅ ${item.word} → ${item.suggested_domain}`); queue.splice(i, 1); }
-  }
-  loadStats();
-  renderQueue();
-}
-
-function renderQueue() {
-  const container = document.getElementById('queueContainer');
-  const confirmAllBtn = document.getElementById('confirmAllBtn');
-  if (!queue.length) {
-    container.innerHTML = '<div class="queue-empty">Queue empty. Hunt a URL or fetch an API.</div>';
-    confirmAllBtn.style.display = 'none';
-    return;
-  }
-  confirmAllBtn.style.display = 'inline-block';
-  container.innerHTML = queue.map((item, i) => `
-    <div class="queue-item">
-      <span class="word">${item.word}</span>
-      <span class="suggested">AI: <strong>${item.suggested_domain}</strong></span>
-      <span class="confidence">${Math.round(item.confidence * 100)}%</span>
-      <select id="domain-select-${i}">${DOMAIN_LIST.map(d => `<option value="${d}" ${d === item.suggested_domain ? 'selected' : ''}>${d}</option>`).join('')}</select>
-      <button class="confirm" id="confirmBtn-${i}">✓</button>
-      <button class="skip" id="skipBtn-${i}">✕</button>
+  <!-- Top Bar -->
+  <header id="topBar">
+    <div class="hermes-icon">🪶</div>
+    <div class="mission-status">
+      <span class="mission-label">MISSION:</span>
+      <span id="missionTitle">Loading...</span>
     </div>
-  `).join('');
-  for (let i = 0; i < queue.length; i++) {
-    document.getElementById(`confirmBtn-${i}`).onclick = () => confirmWord(i);
-    document.getElementById(`skipBtn-${i}`).onclick = () => skipWord(i);
-  }
-}
+    <div class="token-counter">
+      <span class="token-icon">🎯</span>
+      <span id="tokenCount">0</span> tokens found
+    </div>
+    <div class="deck-stats">
+      <span>🃏 <span id="deckSize">0</span> cards</span>
+      <span>✧ <span id="confidenceLevel">0</span>% confidence</span>
+    </div>
+  </header>
 
-// ═══════════════════════════════════════
-// SEED
-// ═══════════════════════════════════════
-async function seedDomains() {
-  log('🌱 Seeding 12 domains...');
-  const batch = [];
-  for (const [domain, words] of Object.entries(DOMAIN_SEEDS)) {
-    for (const w of words) {
-      batch.push({ body: w, domain, word_type: 'S', score: 85, source: 'seed', created_at: new Date().toISOString() });
-    }
-  }
-  const { error } = await sb.from('tokens').upsert(batch, { onConflict: 'body' });
-  if (error) { log(`❌ ${error.message}`); return; }
-  log(`✅ Seeded ${batch.length} tokens`);
-  loadStats();
-}
+  <!-- Main Layout -->
+  <div id="mainLayout">
+    
+    <!-- Left: Deck & Hand -->
+    <aside id="deckPanel">
+      <div class="panel-header">🃏 THE DECK</div>
+      
+      <div class="section">
+        <div class="section-title">CURRENT HAND</div>
+        <div id="handDisplay" class="card-hand"></div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">DECK</div>
+        <div id="deckDisplay" class="card-list"></div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">DISCARD</div>
+        <div id="discardDisplay" class="card-list"></div>
+      </div>
+      
+      <button id="drawBtn" class="hermes-btn" onclick="Hermes.drawHand()">
+        🃏 DRAW HAND
+      </button>
+      <button id="playBtn" class="hermes-btn primary" onclick="Hermes.playSequence()">
+        ▶ PLAY SEQUENCE
+      </button>
+      <button id="evolveBtn" class="hermes-btn" onclick="Hermes.evolveDeck()">
+        🔄 EVOLVE DECK
+      </button>
+    </aside>
 
-// ═══════════════════════════════════════
-// PRELOAD
-// ═══════════════════════════════════════
-async function preloadModel() {
-  try { await getExtractor(); await getCentroids(); }
-  catch (e) {
-    log(`⚠️ Model offline: ${e.message}`);
-    document.getElementById('modelBadge').textContent = 'model offline';
-    document.getElementById('modelBadge').classList.remove('loading');
-  }
-}
+    <!-- Center: Browser Viewport -->
+    <main id="browserPanel">
+      <div class="browser-chrome">
+        <div class="browser-dots">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+        </div>
+        <input type="text" id="urlBar" class="url-bar" 
+               value="https://example.com" 
+               onkeydown="if(event.key==='Enter') Hermes.navigateTo(document.getElementById('urlBar').value)">
+        <button class="go-btn" onclick="Hermes.navigateTo(document.getElementById('urlBar').value)">GO</button>
+      </div>
+      <div id="viewport">
+        <iframe id="browserFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+        <div id="viewportOverlay">
+          <div id="hermesCursor">🪶</div>
+        </div>
+      </div>
+    </main>
 
-// ═══════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════
-loadTelos();
-loadStats();
-preloadModel();
+    <!-- Right: Hermes Log -->
+    <aside id="logPanel">
+      <div class="panel-header">📜 HERMES SPEAKS</div>
+      <div id="hermesLog" class="log-stream"></div>
+      <div class="log-input-row">
+        <input type="text" id="hermesInput" 
+               placeholder="Speak to Hermes..." 
+               onkeydown="if(event.key==='Enter') Hermes.respondTo(document.getElementById('hermesInput').value)">
+      </div>
+    </aside>
 
-document.getElementById('huntBtn').onclick = huntUrl;
-document.getElementById('edgeFetchBtn').onclick = edgeFetchApi;
-document.getElementById('edgeFetchRepoBtn').onclick = edgeFetchRepo;
-document.getElementById('seedBtn').onclick = seedDomains;
-document.getElementById('urlInput').addEventListener('keydown', e => { if (e.key === 'Enter') huntUrl(); });
-document.getElementById('edgeUrlInput').addEventListener('keydown', e => { if (e.key === 'Enter') edgeFetchApi(); });
+  </div>
+</div>
 
-log('⚡ Hermes v11 ready. Edge Functions + CORS proxy + AI classifier.');
-</script>
+<script type="module" src="main.js"></script>
 </body>
 </html>
